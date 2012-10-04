@@ -1,0 +1,9 @@
+# view AndroidManifest.xml #generated:24
+-keep class netinf.android.AndroidNetInfActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:18
+-keep class netinf.android.AndroidNetInfApplication { <init>(...); }
+
+# view AndroidManifest.xml #generated:35
+-keep class netinf.android.DisplayResult { <init>(...); }
+
