@@ -16,6 +16,14 @@
 
 package netinf.android.LISA.message;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
+import org.xmlpull.v1.XmlSerializer;
+
+import android.util.Log;
+import android.util.Xml;
+
 /**
  * The Message class, which contains the representation of the message that we
  * intend to send and receive to the server. 
@@ -49,9 +57,35 @@ public class Message {
 	 * 				 true  if creating the XML succeeded
 	 */
 	
-	public boolean createXmlMessage() {
+	public StringWriter createXmlMessage() {
+		XmlSerializer serializer = Xml.newSerializer();
+		StringWriter sw = new StringWriter();
 		
-		return true;
+		try {
+	    serializer.setOutput(sw);
+	    serializer.startDocument("UTF-8", true);
+	    serializer.startTag("", "LISA Message");
+	    serializer.attribute("", "string", this.tempMessage);
+	    serializer.endTag("", "LISA Message");
+	    serializer.endDocument();
+    }
+		catch (IllegalArgumentException e) {
+	    // TODO Auto-generated catch block
+			Log.d("XMLSerializer", "Illegal Argument");
+	    e.printStackTrace();
+    }
+		catch (IllegalStateException e) {
+	    // TODO Auto-generated catch block
+			Log.d("XMLSerializer", "Illegal State");
+	    e.printStackTrace();
+    }
+		catch (IOException e) {
+	    // TODO Auto-generated catch block
+			Log.d("XMLSerializer", "IO Exception");
+	    e.printStackTrace();
+    }
+				
+		return sw;
 	}
 	
 	/**
@@ -61,7 +95,7 @@ public class Message {
 	 * 				 true  if parsing the XML succeeded
 	 */
 	public boolean parseXmlMessage() {
-		
+				
 		return true;
 	}
 }
