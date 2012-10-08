@@ -8,7 +8,7 @@
     <string name="text_host_default">130.238.15.222</string>
 
     <string name="text_message_hint">Message</string>
-	<string name="text_message_default">\?echo=great_success</string>
+	<string name="text_message_default">\?echo=reverse_this_string</string>
     
     <string name="text_port_hint">Port</string>
     <string name="text_port_default">1055</string>
