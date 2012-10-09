@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 
-/*This is an uncommented class*/
+/*This is an uncommented class lalalalalala*/
 public class MainActivity extends Activity {
 
     @Override
