@@ -31,7 +31,7 @@ public class LisaXmlParser extends DefaultHandler {
 			parser.nextTag();
 			readFeed(parser);
 			/* gerrit test */
-			/* testinasdasdgaZ */
+			/* testinasdasdasdadasdasdgaZ */
 		}
 		finally {
 			in.close();
