@@ -30,6 +30,7 @@ public class LisaXmlParser extends DefaultHandler {
 			parser.setInput(in, null);
 			parser.nextTag();
 			readFeed(parser);
+			/* gerrit test */
 		}
 		finally {
 			in.close();
