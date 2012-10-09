@@ -49,67 +49,11 @@ public class Message {
 		tempMessage = string;
 	}
 	
-	/**
-	 * This function creates a new XML element based on the string that was set
-	 * previously.
-	 * @return false if creating the XML failed,
-	 * 				 true  if creating the XML succeeded
-	 */
-/* CLEAN VERSION
-  	public boolean createXmlMessage() {
- 
-		XmlSerializer serializer = Xml.newSerializer();
-		StringWriter sw = new StringWriter();
-		
-		serializer.setOutput(sw);
-    serializer.startDocument("UTF-8", true);
-		serializer.startTag("", "message");
-    serializer.attribute("", "string", this.tempMessage);
-    serializer.endTag("", "message");
-    serializer.endDocument();
-		
-		return true;
-	}	
-*/
-	
-	public StringWriter createXmlMessage() {
-		XmlSerializer serializer = Xml.newSerializer();
-		StringWriter sw = new StringWriter();
-		
-		try {
-	    serializer.setOutput(sw);
-	    serializer.startDocument("UTF-8", true);
-	    serializer.startTag("", "message");
-	    serializer.attribute("", "string", this.tempMessage);
-	    serializer.endTag("", "message");
-	    serializer.endDocument();
-    }
-		catch (IllegalArgumentException e) {
-	    // TODO Auto-generated catch block
-			Log.d("XMLSerializer", "Illegal Argument");
-	    e.printStackTrace();
-    }
-		catch (IllegalStateException e) {
-	    // TODO Auto-generated catch block
-			Log.d("XMLSerializer", "Illegal State");
-	    e.printStackTrace();
-    }
-		catch (IOException e) {
-	    // TODO Auto-generated catch block
-			Log.d("XMLSerializer", "IO Exception");
-	    e.printStackTrace();
-    }
-				
-		return sw;
+	public String getMessage() {
+		return tempMessage;
 	}
-	/**
-	 * This function parses an XML element, storing its information in the
-	 * classes' variables 
-	 * @return false if parsing the XML failed,
-	 * 				 true  if parsing the XML succeeded
-	 */
-	public boolean parseXmlMessage() {
-		
-		return true;
+	
+	public void setMessage(String message) {
+		tempMessage = message;
 	}
 }
