@@ -8,12 +8,14 @@
     <string name="text_host_default">130.238.15.222</string>
 
     <string name="text_message_hint">Message</string>
-	<string name="text_message_default">\?echo=reverse_this_string</string>
+	<string name="text_message_default">123</string>
     
     <string name="text_port_hint">Port</string>
     <string name="text_port_default">1055</string>
     
-    <string name="button_get">GET</string>
+    <string name="server_response">Server Response</string>
+    
+    <string name="button_get">SEND</string>
     
     <string name="button_clear">Clear Log</string>
 

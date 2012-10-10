@@ -15,6 +15,9 @@ import android.widget.EditText;
  */
 public class HttpActivity extends Activity {
 	
+	/** Prefix that is concatenated to the String that is to the server **/
+	private final String PREFIX = "?io=";
+	
 	/** Debug Log Tag. **/
 	private static final String TAG = "HttpActivity";
 	
@@ -74,7 +77,7 @@ public class HttpActivity extends Activity {
     	
     	String host = textHost.getText().toString();
     	int port = Integer.parseInt((textPort.getText().toString()));
-    	String message = textMessage.getText().toString();
+    	String message = PREFIX + textMessage.getText().toString();
     	
     	HttpGetTask get = new HttpGetTask(this, host, port, message);
     	
