@@ -31,6 +31,7 @@ import android.util.Xml;
  */
 public class Message {
 	public String tempMessage;			/* message */
+	/* testing one thing */
 	
 	/**
 	 * Empty message constructor
