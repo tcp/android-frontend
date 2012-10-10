@@ -27,8 +27,8 @@ import android.util.Xml;
  * The Message class, which contains the representation of the message that we
  * intend to send and receive to the server. 
  * @author Thiago Costa Porto
+ * @author Paolo Boschini
  */
-
 public class Message {
 	public String tempMessage;			/* message */
 	
