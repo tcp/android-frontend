@@ -29,7 +29,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="project.cs.lisa.wifi.WifiActivity"></activity>
+        <activity android:name="project.cs.lisa.wifi.WifiActivity">
+            <intent-filter>
+                <action android:name="android.net.wifi.SCAN_RESULTS"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

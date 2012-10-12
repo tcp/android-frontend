@@ -29,6 +29,7 @@ public class WifiHandler {
 		wifiMgr  = getWifiManager(context);		// gets wifiMgr in the current context 
 		wifiInfo = getWifiInfo(context);			// gets wifiInfo in the current context
 		wifiConf = getWifiConf(context);			// gets wifiConf in the current context
+		wifiScan = getWifiInRange();					// gets wifiScan in the current context
  }
 
 	/**
@@ -138,11 +139,11 @@ public class WifiHandler {
 	 * Function getWifiInRange returns all the WiFi networks that are
 	 * accessible through the access point (device AP) found during the
 	 * last scan.
-	 * @param context
+	 * @param wifi
 	 * @return List of ScanResult containing information on all WiFi networks
 	 * 				 discovered in the range.
 	 */
-	public List<ScanResult> getWifiInRange(Context context) {
+	public List<ScanResult> getWifiInRange() {
 		// gets ~last~ list of WiFi networks accessible through the access point.
 		return (wifiScan = (List<ScanResult>) wifiMgr.getScanResults());
 	}
