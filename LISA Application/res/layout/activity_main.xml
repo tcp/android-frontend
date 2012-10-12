@@ -107,4 +107,22 @@
         android:onClick="onClick"
         android:text="@string/button_clear" />
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textServerResponseHint"
+        android:layout_alignTop="@+id/buttonClear"
+        android:layout_toLeftOf="@+id/textHost" />
+
+    <Button
+        android:id="@+id/button1"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/textView3"
+        android:layout_alignTop="@+id/textView3"
+        android:onClick="onClickWifi"
+        android:text="@string/text_wifi_config" />
+
 </RelativeLayout>

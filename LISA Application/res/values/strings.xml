@@ -18,5 +18,8 @@
     <string name="button_get">SEND</string>
     
     <string name="button_clear">Clear Log</string>
+    <string name="text_wifi_state">WiFi connection</string>
+    <string name="text_wifi_connected">WiFi connection</string>
+    <string name="text_wifi_config">WiFi Settings</string>
 
 </resources>

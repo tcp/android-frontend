@@ -1,13 +1,19 @@
 package project.cs.lisa.connection;
 
 import project.cs.lisa.R;
+import project.cs.lisa.wifi.WifiActivity;
+import project.cs.lisa.wifi.WifiHandler;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 /**
  * HttpGetActivity allows you to send a HTTP GET and display the response.
@@ -23,7 +29,7 @@ public class HttpActivity extends Activity {
 	
 //	/** Receiver. **/
 //	private BroadcastReceiver mReceiver;
-	
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,5 +108,16 @@ public class HttpActivity extends Activity {
 //    	EditText log = (EditText) findViewById(R.id.textLog);
 //    	log.setText(text);
 //    }
+    
+    public void onClickWifi(View view) {
+    	Button wifi_button = (Button) findViewById(R.id.button1);
+    	wifi_button.setOnClickListener(new OnClickListener() {
+    		public void onClick(View v) {
+    			//setContentView(R.layout.activity_wifi);
+    		}
+    	});
+    	Intent intent = new Intent(this, WifiActivity.class);
+    	startActivity(intent);
+    }
     
 }

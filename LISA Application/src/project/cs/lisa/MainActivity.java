@@ -3,10 +3,11 @@ package project.cs.lisa;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.widget.TextView;
 
-/*This is an uncommented class lalalalalala*/
 public class MainActivity extends Activity {
-
+  TextView mTextView;
+  
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
