@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.example.transmission.R;
 
-// TODO: Auto-generated Javadoc
 /**
  * The BluetoothActivity is the main activity that
  * represents the server side.
