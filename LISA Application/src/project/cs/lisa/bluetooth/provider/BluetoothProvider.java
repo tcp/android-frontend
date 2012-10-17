@@ -1,6 +1,21 @@
+/**
+
+ * Uppsala University
+ *
+ * Project CS course, Fall 2012
+ *
+ * Projekt DV/Project CS, is a course in which the students develop software for
+ * distributed systems. The aim of the course is to give insights into how a big
+ * project is run (from planning to realization), how to construct a complex
+ * distributed system and to give hands-on experience on modern construction
+ * principles and programming methods.
+ *
+ * All rights reserved.
+ *
+ * Copyright (C) 2012 LISA team
+ */
 package project.cs.lisa.bluetooth.provider;
 
-import project.cs.lisa.bluetooth.server.BluetoothService.ConnectedThread;
 import project.cs.lisa.bluetooth.threads.ConnectBluetoothThread;
 import project.cs.lisa.bluetooth.threads.ConnectedBluetoothThread;
 import android.bluetooth.BluetoothDevice;
@@ -11,6 +26,7 @@ import android.os.Handler;
  * The BluetoothProvider handles data transmission via bluetooth.
  * 
  * @author ktran
+ * @author Paolo Boschini
  *
  */
 public class BluetoothProvider implements ByteArrayProvider {
@@ -31,29 +47,25 @@ public class BluetoothProvider implements ByteArrayProvider {
      * using the hash value of the requested object and receiving
      * the byte stream of the corresponding object.
      */
-    private ConnectedThread mConnectedThread;
+    private ConnectedBluetoothThread mConnectedThread;
 
-    /**
-     * TODO _Paolo Probably old comment?
-     * Handler for scheduling messages between threads. Right now used
-     * when Bluetooth actions take place (transfer a file or updating
-     * the status of the connection with another device).
-     */
-    private Handler mHandler;
-
+    /** Handler for managing Bluetooth connection status. */
+    private Handler mBluetoothHandler;
+    
     /**
      * Default constructor.
      */
-    public BluetoothProvider(Handler handler) {
-        mHandler = handler;
+    public BluetoothProvider() {
+        /** Handler for managing Bluetooth connection status. */
+        mBluetoothHandler = new BluetoothConnectionHandler(this);
     }
 
     /**
      * Start the ConnectBluetoothThread to initiate a connection to a remote device.
-     * @param device  The BluetoothDevice to connect to found by a discovery scanning
+     * @param device  The BluetoothDevice to connect to found by a previous discovery scanning
      */
     public synchronized void connect(BluetoothDevice device) {
-        mConnectThread = new ConnectBluetoothThread(device);
+        mConnectThread = new ConnectBluetoothThread(mBluetoothHandler, device);
         mConnectThread.start();
     }
 
@@ -62,8 +74,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param socket  The BluetoothSocket on which the connection was made
      * @param device  The BluetoothDevice that has been connected to
      */
-    public synchronized void connected(BluetoothSocket socket, BluetoothDevice
-            device) {
+    public synchronized void connected(BluetoothSocket socket) {
 
         /** Update the UI with the device name.
          * This should be fixed with some class that updates the ui.
@@ -77,7 +88,7 @@ public class BluetoothProvider implements ByteArrayProvider {
          * and it will block reading from the stream until the other device
          * responds.
          */
-        mConnectedThread = new ConnectedBluetoothThread(socket);
+        mConnectedThread = new ConnectedBluetoothThread(mBluetoothHandler, socket);
         mConnectedThread.start();
 
         String message = "ready";
@@ -85,21 +96,33 @@ public class BluetoothProvider implements ByteArrayProvider {
         mConnectedThread.write(out);
     }
 
+    /**
+     * Fill please.
+     * @param   locator     A locator.
+     * @param   hash        A hash
+     * @return A byte array? 
+     */
     @Override
     public byte[] getByteArray(String locator, String hash) {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * Fill please.
+     * @param   locator     A locator.
+     * @return  Can handle what?
+     */
     @Override
     public boolean canHandle(String locator) {
-        // TODO Auto-generated method stub
         return false;
     }
 
+    /**
+     * Fill please.
+     * @return A description of this provider? 
+     */
     @Override
     public String describe() {
-        // TODO Auto-generated method stub
         return null;
     }
 }

@@ -71,8 +71,8 @@ public class ConnectedBluetoothThread extends Thread {
 	 * The remote device's address.
 	 */
 	private String mClientAddress;
-	
-	/**
+
+    /**
 	 * Creates a new thread dealing with reading and writing data.
 	 * 
 	 * @param myBtSocket The Bluetooth socket used for the data transfer.

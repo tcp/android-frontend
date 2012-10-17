@@ -3,6 +3,7 @@ package project.cs.lisa.bluetooth.threads;
 import java.io.IOException;
 import java.util.UUID;
 
+import project.cs.lisa.bluetooth.provider.BluetoothConnectionHandler;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
@@ -35,12 +36,20 @@ public class ConnectBluetoothThread extends Thread {
     private static final UUID MY_UUID = UUID
             .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
+    /** Handler for managing Bluetooth connection status. */
+    private Handler mBluetoothHandler;
+
+    /** Constants that indicate the current connection state. */
+    public static final int STATE_CONNECTING = 0;
+    public static final int STATE_CONNECTED = 1;
+
     /**
      * Instantiate a new ConnectBluetoothThread.
      * @param device The remote device we are going to establish a connection with. 
      */
-    public ConnectBluetoothThread(BluetoothDevice device) {
+    public ConnectBluetoothThread(Handler bluetoothHandler, BluetoothDevice device) {
         BluetoothSocket tmp = null;
+        mBluetoothHandler = bluetoothHandler;
 
         /** Get a BluetoothSocket for a connection with the given BluetoothDevice. */
         try {
@@ -66,6 +75,9 @@ public class ConnectBluetoothThread extends Thread {
             Log.d(TAG, "##################################");
             Log.d(TAG, "Trying to connect to a device through a socket...");
             Log.d(TAG, "##################################");
+            mBluetoothHandler.obtainMessage(
+                    BluetoothConnectionHandler.MESSAGE_CONNECTIONS_STATUS,
+                    STATE_CONNECTING, -1, mSocket).sendToTarget();
             mSocket.connect();
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,9 +93,12 @@ public class ConnectBluetoothThread extends Thread {
         }
 
         /**
-         * A handler should sent back a confirmation message to the Bluetooth Provider.
+         * A handler should sent back a confirmation message to the Bluetooth Provider
+         * when the socket has been connected.
          */
-        connected(mmSocket, mmDevice);
+        mBluetoothHandler.obtainMessage(
+                BluetoothConnectionHandler.MESSAGE_CONNECTIONS_STATUS,
+                STATE_CONNECTED, -1, mSocket).sendToTarget();
     }
 
     /**
