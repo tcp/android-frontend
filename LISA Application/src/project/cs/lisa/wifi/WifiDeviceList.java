@@ -80,10 +80,6 @@ public class WifiDeviceList extends Activity {
         // Activity result
         setResult(Activity.RESULT_CANCELED);
 
-        // set up toggle buttons
-        checkInitialWifiToggle();
-        checkInitialBTToggle();
-        
         // set up scan button
         Button scanButton = (Button) findViewById(R.id.wifi_scan_button);
         scanButton.setOnClickListener(new OnClickListener() {
@@ -110,6 +106,11 @@ public class WifiDeviceList extends Activity {
         discoveredWifiListView.setAdapter(mDiscoveredWifiAdapter);
         discoveredWifiListView.setOnItemClickListener(mDeviceClickListener);
         Log.d(TAG, "Adapters set");
+        
+        // set up toggle buttons
+        checkInitialWifiToggle();
+        checkInitialBTToggle();
+        Log.d(TAG, "Buttons set");
     }
 
     @Override
@@ -189,6 +190,7 @@ public class WifiDeviceList extends Activity {
             toggleButton.setChecked(false);
         } else {
             toggleButton.setChecked(true);
+            Log.d(TAG, "Bluetooth is enabled");
             if (!mBluetoothAdapter.isEnabled()) {
                 // Bluetooth is not enable :)
                 Log.d(TAG, "Bluetooth is disabled");
@@ -243,7 +245,7 @@ public class WifiDeviceList extends Activity {
         }
     }
     
-    public void onToggleClickedBT(View view) {
+    public void onToggleBTClicked(View view) {
         // Toggle Button
         boolean toggleOn = ((ToggleButton) view).isChecked();
         Log.d("WiFi Activity", "BT Toggle Response: " + toggleOn);
@@ -254,37 +256,24 @@ public class WifiDeviceList extends Activity {
         if (toggleOn) {
             if (mBluetoothAdapter.enable()) {
                 Log.d(TAG, "Began BT startup");
-                iFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+                ((ToggleButton) view).setChecked(false);
+                iFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
                 registerReceiver(mReceive, iFilter);
                 Log.d(TAG, "Listening for BT state changes");
             }
             else {
-                
-            }
-            // Changes button if BT is disconnected
-            if (!wifi.enableWifi()) {
-                Log.d("WiFi Activity", "Failed to enable WiFi");
+                Log.d(TAG, "Unable to begin BT startup");
                 ((ToggleButton) view).setChecked(false);
-                mConnectedWifiTextView.setText("Not connected");
-                mDiscoveredWifiAdapter.clear();
-            }
-            else {
-                // Wifi connected but we havent accessed wifiInfo yet.
-                Log.d("WiFi Activity", "WiFi enabled");
-                ((ToggleButton) view).setChecked(true);
-                mConnectedWifiTextView.setText("Not connected");
             }
         }
         else {
-            if (!wifi.disableWifi()) {
-                Log.d("WiFi Activity", "Failed to disable WiFi");
-                ((ToggleButton) view).setChecked(true);
+            if (mBluetoothAdapter.disable()) {
+                Log.d(TAG, "Shutting down BT");
+                ((ToggleButton) view).setChecked(false);
             }
             else {
-                Log.d("WiFi Activity", "WiFi disabled");
-                ((ToggleButton) view).setChecked(false);
-                mConnectedWifiTextView.setText("Not connected");
-                mDiscoveredWifiAdapter.clear();
+                Log.d(TAG, "BT forced enabled");
+                ((ToggleButton) view).setChecked(true);
             }
         }
     }
@@ -354,9 +343,16 @@ public class WifiDeviceList extends Activity {
             else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 Log.d(TAG, "BT Action State Changed!");
                 if (mBluetoothAdapter.isEnabled()) {
+                    Log.d(TAG, "Enabling BT");
                     ToggleButton toggleButtonBT = (ToggleButton) findViewById(R.id.toggleButtonBT);
                     toggleButtonBT.setChecked(true);
                     Log.d(TAG, "BT Button should be enabled");
+                }
+                else {
+                    Log.d(TAG, "Disabling BT");
+                    ToggleButton toggleButtonBT = (ToggleButton) findViewById(R.id.toggleButtonBT);
+                    toggleButtonBT.setChecked(false);
+                    Log.d(TAG, "BT Button should be disabled");
                 }
             }
         }

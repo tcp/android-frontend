@@ -24,5 +24,6 @@
     <string name="text_available_networks">Available Networks</string>
     <string name="text_scan_for_wifi">Scan for Wifi Networks</string>
     <string name="text_BT_Connected">Bluetooth Connection</string>
+    <string name="text_BT_connection">Bluetooth Connection</string>
 
 </resources>
