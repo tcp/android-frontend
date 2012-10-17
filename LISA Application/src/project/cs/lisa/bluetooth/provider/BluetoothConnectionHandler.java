@@ -1,5 +1,8 @@
 package project.cs.lisa.bluetooth.provider;
 
+import java.util.Hashtable;
+
+import project.cs.lisa.bluetooth.server.BluetoothService.ConnectedThread;
 import project.cs.lisa.bluetooth.threads.ConnectBluetoothThread;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
@@ -11,12 +14,6 @@ import android.os.Message;
  *
  */
 public class BluetoothConnectionHandler extends Handler {
-
-    /** Debug tag. */
-    private static final String TAG = "BluetoothConnectionHandler";
-
-    /** Bluetooth provider for managing communication over threads. */
-    private BluetoothProvider mBluetoothProvider;
 
     /** Message for getting the device name. */
     public static final int MESSAGE_DEVICE_NAME = 0;
@@ -32,6 +29,18 @@ public class BluetoothConnectionHandler extends Handler {
 	
 	/** Message for getting the bluetooth socket to a paired device. */
 	public static final int MESSAGE_BLUETOOTH_SOCKET = 4;
+	
+    /** Debug tag. */
+    private static final String TAG = "BluetoothConnectionHandler";
+
+    /** Bluetooth provider for managing communication over threads. */
+    private BluetoothProvider mBluetoothProvider;
+    
+	/**
+	 * The current collection containing all current ongoing 
+	 * connections via ConnectedThread objects.
+	 */
+	private Hashtable<String, ConnectedThread> mConnectedThreadsCollection;
 
     /**
      * Default constructor.
@@ -60,6 +69,12 @@ public class BluetoothConnectionHandler extends Handler {
                 break;
             }
             break;
+        case MESSAGE_READ:
+        	break;
+        case MESSAGE_WRITE:
+        	break;
+        case MESSAGE_BLUETOOTH_SOCKET:
+        	break;
 //        case MESSAGE_WRITE:
 //            byte[] writeBuf = (byte[]) msg.obj;
 //            // construct a string from the buffer
