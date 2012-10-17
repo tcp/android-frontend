@@ -256,7 +256,10 @@ public class WifiDeviceList extends Activity {
         if (toggleOn) {
             if (mBluetoothAdapter.enable()) {
                 Log.d(TAG, "Began BT startup");
+<<<<<<< HEAD
                 ((ToggleButton) view).setChecked(false);
+=======
+>>>>>>> bf7f4e3e32a13a40dc0d26da7989941aa41e6591
                 iFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
                 registerReceiver(mReceive, iFilter);
                 Log.d(TAG, "Listening for BT state changes");
