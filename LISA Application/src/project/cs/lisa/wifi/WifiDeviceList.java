@@ -342,11 +342,21 @@ public class WifiDeviceList extends Activity {
             }
             else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 Log.d(TAG, "BT Action State Changed!");
+                //Log.d(TAG, "" + action);
                 if (mBluetoothAdapter.isEnabled()) {
                     Log.d(TAG, "Enabling BT");
                     ToggleButton toggleButtonBT = (ToggleButton) findViewById(R.id.toggleButtonBT);
-                    toggleButtonBT.setChecked(true);
-                    Log.d(TAG, "BT Button should be enabled");
+                    if (mBluetoothAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+                        toggleButtonBT.setChecked(true);
+                        Log.d(TAG, "BT Button should be enabled");
+                    }
+                    else {
+                        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 120);
+                        startActivity(discoverableIntent);
+                        toggleButtonBT.setText("Not Discoverable");
+                        Log.d(TAG, "BT is not discoverable!");
+                    }
                 }
                 else {
                     Log.d(TAG, "Disabling BT");
