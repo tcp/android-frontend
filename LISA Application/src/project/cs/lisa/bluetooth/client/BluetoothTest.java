@@ -49,7 +49,7 @@ public class BluetoothTest extends Activity {
     private BroadcastReceiver mBroadcastReceiver;
     
     /**
-     * Instance of BluetoothService for managing bluetooth connection and bluetooth transfers.
+     * Instance of BluetoothService for managing bluetooth connection and bluetooth transfers..
      */
     private BluetoothService mBluetoothService; 
     

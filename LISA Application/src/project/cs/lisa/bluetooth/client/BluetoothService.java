@@ -30,7 +30,7 @@ public class BluetoothService {
      * with the SDP server for that device. A client application trying to find a
      * specific service would query the SDP server on each device it finds to see
      * if the device offers any services with that same UUID. The following UUID
-     * was generated using http://www.famkruithof.net/uuid/uuidgen.
+     * was generated using http://www.famkruithof.net/uuid/uuidgen..
      */
     private static final UUID MY_UUID = UUID
             .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
