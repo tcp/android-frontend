@@ -102,6 +102,20 @@ public class AcceptBluetoothThread extends Thread {
 	}
 	
 	/**
+	 * Shuts down the current server client connection.
+	 */
+	public void cancel() {
+		try {
+			Log.d(TAG, "Close BluetoothServerSocket. Stop listening.");
+			
+			mServerListens = false;
+			mBtServerSocket.close();
+		} catch (IOException e) {
+			Log.d(TAG, "Error while closing Bluetooth socket");
+		}
+	}
+	
+	/**
 	 * Starts a thread for handling the incoming request.
 	 * 
 	 * @param socket The Bluetooth socket that was established for communication.
@@ -111,5 +125,6 @@ public class AcceptBluetoothThread extends Thread {
 		Log.d(TAG, "Client address: " + clientAddress);
 		//TODO: sending the socket to a connectedthread
 	}
+	
 	
 }
