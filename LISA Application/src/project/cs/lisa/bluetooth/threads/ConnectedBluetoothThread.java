@@ -143,7 +143,7 @@ public class ConnectedBluetoothThread extends Thread {
 		
 			mHandler.obtainMessage(
 					BluetoothActivity.MESSAGE_WRITE, 
-					TransmissionStatus.SUCCESS.ordinal(), -1, mClientAddress)
+					TransmissionStatus.SUCCEED.ordinal(), -1, mClientAddress)
 					.sendToTarget();
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
