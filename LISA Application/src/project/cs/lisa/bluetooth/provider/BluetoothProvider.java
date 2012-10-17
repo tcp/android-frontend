@@ -4,7 +4,7 @@ package project.cs.lisa.bluetooth.provider;
  * The BluetoothProvider handles data transmission via bluetooth.
  * 
  * @author ktran
- *
+ *fvdv
  */
 public class BluetoothProvider implements ByteArrayProvider {
 
