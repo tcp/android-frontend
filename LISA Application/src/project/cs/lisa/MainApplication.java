@@ -3,7 +3,7 @@ package project.cs.lisa;
 import java.io.IOException;
 import java.util.Properties;
 
-import project.cs.lisa.netinf.NetInfModule;
+import project.cs.lisa.netinf.Module;
 import android.app.Application;
 import android.util.Log;
 
@@ -26,7 +26,7 @@ public class MainApplication extends Application {
         } catch (IOException e) {
         	Log.e(TAG, e.toString(), e);
         }
-        mInjector = Guice.createInjector(new NetInfModule(mProperties));
+        mInjector = Guice.createInjector(new Module(mProperties));
     }
 	
     public Properties getProperties() {

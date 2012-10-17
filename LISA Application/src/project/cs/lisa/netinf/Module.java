@@ -1,18 +1,17 @@
 package project.cs.lisa.netinf;
 
-import java.lang.reflect.Array;
 import java.util.Properties;
 
 import netinf.node.api.NetInfNode;
 import netinf.node.api.impl.NetInfNodeImpl;
 import netinf.node.resolution.ResolutionService;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
-
-import org.apache.commons.lang.ArrayUtils;
 
 public class Module extends AbstractModule  {
 
