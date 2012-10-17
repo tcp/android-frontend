@@ -1,8 +1,8 @@
 package project.cs.lisa.bluetooth.provider;
 
-import project.cs.lisa.MainActivity;
 import project.cs.lisa.bluetooth.server.BluetoothService.ConnectedThread;
 import project.cs.lisa.bluetooth.threads.ConnectBluetoothThread;
+import project.cs.lisa.bluetooth.threads.ConnectedBluetoothThread;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
