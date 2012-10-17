@@ -20,8 +20,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import project.cs.lisa.bluetooth.TransmissionStatus;
+import project.cs.lisa.bluetooth.server.BluetoothActivity;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 /**
@@ -39,10 +43,10 @@ public class ConnectedBluetoothThread extends Thread {
     private static final String TAG = "ConnectedThread";
     
     /**
-     * 
+     * The read buffer size.
      */
     private static final int BUFFER_SIZE = 1024;
-    
+
     /**
      * Bluetooth Socket enabling the connection to the remote device.
      */
@@ -57,6 +61,11 @@ public class ConnectedBluetoothThread extends Thread {
 	 * Output Stream used for writing data.
 	 */
 	private final DataOutputStream mOutStream;
+
+    /**
+     * The Handler we communicate the results to.
+     */
+	private Handler mHandler;
 	
 	/**
 	 * The remote device's address.
@@ -68,9 +77,11 @@ public class ConnectedBluetoothThread extends Thread {
 	 * 
 	 * @param myBtSocket The Bluetooth socket used for the data transfer.
 	 */
-	public ConnectedBluetoothThread(BluetoothSocket myBtSocket) {
+	public ConnectedBluetoothThread(Handler myHandler, BluetoothSocket myBtSocket) {
 		mBtSocket = myBtSocket;
 		mClientAddress = mBtSocket.getRemoteDevice().getAddress();
+		
+		mHandler = myHandler;
 		
 		DataInputStream tmpIn = null;
 		DataOutputStream tmpOut = null;			
@@ -106,11 +117,9 @@ public class ConnectedBluetoothThread extends Thread {
 				bundle.putInt("size", bytes);
 				bundle.putByteArray("data", buffer);
 				
-				/* TODO: Let who know? 
 				Message msg = mHandler.obtainMessage(BluetoothActivity.MESSAGE_READ);
 				msg.setData(bundle);		
 				msg.sendToTarget();
-				*/
 				
 			} catch (IOException e) {
 				Log.d(TAG, "Error while receiving incoming file.");
@@ -132,16 +141,16 @@ public class ConnectedBluetoothThread extends Thread {
 			mOutStream.write(buffer, 0, buffer.length);
 			mOutStream.flush();
 		
-			/* TODO: Let who know?
 			mHandler.obtainMessage(
-					BluetoothActivity.MESSAGE_WRITE, Transmission.SUCCESS.ordinal(), -1, mClientAddress)
+					BluetoothActivity.MESSAGE_WRITE, 
+					TransmissionStatus.SUCCESS.ordinal(), -1, mClientAddress)
 					.sendToTarget();
-			*/
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
 			
-			//mHandler.obtainMessage(BluetoothActivity.MESSAGE_WRITE, Transmission.FAILED.ordinal(), -1, mClientAddress)
-			//.sendToTarget();
+			mHandler.obtainMessage(BluetoothActivity.MESSAGE_WRITE, 
+					TransmissionStatus.FAILED.ordinal(), -1, mClientAddress)
+					.sendToTarget();
 		}			
 	}
 	
@@ -157,7 +166,6 @@ public class ConnectedBluetoothThread extends Thread {
 			mInStream.close();
 			
 			mBtSocket.close();
-			//mConnectedThreadsCollection.remove(mClientAddress);
 		} catch (IOException e) {
 			Log.d(TAG, "Error while closing Bluetooth socket");
 		}

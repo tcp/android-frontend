@@ -28,6 +28,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.UUID;
 
+import project.cs.lisa.bluetooth.TransmissionStatus;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
@@ -316,13 +318,13 @@ public class BluetoothService extends Thread {
 				mOutStream.flush();
 			
 				mHandler.obtainMessage(
-						BluetoothActivity.MESSAGE_WRITE, Transmission.SUCCESS.ordinal(), -1, mClientAddress)
+						BluetoothActivity.MESSAGE_WRITE, TransmissionStatus.SUCCESS.ordinal(), -1, mClientAddress)
 						.sendToTarget();
 				
 			} catch (IOException e) {
 				Log.e(TAG, "Exception occured during writing", e);
 				
-				mHandler.obtainMessage(BluetoothActivity.MESSAGE_WRITE, Transmission.FAILED.ordinal(), -1, mClientAddress)
+				mHandler.obtainMessage(BluetoothActivity.MESSAGE_WRITE, TransmissionStatus.FAILED.ordinal(), -1, mClientAddress)
 				.sendToTarget();
 			}			
 		}
