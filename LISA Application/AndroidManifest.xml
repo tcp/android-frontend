@@ -34,7 +34,7 @@
                 <action android:name="android.net.wifi.SCAN_RESULTS"/>
             </intent-filter>
         </activity>
-        <activity android:name="project.cs.lisa.wifi.WifiDeviceList">
+        <activity android:name=".wifi.WifiDeviceList">
             <intent-filter android:label="android.net.wifi.SCAN_RESULTS">
                 <action android:name="android.net.wifi.SCAN_RESULTS"/>
             </intent-filter>
