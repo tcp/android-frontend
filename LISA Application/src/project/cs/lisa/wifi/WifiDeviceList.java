@@ -18,8 +18,6 @@ package project.cs.lisa.wifi;
 import java.util.ListIterator;
 
 import project.cs.lisa.R;
-import project.cs.lisa.file.DisplayFile;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
