@@ -1,9 +1,23 @@
+/**
+ * Uppsala University
+ * 
+ * Project CS course, Fall 2012
+ *
+ * Projekt DV/Project CS, is a course in which the students develop software for
+ * distributed systems. The aim of the course is to give insights into how a big
+ * project is run (from planning to realization), how to construct a complex 
+ * distributed system and to give hands-on experience on modern construction 
+ * principles and programming methods.
+ *
+ * All rights reserved.
+ *
+ * Copyright (C) 2012 LISA team
+ */
+
 package project.cs.lisa.connection;
 
 import project.cs.lisa.R;
-import project.cs.lisa.wifi.WifiActivity;
-import project.cs.lisa.wifi.WifiHandler;
-
+import project.cs.lisa.wifi.WifiDeviceList;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +27,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 /**
  * HttpGetActivity allows you to send a HTTP GET and display the response.
@@ -116,7 +129,7 @@ public class HttpActivity extends Activity {
     			//setContentView(R.layout.activity_wifi);
     		}
     	});
-    	Intent intent = new Intent(this, WifiActivity.class);
+    	Intent intent = new Intent(this, WifiDeviceList.class);
     	startActivity(intent);
     }
     
