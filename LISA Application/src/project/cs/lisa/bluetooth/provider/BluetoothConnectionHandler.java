@@ -29,12 +29,9 @@ public class BluetoothConnectionHandler extends Handler {
 	
 	/** Message for getting the transmission result from writing via bluetooth. */
 	public static final int MESSAGE_WRITE = 3;
-    
-    /** Response code for requesting bluetooth to be enabled */
-	private static final int REQUEST_ENABLE_BT = 0;
 	
-	/** Response code for requesting the device to be discoverable. */
-	private static final int REQUEST_DISCOVERABLE = 1;
+	/** Message for getting the bluetooth socket to a paired device. */
+	public static final int MESSAGE_BLUETOOTH_SOCKET = 4;
 
     /**
      * Default constructor.

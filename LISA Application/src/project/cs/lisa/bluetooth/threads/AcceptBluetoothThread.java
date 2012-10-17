@@ -19,9 +19,12 @@ package project.cs.lisa.bluetooth.threads;
 import java.io.IOException;
 import java.util.UUID;
 
+import project.cs.lisa.bluetooth.provider.BluetoothConnectionHandler;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -52,11 +55,19 @@ public class AcceptBluetoothThread extends Thread {
 	/** Device's Bluetooth Adapter. */
 	private BluetoothAdapter mBtAdapter;
 	
+	/** The Handler to send the bluetooth socket to. */
+	private Handler mHandler;
+	
 	/**
 	 * Creates a new AcceptBluetoothThread that waits for incoming
 	 * bluetooth requests.
+	 * 
+	 * @param myHandler The handler that should be informed about the 
+	 *                  bluetooth socket.
 	 */
-	public AcceptBluetoothThread() {
+	public AcceptBluetoothThread(Handler myHandler) {
+		mHandler = myHandler;
+		
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 		
 		BluetoothServerSocket tmp = null;
@@ -88,7 +99,8 @@ public class AcceptBluetoothThread extends Thread {
 			}
 			
 			if (socket != null) {
-				handleIncomingRequest(socket);
+				mHandler.obtainMessage(
+						BluetoothConnectionHandler.MESSAGE_BLUETOOTH_SOCKET, socket);
 			}
 		}	
 	}
@@ -105,17 +117,6 @@ public class AcceptBluetoothThread extends Thread {
 		} catch (IOException e) {
 			Log.d(TAG, "Error while closing Bluetooth socket");
 		}
-	}
-	
-	/**
-	 * Starts a thread for handling the incoming request.
-	 * 
-	 * @param socket The Bluetooth socket that was established for communication.
-	 */
-	private void handleIncomingRequest(BluetoothSocket socket) {
-		String clientAddress = socket.getRemoteDevice().getAddress();
-		Log.d(TAG, "Client address: " + clientAddress);
-		//TODO: sending the socket to a connectedthread
 	}
 	
 	

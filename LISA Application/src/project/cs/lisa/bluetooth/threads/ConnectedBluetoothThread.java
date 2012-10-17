@@ -21,7 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import project.cs.lisa.bluetooth.TransmissionStatus;
-import project.cs.lisa.bluetooth.server.BluetoothActivity;
+import project.cs.lisa.bluetooth.provider.BluetoothConnectionHandler;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,9 +84,8 @@ public class ConnectedBluetoothThread extends Thread {
 		mOutStream = tmpOut;
 	}
 	
-    /**
-     * Starts the thread for managing a connection with a remote device through Bluetooth.
-     */
+    
+    /** Starts the thread for managing a connection with a remote device through Bluetooth.*/
 	@Override
 	public void run() {
 		Log.d(TAG, "Starting to receive the incoming message");
@@ -104,7 +103,7 @@ public class ConnectedBluetoothThread extends Thread {
 				bundle.putInt("size", bytes);
 				bundle.putByteArray("data", buffer);
 				
-				Message msg = mHandler.obtainMessage(BluetoothActivity.MESSAGE_READ);
+				Message msg = mHandler.obtainMessage(BluetoothConnectionHandler.MESSAGE_READ);
 				msg.setData(bundle);		
 				msg.sendToTarget();
 				
@@ -129,22 +128,21 @@ public class ConnectedBluetoothThread extends Thread {
 			mOutStream.flush();
 		
 			mHandler.obtainMessage(
-					BluetoothActivity.MESSAGE_WRITE, 
+					BluetoothConnectionHandler.MESSAGE_WRITE, 
 					TransmissionStatus.SUCCEED.ordinal(), -1, mClientAddress)
 					.sendToTarget();
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
 			
-			mHandler.obtainMessage(BluetoothActivity.MESSAGE_WRITE, 
+			mHandler.obtainMessage(BluetoothConnectionHandler.MESSAGE_WRITE, 
 					TransmissionStatus.FAILED.ordinal(), -1, mClientAddress)
 					.sendToTarget();
 		}			
 	}
 	
 	
-	/**
-	 * Shuts down the current server client connection.
-	 */
+	
+	/** Shuts down the current server client connection.*/
 	public void cancel() {
 		try {
 			Log.d(TAG, "Closing Bluetooth socket to " + mClientAddress);
