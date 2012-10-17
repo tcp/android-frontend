@@ -20,6 +20,7 @@ import java.util.ListIterator;
 import project.cs.lisa.R;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +49,8 @@ public class WifiDeviceList extends Activity {
     // Debug Tag
     private static final String TAG = "WiFiDeviceList";
     
-    // Adapter and TextView
+    // Adapters and TextView
+    private BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mDiscoveredWifiAdapter;
     private TextView mConnectedWifiTextView;
     
@@ -78,8 +80,9 @@ public class WifiDeviceList extends Activity {
         // Activity result
         setResult(Activity.RESULT_CANCELED);
 
-        // set up toggle button
-        checkInitialToggle();
+        // set up toggle buttons
+        checkInitialWifiToggle();
+        checkInitialBTToggle();
         
         // set up scan button
         Button scanButton = (Button) findViewById(R.id.wifi_scan_button);
@@ -94,6 +97,7 @@ public class WifiDeviceList extends Activity {
         // initializing adapters
         Log.d(TAG, "Setting up Adapters");
         mDiscoveredWifiAdapter = new ArrayAdapter<String>(this, R.layout.device_name);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // listview for connected wifi network
         mConnectedWifiTextView = (TextView) findViewById(R.id.textView1);
@@ -162,7 +166,7 @@ public class WifiDeviceList extends Activity {
     /**
      * Function to check the initial state of the Toggle Button
      */
-    public void checkInitialToggle() {
+    public void checkInitialWifiToggle() {
         // Toggle Button
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
         
@@ -172,6 +176,24 @@ public class WifiDeviceList extends Activity {
         }
         else {
             toggleButton.setChecked(false);
+        }
+    }
+    
+    public void checkInitialBTToggle() {
+        // Toggle Button
+        ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButtonBT);
+        
+        if (mBluetoothAdapter == null) {
+            // Device does not support Bluetooth
+            Log.d(TAG, "Device does not support Bluetooth");
+            toggleButton.setChecked(false);
+        } else {
+            toggleButton.setChecked(true);
+            if (!mBluetoothAdapter.isEnabled()) {
+                // Bluetooth is not enable :)
+                Log.d(TAG, "Bluetooth is disabled");
+                toggleButton.setChecked(false);
+            }
         }
     }
 
@@ -194,6 +216,52 @@ public class WifiDeviceList extends Activity {
 
         if (toggleOn) {
             // Changes button if Wifi is disconnected
+            if (!wifi.enableWifi()) {
+                Log.d("WiFi Activity", "Failed to enable WiFi");
+                ((ToggleButton) view).setChecked(false);
+                mConnectedWifiTextView.setText("Not connected");
+                mDiscoveredWifiAdapter.clear();
+            }
+            else {
+                // Wifi connected but we havent accessed wifiInfo yet.
+                Log.d("WiFi Activity", "WiFi enabled");
+                ((ToggleButton) view).setChecked(true);
+                mConnectedWifiTextView.setText("Not connected");
+            }
+        }
+        else {
+            if (!wifi.disableWifi()) {
+                Log.d("WiFi Activity", "Failed to disable WiFi");
+                ((ToggleButton) view).setChecked(true);
+            }
+            else {
+                Log.d("WiFi Activity", "WiFi disabled");
+                ((ToggleButton) view).setChecked(false);
+                mConnectedWifiTextView.setText("Not connected");
+                mDiscoveredWifiAdapter.clear();
+            }
+        }
+    }
+    
+    public void onToggleClickedBT(View view) {
+        // Toggle Button
+        boolean toggleOn = ((ToggleButton) view).isChecked();
+        Log.d("WiFi Activity", "BT Toggle Response: " + toggleOn);
+        
+        // Loads BT
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if (toggleOn) {
+            if (mBluetoothAdapter.enable()) {
+                Log.d(TAG, "Began BT startup");
+                iFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+                registerReceiver(mReceive, iFilter);
+                Log.d(TAG, "Listening for BT state changes");
+            }
+            else {
+                
+            }
+            // Changes button if BT is disconnected
             if (!wifi.enableWifi()) {
                 Log.d("WiFi Activity", "Failed to enable WiFi");
                 ((ToggleButton) view).setChecked(false);
@@ -281,6 +349,14 @@ public class WifiDeviceList extends Activity {
                     while (lit.hasNext()) {
                         mDiscoveredWifiAdapter.add(lit.next().SSID);
                     }
+                }
+            }
+            else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                Log.d(TAG, "BT Action State Changed!");
+                if (mBluetoothAdapter.isEnabled()) {
+                    ToggleButton toggleButtonBT = (ToggleButton) findViewById(R.id.toggleButtonBT);
+                    toggleButtonBT.setChecked(true);
+                    Log.d(TAG, "BT Button should be enabled");
                 }
             }
         }

@@ -233,16 +233,17 @@ containing a value of this type.
         public static final int center_vertical=0x7f040008;
         public static final int clip_horizontal=0x7f04000f;
         public static final int clip_vertical=0x7f04000e;
-        public static final int discoveredWifi=0x7f040025;
+        public static final int discoveredWifi=0x7f040027;
         public static final int end=0x7f040011;
         public static final int fill=0x7f04000d;
         public static final int fill_horizontal=0x7f04000b;
         public static final int fill_vertical=0x7f040009;
         public static final int horizontal=0x7f040000;
-        public static final int is_Wifi_Connected=0x7f040022;
-        public static final int item1=0x7f040027;
+        public static final int is_BT_Connected=0x7f040022;
+        public static final int is_Wifi_Connected=0x7f040024;
+        public static final int item1=0x7f040029;
         public static final int left=0x7f040006;
-        public static final int menu_settings=0x7f040026;
+        public static final int menu_settings=0x7f040028;
         public static final int right=0x7f040007;
         public static final int start=0x7f040010;
         public static final int switch1=0x7f04001e;
@@ -255,10 +256,11 @@ containing a value of this type.
         public static final int textView1=0x7f040012;
         public static final int textView2=0x7f040013;
         public static final int textView3=0x7f04001c;
-        public static final int toggleButton1=0x7f040023;
+        public static final int toggleButton1=0x7f040025;
+        public static final int toggleButtonBT=0x7f040023;
         public static final int top=0x7f040004;
         public static final int vertical=0x7f040001;
-        public static final int wifi_scan_button=0x7f040024;
+        public static final int wifi_scan_button=0x7f040026;
         public static final int wifi_scan_button2=0x7f040020;
     }
     public static final class layout {
@@ -277,6 +279,7 @@ containing a value of this type.
         public static final int button_get=0x7f06000a;
         public static final int menu_settings=0x7f060001;
         public static final int server_response=0x7f060009;
+        public static final int text_BT_Connected=0x7f060011;
         public static final int text_available_networks=0x7f06000f;
         public static final int text_host_default=0x7f060004;
         public static final int text_host_hint=0x7f060003;
