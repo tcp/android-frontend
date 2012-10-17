@@ -12,6 +12,9 @@ import android.os.Message;
  */
 public class BluetoothConnectionHandler extends Handler {
 
+    /** Debug tag. */
+    private static final String TAG = "BluetoothConnectionHandler";
+
     /** Bluetooth provider for managing communication over threads. */
     private BluetoothProvider mBluetoothProvider;
 
@@ -53,7 +56,7 @@ public class BluetoothConnectionHandler extends Handler {
             case ConnectBluetoothThread.STATE_CONNECTING:
                 break;
             case ConnectBluetoothThread.STATE_CONNECTED:
-                BluetoothSocket socket = (BluetoothSocket)msg.obj;
+                BluetoothSocket socket = (BluetoothSocket) msg.obj;
                 mBluetoothProvider.connected(socket);
                 break;
             default:
@@ -72,9 +75,10 @@ public class BluetoothConnectionHandler extends Handler {
 //            String readMessage = new String(readBuf, 0, msg.arg1);
 //            break;
 //        case FILE_READ:
-//            System.out.println("############## FILE_READ ##############");
+//            Log.D(TAG, "############## FILE_READ ##############");
 //
-//            String filePath = Environment.getExternalStorageDirectory() + "/DCIM/" + Math.random() + ".jpg";
+//            String filePath = Environment.getExternalStorageDirectory()
+//                        + "/DCIM/" + Math.random() + ".jpg";
 //
 //            /** Get the bytes from the transport service. */
 //            byte[] buffer = (byte[]) msg.obj;
@@ -89,7 +93,7 @@ public class BluetoothConnectionHandler extends Handler {
 //
 //            /** Write the bytes to a file on the device. */
 //            try {
-//                System.out.println("buffer.length: " + buffer.length);
+//                Log.D(TAG,"buffer.length: " + buffer.length);
 //                bos.write(buffer);
 //                bos.flush();
 //                bos.close();

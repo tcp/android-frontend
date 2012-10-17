@@ -33,20 +33,14 @@ import android.util.Log;
  */
 public class AcceptBluetoothThread extends Thread {
 
-	/**
-	 * Debug Tag.
-	 */
+	/** Debug Tag. */
 	private static final String TAG = "AcceptBluetoothThread";
 	
-	/**
-	 * Unique UUID.
-	 */
+	/** Unique UUID. */
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 	
-    /**
-     * Flag determining when to listen for incoming requests.
-     */
+    /** Flag determining when to listen for incoming requests. */
     private boolean mServerListens;
     
     /** 
@@ -55,9 +49,7 @@ public class AcceptBluetoothThread extends Thread {
      */
 	private BluetoothServerSocket mBtServerSocket;
 	
-	/**
-	 * Device's Bluetooth Adapter.
-	 */
+	/** Device's Bluetooth Adapter. */
 	private BluetoothAdapter mBtAdapter;
 	
 	/**
