@@ -74,8 +74,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param socket  The BluetoothSocket on which the connection was made
      * @param device  The BluetoothDevice that has been connected to
      */
-    public synchronized void connected(BluetoothSocket socket, BluetoothDevice
-            device) {
+    public synchronized void connected(BluetoothSocket socket) {
 
         /** Update the UI with the device name.
          * This should be fixed with some class that updates the ui.
