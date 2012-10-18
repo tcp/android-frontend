@@ -27,7 +27,7 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
 /**
- * The BluetoothProvider handles data transmission via bluetooth.
+ * The BluetoothProvider handles data transmission via Bluetooth.
  * 
  * @author Kim-Anh Tran
  * @author Paolo Boschini
@@ -46,17 +46,14 @@ public class BluetoothProvider implements ByteArrayProvider {
      * this UUID at design time and when the program is run, it registers its Service ID
      * with the SDP server for that device. A client application trying to find a
      * specific service would query the SDP server on each device it finds to see
-     * if the device offers any services with that same UUID. The following UUID
-     * was generated using http://www.famkruithof.net/uuid/uuidgen.
+     * if the device offers any services with that same UUID.
+     * The following UUID was generated using http://www.famkruithof.net/uuid/uuidgen.
      */
     private static final UUID MY_UUID = UUID
             .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
-    /** The bluetooth adapter. */
+    /** The Bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter = null;
-
-    /** For now. Name of the BO we want to retrieve from a remote device. */
-    private String mHash;
 
     /**
      * Default constructor.
@@ -70,12 +67,11 @@ public class BluetoothProvider implements ByteArrayProvider {
      * of a BO.
      * @param   locator     The source from where to fetch the BO
      * @param   hash        A hash identifying the BO
-     * @return The byte array referring to the requested BO
+     * @return  The byte array referring to the requested BO
      */
     @Override
     public byte[] getByteArray(String locator, String hash) {
-        mHash = hash;
-        
+
         /** Connect */
         BluetoothSocket socket = connectToRemoteDevice(locator);
 
@@ -88,6 +84,12 @@ public class BluetoothProvider implements ByteArrayProvider {
         return fileArray;
     }
 
+    /**
+     * Attempt a connection to a remote device via Bluetooth
+     * and returns a socket after a successful connection.
+     * @param   locator     The device we want to connect to
+     * @return  The Bluetooth socket for the communication. 
+     */
     private BluetoothSocket connectToRemoteDevice(String locator) {
 
         BluetoothSocket socket = null;
@@ -122,6 +124,12 @@ public class BluetoothProvider implements ByteArrayProvider {
         return socket;
     }
 
+    /**
+     * Send a request to a remote device sending the hash identifier
+     * for retrieving the corresponding BO. 
+     * @param   socket  The socket for connecting with the remote device    
+     * @param   hash    The identifier for requesting the BO
+     */
     private void sendRequest(BluetoothSocket socket, String hash) {
         DataOutputStream outStream = null;
 
@@ -139,6 +147,11 @@ public class BluetoothProvider implements ByteArrayProvider {
         }
     }
 
+    /**
+     * Attempt to retrieve a BO blocking the connection.
+     * @param   socket  The socket for the connection
+     * @return  The byte stream representing the retrieved BO
+     */
     private byte[] downloadFile(BluetoothSocket socket) {
         DataInputStream inStream = null;
         byte[] buffer = null;
@@ -163,9 +176,9 @@ public class BluetoothProvider implements ByteArrayProvider {
     }
 
     /**
-     * Fill please.
-     * @param   locator     A locator.
-     * @return  Can handle what?
+     * Checks if this provider can handle the locator from where to retrieve a BO.
+     * @param   locator     The locator from where to retrieve the BO
+     * @return  A boolean that specifies if this provider can handle the locator or not.
      */
     @Override
     public boolean canHandle(String locator) {
@@ -173,11 +186,12 @@ public class BluetoothProvider implements ByteArrayProvider {
     }
 
     /**
-     * Fill please.
+     * Description of this provider.
      * @return A description of this provider? 
      */
     @Override
     public String describe() {
-        return null;
+        return "A Bluetooth provider. This provider will attempt to retrieve a file"
+                + "via a Bluetooth connection from a remote device.";
     }
 }
