@@ -29,7 +29,7 @@ import android.util.Log;
 /**
  * The BluetoothProvider handles data transmission via bluetooth.
  * 
- * @author ktran
+ * @author Kim-Anh Tran
  * @author Paolo Boschini
  *
  */

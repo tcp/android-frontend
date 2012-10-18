@@ -33,10 +33,13 @@ import android.os.Handler;
 import android.util.Log;
 
 /**
- * The AcceptBluetoothThread listens for incoming Bluetooth pairing
- * requests.
+ * The BluetoothServer listens for incoming Bluetooth pairing
+ * requests. As soon as the local device has been successfully paired
+ * with a remote device, the BluetoothServer waits for a file request
+ * containing the hash. If the specified file is existing, the file will
+ * be transferred to the remote device.
  * 
- * @author ktran
+ * @author Kim-Anh Tran
  *
  */
 public class BluetoothServer extends Thread {
@@ -45,54 +48,48 @@ public class BluetoothServer extends Thread {
 	/** Debug Tag. */
 	private static final String TAG = "AcceptBluetoothThread";
 	
-	/** Unique UUID. */
+	/** Unique UUID. For more information see {@link project.cs.lisa.bluetooth.provider#MY_UUID}*/
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
     
+    /** The directory containing the published files. */
     private static final String SHARED_FILES_DIR = Environment.getExternalStorageDirectory() + "/LISA/";
 
+    /** The buffer for reading in the hash out of a file request message */
 	private static final int BUFFER_SIZE = 1024;
 	
-    /** Flag determining when to listen for incoming requests. */
+    /** Flag determining how long to listen for incoming pairing requests. */
     private boolean mServerListens;
     
-    /** 
-     * The Bluetooth Server Socket that is created as soon
-     * as a connection is established.
-     */
+    /** The Bluetooth Server Socket that is created as soon as a connection is established. */
 	private BluetoothServerSocket mBtServerSocket;
 	
 	/** Device's Bluetooth Adapter. */
 	private BluetoothAdapter mBtAdapter;
-	
-	/** The Handler to send the bluetooth socket to. */
-	private Handler mHandler;
 	
 	private DataInputStream mInStream;
 	
 	private DataOutputStream mOutStream;
 	
 	/**
-	 * Creates a new AcceptBluetoothThread that waits for incoming
-	 * bluetooth requests.
-	 * 
-	 * @param myHandler The handler that should be informed about the 
-	 *                  bluetooth socket.
+	 * Creates a new BluetoothServer that waits for incoming
+	 * bluetooth requests and handles file requests.
 	 */
-	public BluetoothServer(Handler myHandler) {
-		mHandler = myHandler;
-		
+	public BluetoothServer() {
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 		
+		/* Start listening for incoming pairing requests. No authorization from the user
+		 * is needed in order to pair with another device. */
 		BluetoothServerSocket tmp = null;
 		try {
+			
 			tmp = 
 				mBtAdapter.listenUsingInsecureRfcommWithServiceRecord("Request Listener", MY_UUID);
+			
 		} catch (IOException e) {
 			Log.d(TAG, "Bluetooth Server Socket couldn't be initialized.");
 		}
-		
-		
+			
 		mBtServerSocket = tmp;
 		mServerListens = true;
 	}
@@ -105,10 +102,13 @@ public class BluetoothServer extends Thread {
 		
 		while (mServerListens) {
 			try {
+				
+				/* Accept an incoming pairing request */
 				socket = mBtServerSocket.accept();
 				Log.d(TAG, "Accepted Request");
+				
 			} catch (IOException e) {
-				Log.d(TAG, "Error occured during wating for an incoming connection request.");
+				Log.d(TAG, "Error occured during wating for an incoming pairing request.");
 				break;
 			}
 			
@@ -118,6 +118,12 @@ public class BluetoothServer extends Thread {
 		}	
 	}
 	
+	/**
+	 * Extracts the hash, searches for the file requested and sends the
+	 * corresponding file to the remote device.
+	 * 
+	 * @param socket The bluetooth socket used for communicating with the remote device
+	 */
 	private void handleIncomingRequest(BluetoothSocket socket) {
 		/** Receive the hash */
 		String hash = readHash(socket);
@@ -139,6 +145,11 @@ public class BluetoothServer extends Thread {
 	}
 
 
+	/**
+	 * Writes the specified buffer to the current stream.
+	 * 
+	 * @param buffer The data to be send.
+	 */
 	private void writeFile(byte[] buffer) {
 		Log.d(TAG, "Sending file."); 
 
@@ -157,6 +168,12 @@ public class BluetoothServer extends Thread {
 	}
 
 
+	/**
+	 * Converts a file into a byte array.
+	 * 
+	 * @param file	The file we want to convert.
+	 * @return		The byte array that corresponds to the file.
+	 */
 	private byte[] toByteArray(File file) {
 		byte[] fileByteArray = new byte[(int) file.length()];
 		FileInputStream fis;
@@ -181,6 +198,12 @@ public class BluetoothServer extends Thread {
 	}
 
 
+	/**
+	 * Returns the file specified by the hash.
+	 * 
+	 * @param hash	The identfier of the file we request.
+	 * @return		The file that is identified with the specified hash
+	 */
 	private File getFileByHash(String hash) {
 		/* TODO: Get the file. Check in the meta data what file we are sending. */
 		
@@ -191,6 +214,12 @@ public class BluetoothServer extends Thread {
 	}
 
 
+	/**
+	 * Reads and returns the hash that is received through the current socket.
+	 * 
+	 * @param socket	The bluetooth socket used for communicating with the remote device
+	 * @return			The hash that is read from the socket.
+	 */
 	private String readHash(BluetoothSocket socket) {
 		
 		byte[] buffer = new byte[BUFFER_SIZE];
