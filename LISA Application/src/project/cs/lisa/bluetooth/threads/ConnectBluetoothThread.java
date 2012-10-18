@@ -6,6 +6,7 @@ import java.util.UUID;
 import project.cs.lisa.bluetooth.provider.BluetoothConnectionHandler;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -36,7 +37,7 @@ public class ConnectBluetoothThread extends Thread {
             .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
     /** Handler for managing Bluetooth connection status. */
-    private BluetoothConnectionHandler mBluetoothHandler;
+    private Handler mBluetoothHandler;
 
     /** Constants that indicate the current connection state. */
     public static final int STATE_CONNECTING = 0;
@@ -46,7 +47,7 @@ public class ConnectBluetoothThread extends Thread {
      * Instantiate a new ConnectBluetoothThread.
      * @param device The remote device we are going to establish a connection with. 
      */
-    public ConnectBluetoothThread(BluetoothDevice device, BluetoothConnectionHandler bluetoothHandler) {
+    public ConnectBluetoothThread(Handler bluetoothHandler, BluetoothDevice device) {
         BluetoothSocket tmp = null;
         mBluetoothHandler = bluetoothHandler;
 

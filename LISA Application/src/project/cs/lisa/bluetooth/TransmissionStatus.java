@@ -14,18 +14,17 @@
  *
  * Copyright (C) 2012 LISA team
  */
-package project.cs.lisa.bluetooth.server;
+package project.cs.lisa.bluetooth;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Enum Transmission.
+ * The Enum Transmission indicates the result of a transmission.
  */
-public enum Transmission {
+public enum TransmissionStatus {
 	
-	/** The success. */
+	/** Transmission succeeded. */
 	SUCCESS,
 	
-	/** The failed. */
+	/** Transmission failed. */
 	FAILED;
 
 }

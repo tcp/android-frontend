@@ -18,6 +18,8 @@ package project.cs.lisa.bluetooth.server;
 
 import java.io.File;
 
+import project.cs.lisa.bluetooth.TransmissionStatus;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -213,12 +215,12 @@ public class BluetoothActivity extends Activity {
 			case MESSAGE_WRITE:
 				Log.d(TAG, "Message write");
 				
-				Transmission result = Transmission.values()[msg.arg1];
+				TransmissionStatus result = TransmissionStatus.values()[msg.arg1];
 				key = (String) msg.obj;
 						
-				if (result == Transmission.SUCCESS) {
+				if (result == TransmissionStatus.SUCCESS) {
 					Log.d(TAG, "Sending file succeeded.");
-				} else if (result == Transmission.FAILED) {
+				} else if (result == TransmissionStatus.FAILED) {
 					Log.d(TAG, "Sending file failed.");
 				}
 				

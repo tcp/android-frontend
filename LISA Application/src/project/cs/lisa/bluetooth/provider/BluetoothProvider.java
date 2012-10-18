@@ -20,6 +20,7 @@ import project.cs.lisa.bluetooth.threads.ConnectBluetoothThread;
 import project.cs.lisa.bluetooth.threads.ConnectedBluetoothThread;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
 
 /**
  * The BluetoothProvider handles data transmission via bluetooth.
@@ -49,7 +50,7 @@ public class BluetoothProvider implements ByteArrayProvider {
     private ConnectedBluetoothThread mConnectedThread;
 
     /** Handler for managing Bluetooth connection status. */
-    private BluetoothConnectionHandler mBluetoothHandler;
+    private Handler mBluetoothHandler;
     
     /**
      * Default constructor.
@@ -64,7 +65,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param device  The BluetoothDevice to connect to found by a previous discovery scanning
      */
     public synchronized void connect(BluetoothDevice device) {
-        mConnectThread = new ConnectBluetoothThread(device, mBluetoothHandler);
+        mConnectThread = new ConnectBluetoothThread(mBluetoothHandler, device);
         mConnectThread.start();
     }
 
@@ -88,7 +89,7 @@ public class BluetoothProvider implements ByteArrayProvider {
          * and it will block reading from the stream until the other device
          * responds.
          */
-        mConnectedThread = new ConnectedBluetoothThread(socket, mBluetoothHandler);
+        mConnectedThread = new ConnectedBluetoothThread(mBluetoothHandler, socket);
         mConnectedThread.start();
 
         String message = "ready";
