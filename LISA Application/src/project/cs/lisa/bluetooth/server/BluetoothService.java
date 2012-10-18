@@ -318,7 +318,7 @@ public class BluetoothService extends Thread {
 				mOutStream.flush();
 			
 				mHandler.obtainMessage(
-						BluetoothActivity.MESSAGE_WRITE, TransmissionStatus.SUCCESS.ordinal(), -1, mClientAddress)
+						BluetoothActivity.MESSAGE_WRITE, TransmissionStatus.SUCCEED.ordinal(), -1, mClientAddress)
 						.sendToTarget();
 				
 			} catch (IOException e) {

@@ -218,7 +218,7 @@ public class BluetoothActivity extends Activity {
 				TransmissionStatus result = TransmissionStatus.values()[msg.arg1];
 				key = (String) msg.obj;
 						
-				if (result == TransmissionStatus.SUCCESS) {
+				if (result == TransmissionStatus.SUCCEED) {
 					Log.d(TAG, "Sending file succeeded.");
 				} else if (result == TransmissionStatus.FAILED) {
 					Log.d(TAG, "Sending file failed.");

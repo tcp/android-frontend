@@ -22,7 +22,7 @@ package project.cs.lisa.bluetooth;
 public enum TransmissionStatus {
 	
 	/** Transmission succeeded. */
-	SUCCESS,
+	SUCCEED,
 	
 	/** Transmission failed. */
 	FAILED;
