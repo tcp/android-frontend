@@ -23,13 +23,14 @@ public class BluetoothConnectionHandler extends Handler {
 
     /**
      * Default constructor.
-     * @param bluetoothProvider
+     * @param   bluetoothProvider   Reference to the provider
      */
     public BluetoothConnectionHandler(BluetoothProvider bluetoothProvider) {
         mBluetoothProvider = bluetoothProvider;
     }
 
     /**
+     * @param   msg     The message 
      * The Handler that gets information back from the BluetoothService.
      */
     @Override
