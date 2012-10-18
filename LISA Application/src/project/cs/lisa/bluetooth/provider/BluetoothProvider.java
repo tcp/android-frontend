@@ -53,9 +53,6 @@ public class BluetoothProvider implements ByteArrayProvider {
     private static final UUID MY_UUID = UUID
             .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
-    /** Handler for managing Bluetooth connection status. */
-    private Handler mBluetoothHandler;
-
     /** The bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter = null;
 
@@ -66,9 +63,6 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Default constructor.
      */
     public BluetoothProvider() {
-        /** Handler for managing Bluetooth connection status. */
-        mBluetoothHandler = new BluetoothConnectionHandler(this);
-
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
@@ -162,9 +156,6 @@ public class BluetoothProvider implements ByteArrayProvider {
             inStream.readFully(buffer);
             buffer = new byte[fileSize];
             
-            // Do we need this?
-            mBluetoothHandler.obtainMessage(BluetoothConnectionHandler.FILE_READ, -1, -1, buffer)
-                    .sendToTarget();
         } catch (IOException e) {
             e.printStackTrace();
         }

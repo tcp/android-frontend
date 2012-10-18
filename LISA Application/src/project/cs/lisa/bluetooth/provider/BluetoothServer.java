@@ -16,16 +16,19 @@
  */
 package project.cs.lisa.bluetooth.provider;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
@@ -36,7 +39,8 @@ import android.util.Log;
  * @author ktran
  *
  */
-public class AcceptBluetoothThread extends Thread {
+public class BluetoothServer extends Thread {
+	
 
 	/** Debug Tag. */
 	private static final String TAG = "AcceptBluetoothThread";
@@ -44,6 +48,8 @@ public class AcceptBluetoothThread extends Thread {
 	/** Unique UUID. */
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+    
+    private static final String SHARED_FILES_DIR = Environment.getExternalStorageDirectory() + "/LISA/";
 
 	private static final int BUFFER_SIZE = 1024;
 	
@@ -73,7 +79,7 @@ public class AcceptBluetoothThread extends Thread {
 	 * @param myHandler The handler that should be informed about the 
 	 *                  bluetooth socket.
 	 */
-	public AcceptBluetoothThread(Handler myHandler) {
+	public BluetoothServer(Handler myHandler) {
 		mHandler = myHandler;
 		
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -113,28 +119,75 @@ public class AcceptBluetoothThread extends Thread {
 	}
 	
 	private void handleIncomingRequest(BluetoothSocket socket) {
+		/** Receive the hash */
 		String hash = readHash(socket);
+		
+		/** Find the file on the device */
 		File file = getFileByHash(hash);
+		
+		/** Create a byte array representation of the file */
 		byte[] fileData = toByteArray(file);
+		
+		/** Send the data to the remote device */
 		writeFile(fileData);
+		
+		try {
+			socket.close();
+		} catch (IOException e) {
+			Log.d(TAG, "Closing the bluetooth socket failed.");
+		}
 	}
 
 
-	private void writeFile(byte[] fileData) {
-		// TODO Auto-generated method stub
+	private void writeFile(byte[] buffer) {
+		Log.d(TAG, "Sending file."); 
+
+		try {
+			mOutStream.writeInt(buffer.length);
+			mOutStream.write(buffer, 0, buffer.length);
+			mOutStream.flush();
+			
+			mOutStream.close();
+		
+		} catch (IOException e) {
+			Log.e(TAG, "Exception occured during writing", e);
+
+		}		
 		
 	}
 
 
 	private byte[] toByteArray(File file) {
-		// TODO Auto-generated method stub
-		return null;
+		byte[] fileByteArray = new byte[(int) file.length()];
+		FileInputStream fis;
+		
+		try {
+			
+			fis = new FileInputStream(file);
+			BufferedInputStream bis = new BufferedInputStream(fis);
+			bis.read(fileByteArray, 0, fileByteArray.length);
+						
+			fis.close();
+			bis.close();
+			
+		} catch (FileNotFoundException e) {
+			Log.d(TAG, "The file " + file.getName() + " could not be found.");
+			
+		} catch (IOException e) {
+			Log.d(TAG, "Exception occured during file to byte array conversion.", e);
+		}
+		
+		return fileByteArray;
 	}
 
 
 	private File getFileByHash(String hash) {
-		// TODO Auto-generated method stub
-		return null;
+		/* TODO: Get the file. Check in the meta data what file we are sending. */
+		
+		String filepath = SHARED_FILES_DIR + hash + ".jpg";
+		File requestedFile = new File(filepath);
+	
+		return requestedFile;
 	}
 
 
@@ -150,6 +203,7 @@ public class AcceptBluetoothThread extends Thread {
 			mInStream = new DataInputStream(socket.getInputStream());			
 			number_of_bytes = mInStream.read(buffer);
 			readHash = new String(buffer, 0, number_of_bytes);
+			mInStream.close();
 			
 		} catch (IOException e) {
 			Log.d(TAG, "Couldn't extract streams for Bluetooth transmission.");
