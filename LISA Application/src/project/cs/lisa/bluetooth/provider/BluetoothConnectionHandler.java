@@ -22,14 +22,14 @@ public class BluetoothConnectionHandler extends Handler {
     public static final int MESSAGE_CONNECTIONS_STATUS = 1;
     
 	/** Message for getting the data read during a bluetooth connection. */
-	public static final int MESSAGE_READ = 2;
+	public static final int FILE_READ = 2;
 	
 	/** Message for getting the transmission result from writing via bluetooth. */
 	public static final int MESSAGE_WRITE = 3;
 	
-	/** Message for getting the bluetooth socket to a paired device. */
-	public static final int MESSAGE_BLUETOOTH_SOCKET = 4;
-	
+    /** Message initiating a file transfer. */
+    public static final int INCOMING_FILE_REQUEST = 4;
+    
     /** Debug tag. */
     private static final String TAG = "BluetoothConnectionHandler";
 
@@ -61,19 +61,21 @@ public class BluetoothConnectionHandler extends Handler {
             switch (msg.arg1) {
             case ConnectBluetoothThread.STATE_CONNECTING:
                 break;
-            case ConnectBluetoothThread.STATE_CONNECTED:
+            case ConnectBluetoothThread.OUTGOING_FILE_REQUEST:
                 BluetoothSocket socket = (BluetoothSocket) msg.obj;
-                mBluetoothProvider.connected(socket);
+                mBluetoothProvider.startRequestingFile(socket);
                 break;
             default:
                 break;
             }
             break;
-        case MESSAGE_READ:
+        case FILE_READ:
         	break;
         case MESSAGE_WRITE:
         	break;
-        case MESSAGE_BLUETOOTH_SOCKET:
+        case INCOMING_FILE_REQUEST:
+            BluetoothSocket socket = (BluetoothSocket) msg.obj;
+            mBluetoothProvider.startSendingFile(socket);
         	break;
 //        case MESSAGE_WRITE:
 //            byte[] writeBuf = (byte[]) msg.obj;

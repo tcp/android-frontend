@@ -43,7 +43,7 @@ public class ConnectBluetoothThread extends Thread {
     public static final int STATE_CONNECTING = 0;
 
     /** Message representing a connected state after getting a socket. */
-    public static final int STATE_CONNECTED = 1;
+    public static final int OUTGOING_FILE_REQUEST = 1;
 
     /**
      * Instantiate a new ConnectBluetoothThread.
@@ -101,7 +101,7 @@ public class ConnectBluetoothThread extends Thread {
          */
         mBluetoothHandler.obtainMessage(
                 BluetoothConnectionHandler.MESSAGE_CONNECTIONS_STATUS,
-                STATE_CONNECTED, -1, mSocket).sendToTarget();
+                OUTGOING_FILE_REQUEST, -1, mSocket).sendToTarget();
     }
 
     /**

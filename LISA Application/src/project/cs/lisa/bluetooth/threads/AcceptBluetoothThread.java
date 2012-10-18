@@ -100,7 +100,7 @@ public class AcceptBluetoothThread extends Thread {
 			
 			if (socket != null) {
 				mHandler.obtainMessage(
-						BluetoothConnectionHandler.MESSAGE_BLUETOOTH_SOCKET, socket);
+						BluetoothConnectionHandler.INCOMING_FILE_REQUEST, socket);
 			}
 		}	
 	}

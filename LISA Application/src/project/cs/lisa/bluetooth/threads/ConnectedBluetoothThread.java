@@ -120,7 +120,7 @@ public class ConnectedBluetoothThread extends Thread {
 	 * @param buffer The byte array to send to the remote device.
 	 */
 	public void write(byte[] buffer) {
-		Log.d(TAG, "Sending file."); 
+		Log.d(TAG, "Sending bytes..."); 
 
 		try {
 			mOutStream.writeInt(buffer.length);
@@ -129,13 +129,13 @@ public class ConnectedBluetoothThread extends Thread {
 		
 			mHandler.obtainMessage(
 					BluetoothConnectionHandler.MESSAGE_WRITE, 
-					TransmissionStatus.SUCCEED.ordinal(), -1, mClientAddress)
+					TransmissionStatus.SUCCEED.ordinal(), -1, null)
 					.sendToTarget();
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
 			
 			mHandler.obtainMessage(BluetoothConnectionHandler.MESSAGE_WRITE, 
-					TransmissionStatus.FAILED.ordinal(), -1, mClientAddress)
+					TransmissionStatus.FAILED.ordinal(), -1, null)
 					.sendToTarget();
 		}			
 	}

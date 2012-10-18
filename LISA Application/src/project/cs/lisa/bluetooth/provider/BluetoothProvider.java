@@ -17,7 +17,9 @@
 package project.cs.lisa.bluetooth.provider;
 
 import project.cs.lisa.bluetooth.threads.ConnectBluetoothThread;
-import project.cs.lisa.bluetooth.threads.ConnectedBluetoothThread;
+import project.cs.lisa.bluetooth.threads.ClientBluetoothThread;
+import project.cs.lisa.bluetooth.threads.ServerBluetoothThread;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
@@ -47,17 +49,27 @@ public class BluetoothProvider implements ByteArrayProvider {
      * using the hash value of the requested object and receiving
      * the byte stream of the corresponding object.
      */
-    private ConnectedBluetoothThread mConnectedThread;
+    private ClientBluetoothThread mClientThread;
+
+    private ServerBluetoothThread mServerThread;
 
     /** Handler for managing Bluetooth connection status. */
     private Handler mBluetoothHandler;
     
+    /** The bluetooth adapter. */
+    private BluetoothAdapter mBluetoothAdapter = null;
+
+    /** For now. Name of the BO we want to retrieve from a remote device. */
+    private String mHash;
+
     /**
      * Default constructor.
      */
     public BluetoothProvider() {
         /** Handler for managing Bluetooth connection status. */
         mBluetoothHandler = new BluetoothConnectionHandler(this);
+        
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
     /**
@@ -74,36 +86,32 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param socket  The BluetoothSocket on which the connection was made
      * @param device  The BluetoothDevice that has been connected to
      */
-    public synchronized void connected(BluetoothSocket socket) {
-
-        /** Update the UI with the device name.
-         * This should be fixed with some class that updates the ui.
-         
-        mHandler.obtainMessage(MainActivity.MESSAGE_DEVICE_NAME, -1, -1, device.getName())
-        .sendToTarget();
-         */
-        
-        /**
-         * Starts listening for an incoming object file. This is a new thread
-         * and it will block reading from the stream until the other device
-         * responds.
-         */
-        mConnectedThread = new ConnectedBluetoothThread(mBluetoothHandler, socket);
-        mConnectedThread.start();
-
-        String message = "ready";
-        byte[] out = message.getBytes();
-        mConnectedThread.write(out);
+    public synchronized void startRequestingFile(BluetoothSocket socket) {
+        mClientThread = new ClientBluetoothThread(mBluetoothHandler, socket, mHash);
+        mClientThread.start();
     }
 
     /**
-     * Fill please.
-     * @param   locator     A locator.
-     * @param   hash        A hash
-     * @return A byte array? 
+     * Start the ConnectedThread to begin managing a Bluetooth connection.
+     * @param socket  The BluetoothSocket on which the connection was made
+     * @param device  The BluetoothDevice that has been connected to
+     */
+    public synchronized void startSendingFile(BluetoothSocket socket) {
+        mServerThread = new ServerBluetoothThread(mBluetoothHandler, socket);
+        mServerThread.start();
+    }
+
+    /**
+     * Returns a byte array after a successful connection and transmission
+     * of a BO.
+     * @param   locator     The source from where to fetch the BO
+     * @param   hash        A hash identifying the BO
+     * @return The byte array referring to the requested BO
      */
     @Override
     public byte[] getByteArray(String locator, String hash) {
+        mHash = hash;
+        connect(mBluetoothAdapter.getRemoteDevice(locator));
         return null;
     }
 
