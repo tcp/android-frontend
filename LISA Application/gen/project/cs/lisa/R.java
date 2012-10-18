@@ -15,17 +15,18 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int Popup_Available_Networks=0x7f07000f;
-        public static final int TextView01=0x7f07000d;
+        public static final int Popup_Available_Networks=0x7f070010;
+        public static final int TextView01=0x7f07000e;
         public static final int button1=0x7f07000b;
         public static final int buttonClear=0x7f070009;
         public static final int buttonGet=0x7f070006;
-        public static final int discoveredWifi=0x7f070015;
-        public static final int is_BT_Connected=0x7f070010;
-        public static final int is_Wifi_Connected=0x7f070012;
-        public static final int item1=0x7f070017;
-        public static final int menu_settings=0x7f070016;
-        public static final int switch1=0x7f07000c;
+        public static final int discoveredWifi=0x7f070016;
+        public static final int editText1=0x7f07000c;
+        public static final int is_BT_Connected=0x7f070011;
+        public static final int is_Wifi_Connected=0x7f070013;
+        public static final int item1=0x7f070018;
+        public static final int menu_settings=0x7f070017;
+        public static final int switch1=0x7f07000d;
         public static final int textHost=0x7f070002;
         public static final int textLog=0x7f070008;
         public static final int textMessage=0x7f070005;
@@ -35,16 +36,17 @@ public final class R {
         public static final int textView1=0x7f070000;
         public static final int textView2=0x7f070001;
         public static final int textView3=0x7f07000a;
-        public static final int toggleButton1=0x7f070013;
-        public static final int toggleButtonBT=0x7f070011;
-        public static final int wifi_scan_button=0x7f070014;
-        public static final int wifi_scan_button2=0x7f07000e;
+        public static final int toggleButton1=0x7f070014;
+        public static final int toggleButtonBT=0x7f070012;
+        public static final int wifi_scan_button=0x7f070015;
+        public static final int wifi_scan_button2=0x7f07000f;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
-        public static final int activity_wifi=0x7f030001;
-        public static final int device_name=0x7f030002;
-        public static final int show_networks=0x7f030003;
+        public static final int activity_temp=0x7f030001;
+        public static final int activity_wifi=0x7f030002;
+        public static final int device_name=0x7f030003;
+        public static final int show_networks=0x7f030004;
     }
     public static final class menu {
         public static final int activity_main=0x7f060000;

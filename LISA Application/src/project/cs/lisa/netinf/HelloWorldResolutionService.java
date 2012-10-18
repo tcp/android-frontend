@@ -34,68 +34,74 @@ import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
-import netinf.node.resolution.AbstractResolutionService;
 import netinf.node.resolution.ResolutionService;
+import android.util.Log;
 
 import com.google.inject.Inject;
 
 /**
  * @author PG Augnet 2, University of Paderborns
  */
-public class HelloWorldResolutionService extends AbstractResolutionService implements ResolutionService {
+public class HelloWorldResolutionService extends AbstractResolutionServiceWithoutId implements ResolutionService {
 
-   private final DatamodelFactory datamodelFactory;
-   private final InformationObject helloWorldIO;
+	public static final String TAG = "HelloWorldResolutionService";
+	
+	private final DatamodelFactory datamodelFactory;
+	private final InformationObject helloWorldIO;
 
-   @Inject
-   public HelloWorldResolutionService(DatamodelFactory datamodelFactory) {
-      this.datamodelFactory = datamodelFactory;
-      helloWorldIO = datamodelFactory.createInformationObject();
-      Identifier identifier = datamodelFactory.createIdentifier();
-      IdentifierLabel identifierLabel = datamodelFactory.createIdentifierLabel();
-      identifierLabel.setLabelName(DefinedLabelName.UNIQUE_LABEL.getLabelName());
-      identifierLabel.setLabelValue("Hello World");
-      identifier.addIdentifierLabel(identifierLabel);
-      helloWorldIO.setIdentifier(identifier);
+	@Inject
+	public HelloWorldResolutionService(DatamodelFactory datamodelFactory) {
+		this.datamodelFactory = datamodelFactory;
+		helloWorldIO = datamodelFactory.createInformationObject();
+		Identifier identifier = datamodelFactory.createIdentifier();
+		IdentifierLabel identifierLabel = datamodelFactory.createIdentifierLabel();
+		identifierLabel.setLabelName(DefinedLabelName.UNIQUE_LABEL.getLabelName());
+		identifierLabel.setLabelValue("Hello World");
+		identifier.addIdentifierLabel(identifierLabel);
+		helloWorldIO.setIdentifier(identifier);
    }
 
-   @Override
-   protected ResolutionServiceIdentityObject createIdentityObject() {
-      ResolutionServiceIdentityObject identity = this.datamodelFactory
-            .createDatamodelObject(ResolutionServiceIdentityObject.class);
-      identity.setName("HelloWorldResolutionService");
-      identity.setDefaultPriority(1000);
-      identity.setDescription("This is a Hello World resolution service");
-      return identity;
-   }
+	@Override
+	protected ResolutionServiceIdentityObject createIdentityObject() {
+		ResolutionServiceIdentityObject identity = this.datamodelFactory
+				.createDatamodelObject(ResolutionServiceIdentityObject.class);
+		identity.setName("HelloWorldResolutionService");
+		identity.setDefaultPriority(1000);
+		identity.setDescription("This is a Hello World resolution service");
+		return identity;
+	}
 
-   @Override
-   public void delete(Identifier identifier) {
-      // There is nothing to delete
-   }
+	@Override
+	public void delete(Identifier identifier) {
+		Log.d(TAG, "delete()");
+		// There is nothing to delete
+	}
 
-   @Override
-   public String describe() {
-      return "always returning a Hello World IO";
-   }
+	@Override
+	public String describe() {
+		Log.d(TAG, "describe()");
+		return "always returning a Hello World IO";
+	}
 
-   @Override
-   public InformationObject get(Identifier identifier) {
-      return helloWorldIO;
-   }
+	@Override
+	public InformationObject get(Identifier identifier) {
+		Log.d(TAG, "get()");
+		return helloWorldIO;
+	}
 
-   @Override
-   public List<Identifier> getAllVersions(Identifier identifier) {
-      List<Identifier> list = new ArrayList<Identifier>();
-      list.add(helloWorldIO.getIdentifier());
-      return list;
-   }
+	@Override
+	public List<Identifier> getAllVersions(Identifier identifier) {
+		Log.d(TAG, "getAllVersions()");
+		List<Identifier> list = new ArrayList<Identifier>();
+		list.add(helloWorldIO.getIdentifier());
+		return list;
+	}
 
-   @Override
-   public void put(InformationObject informationObject) {
-      // This ResolutionService does not support push
-
-   }
+	@Override
+	public void put(InformationObject informationObject) {
+		Log.d(TAG, "put()");
+		// This ResolutionService does not support push
+	}
    
    
 
