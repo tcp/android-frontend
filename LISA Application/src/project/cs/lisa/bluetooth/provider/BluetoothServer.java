@@ -53,9 +53,10 @@ public class BluetoothServer extends Thread {
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
     
     /** The directory containing the published files. */
-    private static final String SHARED_FILES_DIR = Environment.getExternalStorageDirectory() + "/LISA/";
+    private static final String SHARED_FILES_DIR = 
+    		Environment.getExternalStorageDirectory() + "/LISA/";
 
-    /** The buffer for reading in the hash out of a file request message */
+    /** The buffer for reading in the hash out of a file request message. */
 	private static final int BUFFER_SIZE = 1024;
 	
     /** Flag determining how long to listen for incoming pairing requests. */
@@ -67,8 +68,10 @@ public class BluetoothServer extends Thread {
 	/** Device's Bluetooth Adapter. */
 	private BluetoothAdapter mBtAdapter;
 	
+	/** The input stream used for reading in the hash. */
 	private DataInputStream mInStream;
 	
+	/** The output stream used for writing the file to the remote device. */
 	private DataOutputStream mOutStream;
 	
 	/**
@@ -223,15 +226,15 @@ public class BluetoothServer extends Thread {
 	private String readHash(BluetoothSocket socket) {
 		
 		byte[] buffer = new byte[BUFFER_SIZE];
-		int number_of_bytes;
+		int length;
 		
 		String readHash = "";
 		
 		try {
 	
 			mInStream = new DataInputStream(socket.getInputStream());			
-			number_of_bytes = mInStream.read(buffer);
-			readHash = new String(buffer, 0, number_of_bytes);
+			length = mInStream.read(buffer);
+			readHash = new String(buffer, 0, length);
 			mInStream.close();
 			
 		} catch (IOException e) {
