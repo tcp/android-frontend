@@ -39,12 +39,6 @@ public class ConnectBluetoothThread extends Thread {
     /** Handler for managing Bluetooth connection status. */
     private Handler mBluetoothHandler;
 
-    /** Message representing a connecting state before getting a socket. */
-    public static final int STATE_CONNECTING = 0;
-
-    /** Message representing a connected state after getting a socket. */
-    public static final int OUTGOING_FILE_REQUEST = 1;
-
     /**
      * Instantiate a new ConnectBluetoothThread.
      * @param bluetoothHandler The handler.
@@ -100,8 +94,7 @@ public class ConnectBluetoothThread extends Thread {
          * when the socket has been connected.
          */
         mBluetoothHandler.obtainMessage(
-                BluetoothConnectionHandler.MESSAGE_CONNECTIONS_STATUS,
-                OUTGOING_FILE_REQUEST, -1, mSocket).sendToTarget();
+                BluetoothConnectionHandler.OUTGOING_FILE_REQUEST, -1, mSocket).sendToTarget();
     }
 
     /**

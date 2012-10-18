@@ -94,7 +94,7 @@ public class ClientBluetoothThread extends Thread {
             byte[] buffer = new byte[fileSize];
             mInStream.readFully(buffer);
             mHandler.obtainMessage(BluetoothConnectionHandler.FILE_READ, -1, -1, buffer)
-            .sendToTarget();
+                    .sendToTarget();
         } catch (IOException e) {
             Log.d(TAG, "Error while receiving incoming file.");
             mHandler.obtainMessage(BluetoothConnectionHandler.FILE_READ, 

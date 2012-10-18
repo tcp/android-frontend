@@ -51,6 +51,9 @@ public class ServerBluetoothThread extends Thread {
     /** The Handler we communicate the results to. */
     private Handler mHandler;
 
+    /** Buffer for storing the hash */
+    private static final int BUFFER_SIZE = 1024;
+
     /**
      * Creates a new thread dealing with reading and writing data.
      * 
@@ -81,15 +84,14 @@ public class ServerBluetoothThread extends Thread {
     public void run() {
         Log.d(TAG, "Starting to receive the incoming message");
 
-        try {
-            Log.d(TAG, "Writing the hash...");
-            write(mHash.getBytes());
-            Log.d(TAG, "Finished writing the hash.");
+        byte[] buffer = new byte[BUFFER_SIZE];
 
-            int fileSize = mInStream.readInt();
-            byte[] buffer = new byte[fileSize];
-            mInStream.readFully(buffer);
-            mHandler.obtainMessage(BluetoothConnectionHandler.FILE_READ, -1, -1, buffer)
+        try {
+            Log.d(TAG, "Reading the hash...");
+            int bytes_read = mInStream.read(buffer);
+            Log.d(TAG, "Finished reading the hash.");
+
+            mHandler.obtainMessage(BluetoothConnectionHandler.HASH_READ, bytes_read, -1, buffer)
             .sendToTarget();
         } catch (IOException e) {
             Log.d(TAG, "Error while receiving incoming file.");
