@@ -6,16 +6,28 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import project.cs.lisa.bluetooth.threads.ConnectBluetoothThread;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
-import com.example.bluetoothtest.BluetoothService;
-
-public class BluetoothConnectionHandler {
+/**
+ * 
+ * @author Paolo Boschini
+ *
+ */
+public class BluetoothConnectionHandler extends Handler {
     
+    /** Bluetooth provider for managing communication over threads. */
+    private BluetoothProvider mBluetoothProvider;
+
+    /**
+     * Message types sent from the BluetoothChatService Handler.
+     */
+    public static final int MESSAGE_CONNECTIONS_STATUS = 1;
+
     /**
      * Default constructor.
      */
@@ -29,17 +41,13 @@ public class BluetoothConnectionHandler {
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
-        case MESSAGE_STATE_CHANGE:
+        case MESSAGE_CONNECTIONS_STATUS:
             switch (msg.arg1) {
-            case BluetoothService.STATE_CONNECTED:
-                setStatus("Connected to " + mConnectedDeviceName);
+            case ConnectBluetoothThread.STATE_CONNECTING:
                 break;
-            case BluetoothService.STATE_CONNECTING:
-                setStatus("Connecting...");
+            case ConnectBluetoothThread.STATE_CONNECTED:
                 break;
-            case BluetoothService.STATE_LISTEN:
-            case BluetoothService.STATE_NONE:
-                setStatus("Not connected");
+            default:
                 break;
             }
             break;

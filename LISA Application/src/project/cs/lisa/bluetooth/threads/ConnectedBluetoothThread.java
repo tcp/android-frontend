@@ -20,6 +20,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import project.cs.lisa.bluetooth.provider.BluetoothConnectionHandler;
+
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,13 +65,17 @@ public class ConnectedBluetoothThread extends Thread {
 	 */
 	private String mClientAddress;
 	
-	/**
+    /** Handler for managing Bluetooth connection status. */
+    private BluetoothConnectionHandler mBluetoothHandler;
+
+    /**
 	 * Creates a new thread dealing with reading and writing data.
 	 * 
 	 * @param myBtSocket The Bluetooth socket used for the data transfer.
 	 */
-	public ConnectedBluetoothThread(BluetoothSocket myBtSocket) {
-		mBtSocket = myBtSocket;
+	public ConnectedBluetoothThread(BluetoothSocket myBtSocket, BluetoothConnectionHandler bluetoothHandler) {
+	    mBluetoothHandler = bluetoothHandler;
+	    mBtSocket = myBtSocket;
 		mClientAddress = mBtSocket.getRemoteDevice().getAddress();
 		
 		DataInputStream tmpIn = null;
