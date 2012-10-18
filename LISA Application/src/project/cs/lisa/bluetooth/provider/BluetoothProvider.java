@@ -82,9 +82,8 @@ public class BluetoothProvider implements ByteArrayProvider {
     }
 
     /**
-     * Start the ConnectedThread to begin managing a Bluetooth connection.
+     * Start the client thread to request and download a file.
      * @param socket  The BluetoothSocket on which the connection was made
-     * @param device  The BluetoothDevice that has been connected to
      */
     public synchronized void startRequestingFile(BluetoothSocket socket) {
         mClientThread = new ClientBluetoothThread(mBluetoothHandler, socket, mHash);
@@ -92,9 +91,8 @@ public class BluetoothProvider implements ByteArrayProvider {
     }
 
     /**
-     * Start the ConnectedThread to begin managing a Bluetooth connection.
+     * Start the server for reading the hash and send the corresponding BO
      * @param socket  The BluetoothSocket on which the connection was made
-     * @param device  The BluetoothDevice that has been connected to
      */
     public synchronized void startSendingFile(BluetoothSocket socket) {
         mServerThread = new ServerBluetoothThread(mBluetoothHandler, socket);
