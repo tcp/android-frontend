@@ -37,44 +37,31 @@ import android.util.Log;
  */
 public class ConnectedBluetoothThread extends Thread {
 	
-	/**
-	 * Debug Tag.
-	 */
+	/** Debug Tag. */
     private static final String TAG = "ConnectedThread";
     
-    /**
-     * The read buffer size.
-     */
+    /** The read buffer size. */
     private static final int BUFFER_SIZE = 1024;
 
-    /**
-     * Bluetooth Socket enabling the connection to the remote device.
-     */
+    /** Bluetooth Socket enabling the connection to the remote device. */
 	private final BluetoothSocket mBtSocket;
 	
-	/**
-	 * Input Stream used for reading in requests.
-	 */
+	/** Input Stream used for reading in requests. */
 	private final DataInputStream mInStream;
 	
-	/**
-	 * Output Stream used for writing data.
-	 */
+	/** Output Stream used for writing data. */
 	private final DataOutputStream mOutStream;
 
-    /**
-     * The Handler we communicate the results to.
-     */
+    /** The Handler we communicate the results to. */
 	private Handler mHandler;
 	
-	/**
-	 * The remote device's address.
-	 */
+	/** The remote device's address. */
 	private String mClientAddress;
 
     /**
 	 * Creates a new thread dealing with reading and writing data.
 	 * 
+     * @param myHandler     A handler.
 	 * @param myBtSocket The Bluetooth socket used for the data transfer.
 	 */
 	public ConnectedBluetoothThread(Handler myHandler, BluetoothSocket myBtSocket) {
@@ -97,9 +84,9 @@ public class ConnectedBluetoothThread extends Thread {
 		mOutStream = tmpOut;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Thread#run()
-	 */
+    /**
+     * Starts the thread for managing a connection with a remote device through Bluetooth.
+     */
 	@Override
 	public void run() {
 		Log.d(TAG, "Starting to receive the incoming message");

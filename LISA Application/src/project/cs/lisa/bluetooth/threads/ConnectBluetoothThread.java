@@ -39,12 +39,15 @@ public class ConnectBluetoothThread extends Thread {
     /** Handler for managing Bluetooth connection status. */
     private Handler mBluetoothHandler;
 
-    /** Constants that indicate the current connection state. */
+    /** Message representing a connecting state before getting a socket. */
     public static final int STATE_CONNECTING = 0;
+
+    /** Message representing a connected state after getting a socket. */
     public static final int STATE_CONNECTED = 1;
 
     /**
      * Instantiate a new ConnectBluetoothThread.
+     * @param bluetoothHandler The handler.
      * @param device The remote device we are going to establish a connection with. 
      */
     public ConnectBluetoothThread(Handler bluetoothHandler, BluetoothDevice device) {
