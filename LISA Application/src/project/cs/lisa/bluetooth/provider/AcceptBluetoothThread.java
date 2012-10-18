@@ -16,14 +16,16 @@
  */
 package project.cs.lisa.bluetooth.provider;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-
-import project.cs.lisa.bluetooth.provider.BluetoothConnectionHandler;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
@@ -42,6 +44,8 @@ public class AcceptBluetoothThread extends Thread {
 	/** Unique UUID. */
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+
+	private static final int BUFFER_SIZE = 1024;
 	
     /** Flag determining when to listen for incoming requests. */
     private boolean mServerListens;
@@ -57,6 +61,10 @@ public class AcceptBluetoothThread extends Thread {
 	
 	/** The Handler to send the bluetooth socket to. */
 	private Handler mHandler;
+	
+	private DataInputStream mInStream;
+	
+	private DataOutputStream mOutStream;
 	
 	/**
 	 * Creates a new AcceptBluetoothThread that waits for incoming
@@ -99,12 +107,59 @@ public class AcceptBluetoothThread extends Thread {
 			}
 			
 			if (socket != null) {
-				mHandler.obtainMessage(
-						BluetoothConnectionHandler.INCOMING_FILE_REQUEST, socket);
+				handleIncomingRequest(socket);
 			}
 		}	
 	}
 	
+	private void handleIncomingRequest(BluetoothSocket socket) {
+		String hash = readHash(socket);
+		File file = getFileByHash(hash);
+		byte[] fileData = toByteArray(file);
+		writeFile(fileData);
+	}
+
+
+	private void writeFile(byte[] fileData) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private byte[] toByteArray(File file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private File getFileByHash(String hash) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String readHash(BluetoothSocket socket) {
+		
+		byte[] buffer = new byte[BUFFER_SIZE];
+		int number_of_bytes;
+		
+		String readHash = "";
+		
+		try {
+	
+			mInStream = new DataInputStream(socket.getInputStream());			
+			number_of_bytes = mInStream.read(buffer);
+			readHash = new String(buffer, 0, number_of_bytes);
+			
+		} catch (IOException e) {
+			Log.d(TAG, "Couldn't extract streams for Bluetooth transmission.");
+		}
+		
+		return readHash;
+		
+	}
+
+
 	/**
 	 * Shuts down the current server client connection.
 	 */

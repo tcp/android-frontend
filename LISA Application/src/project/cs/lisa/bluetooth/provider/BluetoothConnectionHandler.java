@@ -78,7 +78,7 @@ public class BluetoothConnectionHandler extends Handler {
             break;
         case INCOMING_FILE_REQUEST:
             socket = (BluetoothSocket) msg.obj;
-            mBluetoothProvider.startSendingFile(socket);
+            mBluetoothProvider.send(socket);
             break;
             //        case MESSAGE_WRITE:
             //            byte[] writeBuf = (byte[]) msg.obj;
