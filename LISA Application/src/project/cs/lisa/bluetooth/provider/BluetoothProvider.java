@@ -72,14 +72,30 @@ public class BluetoothProvider implements ByteArrayProvider {
     @Override
     public byte[] getByteArray(String locator, String hash) {
 
-        /** Connect */
-        BluetoothSocket socket = connectToRemoteDevice(locator);
+        byte[] fileArray = null;
+        BluetoothSocket socket = null;
 
-        /** Send request */
-        sendRequest(socket, hash);
+        try {
 
-        /** Download file */
-        byte[] fileArray = downloadFile(socket);
+            /** Connect */
+            socket = connectToRemoteDevice(locator);
+
+            /** Send request */
+            sendRequest(socket, hash);
+
+            /** Download file */
+            fileArray = downloadFile(socket);
+
+        } catch (IOException e) {
+            Log.d(TAG, "Trying to close the socket due to a fail in the connection...");
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e1) {
+                    Log.d(TAG, "Something went wrong when closing the socket!");
+                }
+            }
+        }
 
         return fileArray;
     }
@@ -90,37 +106,23 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   locator     The device we want to connect to
      * @return  The Bluetooth socket for the communication. 
      */
-    private BluetoothSocket connectToRemoteDevice(String locator) {
+    private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
 
         BluetoothSocket socket = null;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
 
-        /** Get a BluetoothSocket for a connection with the given BluetoothDevice. */
-        try {
-            /** An insecure connection does never ask the user to pair
-             * another device during a Bluetooth connection.
-             */
-            socket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        /** Get a BluetoothSocket for a connection with the given BluetoothDevice.
+         * An insecure connection does never ask the user to pair
+         * another device during a Bluetooth connection.
+         */
+        socket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
 
-        try {
-            /** This is a blocking call and will only return on a
-             * successful connection or an exception.
-             */
-            Log.d(TAG, "Trying to connect to a device through a socket...");
-            socket.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            try {
-                Log.d(TAG, "Trying to close the socket due to a fail in the connection...");
-                socket.close();
-            } catch (IOException e2) {
-                e2.printStackTrace();
-            }
-        }
-        
+        /** This is a blocking call and will only return on a
+         * successful connection or an exception.
+         */
+        Log.d(TAG, "Trying to connect to a device through a socket...");
+        socket.connect();
+
         return socket;
     }
 
@@ -130,21 +132,12 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   socket  The socket for connecting with the remote device    
      * @param   hash    The identifier for requesting the BO
      */
-    private void sendRequest(BluetoothSocket socket, String hash) {
+    private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
         DataOutputStream outStream = null;
 
         /** Get the output stream for sending the hash */
-        try {
-            outStream = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-           outStream.write(hash.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        outStream = new DataOutputStream(socket.getOutputStream());
+        outStream.write(hash.getBytes());
     }
 
     /**
@@ -152,26 +145,16 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   socket  The socket for the connection
      * @return  The byte stream representing the retrieved BO
      */
-    private byte[] downloadFile(BluetoothSocket socket) {
+    private byte[] downloadFile(BluetoothSocket socket) throws IOException {
         DataInputStream inStream = null;
         byte[] buffer = null;
 
         /** Get the input stream for receiving the file */
-        try {
-            inStream = new DataInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        inStream = new DataInputStream(socket.getInputStream());
+        int fileSize = inStream.readInt();
+        inStream.readFully(buffer);
+        buffer = new byte[fileSize];
 
-        try {
-            int fileSize = inStream.readInt();
-            inStream.readFully(buffer);
-            buffer = new byte[fileSize];
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
         return buffer;
     }
 
