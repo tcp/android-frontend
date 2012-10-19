@@ -14,7 +14,7 @@
  *
  * Copyright (C) 2012 LISA team
  */
-package project.cs.lisa.bluetooth.provider;
+package project.cs.lisa.bluetooth;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

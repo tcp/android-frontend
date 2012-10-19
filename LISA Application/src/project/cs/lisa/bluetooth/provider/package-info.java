@@ -1,6 +1,4 @@
 /**
- * Provides Bluetooth transferring services.
- * Containg a Bluetooth server and a Bluetooth client available
- * through the provider.
+ * Provides Bluetooth provider that acts as a client.
  */
 package project.cs.lisa.bluetooth.provider;
