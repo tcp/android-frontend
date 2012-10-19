@@ -109,8 +109,14 @@ public class BluetoothProvider implements ByteArrayProvider {
     @Override
     public byte[] getByteArray(String locator, String hash) {
         mHash = hash;
+        byte[] fileArray = fetchFile(locator, hash);
+        
+        return fileArray;
+    }
+
+    private byte[] fetchFile(String locator, String hash) {
         connect(mBluetoothAdapter.getRemoteDevice(locator));
-        return null;
+        
     }
 
     /**
