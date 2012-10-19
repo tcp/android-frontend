@@ -18,6 +18,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -31,7 +33,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	private static final String TAG = "NameResolutionService";
 	//TODO Extract NRS_SERVER IP address and port from a properties file or any other kind of config file 
 	private static final String NRS_SERVER = "http://130.238.15.227";
-	private static final String NRS_SERVER_PORT = "80"; 
+	private static final String NRS_SERVER_PORT = "1337"; 
 	//TODO is this ok?
 	private static final Random randomGenerator = new Random();
 	private HttpClient client = new DefaultHttpClient(); 
@@ -103,12 +105,12 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	        Log.e(TAG, e.toString());
         }
 	    Log.d(TAG, "Fuck!");
-		MultipartEntity entity = new MultipartEntity();
+		MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		
 		try {
 			StringBody uri = new StringBody("ni:///" + hashAlg + ";" + hash + "?ct=" + contentType);
 			entity.addPart("URI", uri);
-			
+		    
 			StringBody msgid = new StringBody(Integer.toString(randomGenerator.nextInt(100000000))); // generate
 			entity.addPart("msgid", msgid);
 			
@@ -136,6 +138,14 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 			e.printStackTrace();
 		}
 		
+//		Log.d(TAG, entity.getContentType().getValue().toString());
+//		post.addHeader("Content-Type", entity.getContentType().getValue());
+		try {
+            entity.writeTo(System.out);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 		post.setEntity(entity);
 		
 		return post;
