@@ -69,9 +69,9 @@ public class LisaModule extends AbstractModule  {
 	
 	@Singleton
 	@Provides
-	ResolutionService[] provideResolutionServices(HelloWorldResolutionService helloRs) {
-		ResolutionService[] hello = {}; 
-		return (ResolutionService[]) ArrayUtils.add(hello, helloRs);
+	ResolutionService[] provideResolutionServices(NameResolutionService nrs) {
+		ResolutionService[] empty = {}; 
+		return (ResolutionService[]) ArrayUtils.add(empty, nrs);
 	}
 	
 //	Examples:
