@@ -1,8 +1,8 @@
-package project.cs.lisa;
+package project.cs.lisa.application;
 
-import netinf.node.api.NetInfNode;
-import project.cs.lisa.netinf.LisaGETTask;
-import project.cs.lisa.netinf.LisaStarterNodeThread;
+import project.cs.lisa.R;
+import project.cs.lisa.application.http.LisaGetTask;
+import project.cs.lisa.netinf.node.LisaStarterNodeThread;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,9 +13,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
-
-import com.google.inject.Injector;
-import com.google.inject.Provider;
 
 public class MainActivity extends Activity {
 	
@@ -59,7 +56,7 @@ public class MainActivity extends Activity {
     	switch (view.getId()) {
     		case R.id.button1:
     			Log.d(TAG, "View: button1");
-    			LisaGETTask getTask = new LisaGETTask(this, "localhost", 8080);
+    			LisaGetTask getTask = new LisaGetTask(this, "localhost", 8080);
     			getTask.execute();
     		default:
     			Log.d(TAG, "Error: Unknown view clicked.");

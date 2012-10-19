@@ -23,7 +23,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node.resolution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +46,13 @@ import org.apache.log4j.Logger;
  * 
  * @author PG Augnet 2, University of Paderborn
  */
-public abstract class AbstractResolutionServiceWithoutId implements ResolutionService {
+public abstract class LisaAbstractResolutionServiceWithoutId implements ResolutionService {
 
-   private static final Logger LOG = Logger.getLogger(AbstractResolutionServiceWithoutId.class);
+   private static final Logger LOG = Logger.getLogger(LisaAbstractResolutionServiceWithoutId.class);
    private final List<EventPublisher> eventPublishers;
    private ResolutionServiceIdentityObject identityObject;
 
-   public AbstractResolutionServiceWithoutId() {
+   public LisaAbstractResolutionServiceWithoutId() {
       eventPublishers = new ArrayList<EventPublisher>();
    }
 

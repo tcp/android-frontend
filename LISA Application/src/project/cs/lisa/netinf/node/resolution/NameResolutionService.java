@@ -1,4 +1,4 @@
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node.resolution;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,26 +18,40 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.json.simple.JSONObject;
 
+import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
+import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import android.util.Log;
 
-public class NameResolutionService extends AbstractResolutionServiceWithoutId implements ResolutionService {
+import com.google.inject.Inject;
+
+public class NameResolutionService extends LisaAbstractResolutionServiceWithoutId implements ResolutionService {
 
 	
 	private static final String TAG = "NameResolutionService";
 	//TODO Extract NRS_SERVER IP address and port from a properties file or any other kind of config file 
 	private static final String NRS_SERVER = "http://130.238.15.227";
 	private static final String NRS_SERVER_PORT = "1337"; 
+	private static final int TIMEOUT = 2000;
 	//TODO is this ok?
 	private static final Random randomGenerator = new Random();
-	private HttpClient client = new DefaultHttpClient(); 
+	private HttpClient mClient; 
 	
+	@Inject
+	public NameResolutionService() {
+	    // Setup HTTP client
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
+        mClient = new DefaultHttpClient(params);
+	}
 	
 	@Override
 	public void delete(Identifier arg0) {
@@ -82,7 +96,8 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 		HttpPost post = createPublish(hashAlg, hash, ct, bluetoothMac);
 		
 		try {
-			HttpResponse response = client.execute(post);
+		    Log.d(TAG, "Executing HTTP Post to " + post.getURI());
+			HttpResponse response = mClient.execute(post);
 			Log.d(TAG, "RESP_CODE: " + Integer.toString(response.getStatusLine().getStatusCode()));
 			Log.d(TAG, "PUBLISH_RESP: " + streamToString(response.getEntity().getContent()));
 		} catch (ClientProtocolException e) {
@@ -99,13 +114,14 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
     private HttpPost createPublish(String hashAlg, String hash, String contentType, String bluetoothMac) {
 	    HttpPost post = null;
 	    try {
-	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish");
+	        // TODO this should not be *index.php when calling the actual NRS
+	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish/index.php");
 	    }
 	    catch (Exception e) {
 	        Log.e(TAG, e.toString());
         }
 	    Log.d(TAG, "Fuck!");
-		MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+		MultipartEntity entity = new MultipartEntity();
 		
 		try {
 			StringBody uri = new StringBody("ni:///" + hashAlg + ";" + hash + "?ct=" + contentType);
@@ -137,9 +153,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-//		Log.d(TAG, entity.getContentType().getValue().toString());
-//		post.addHeader("Content-Type", entity.getContentType().getValue());
+
 		try {
             entity.writeTo(System.out);
         } catch (IOException e) {

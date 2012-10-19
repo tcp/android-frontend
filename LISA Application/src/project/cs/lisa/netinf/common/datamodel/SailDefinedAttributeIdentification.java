@@ -23,49 +23,47 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.common.datamodel;
 
-import java.util.ArrayList;
-import java.util.List;
+import netinf.common.datamodel.rdf.DefinedRdfNames;
 
 /**
- * This enumeration type contains all the defined label names. The string of each defined label name is the user-readable
- * labelname within identifiers. The number of each defined label name defines the ordering among the label names. This guarantees
- * uniqueness among the labelnames.
+ * This class contains a list of all predefined attribute identifications. With the help of the
+ * {@link SailDefinedAttributeIdentification#getURI()} method, it is possible to access the underlying URI of the according defined
+ * attribute.
  * 
  * @author PG Augnet 2, University of Paderborn
  */
-public enum SailDefinedLabelName {
+public enum SailDefinedAttributeIdentification {
+
+   LOCATOR_PRIORITY("locator_priority", false), // specifies the priority for a locator
+   BLUETOOTH_MAC("bluetooth_mac", false),  
+   WIFI_MAC("wifi_mac", false),
+   WIFI_IP("wifi_ip", false),
+   NCS_URL("ncs_url", false);
    
-   AUTHORITY    ("AUTHORITY", 1),
-   HASH_ALG     ("HASH_ALG", 2),
-   HASH_CONTENT ("HASH_CONTENT", 3),
-   FILE_LOCATOR ("FILE_LOCATOR", 4),
-   TTL          ("TTL", 5),
-   CONTENT_TYPE ("CONTENT_TYPE",6);
+   
+   private final String uri;
 
-   private final String labelName;
-   private final int order;
-
-   private SailDefinedLabelName(String labelName, int order) {
-      this.labelName = labelName;
-      this.order = order;
+   private SailDefinedAttributeIdentification(String uri, boolean fromNetInf) {
+      if (fromNetInf) {
+         // TODO: This is currently a little bit ugly, since we are using RDF in an non-RDF part of the code.
+         this.uri = DefinedRdfNames.NETINF_RDF_SCHEMA_URI + uri;
+      } else {
+         this.uri = uri;
+      }
    }
 
-   public String getLabelName() {
-      return this.labelName;
+   public String getURI() {
+      return uri;
    }
 
-   public int getOrder() {
-      return this.order;
-   }
+   public static SailDefinedAttributeIdentification getDefinedAttributeIdentificationByURI(String uri) {
+      SailDefinedAttributeIdentification result = null;
 
-   public static SailDefinedLabelName getDefinedLabelNameByString(String labelName) {
-      SailDefinedLabelName result = null;
-
-      for (SailDefinedLabelName definedLabelName : SailDefinedLabelName.values()) {
-         if (definedLabelName.getLabelName().equals(labelName)) {
-            result = definedLabelName;
+      for (SailDefinedAttributeIdentification definedAttributeIdentification : SailDefinedAttributeIdentification.values()) {
+         if (definedAttributeIdentification.getURI().equals(uri)) {
+            result = definedAttributeIdentification;
             break;
          }
       }
@@ -73,16 +71,7 @@ public enum SailDefinedLabelName {
       return result;
    }
 
-   public static List<String> valueStrings() {
-      ArrayList<String> list = new ArrayList<String>();
-      for (SailDefinedLabelName defLabel : values()) {
-         list.add(defLabel.getLabelName());
-      }
-      return list;
+   public static String getURIByAttributeIdentification(SailDefinedAttributeIdentification definedAttributeIdentification) {
+      return definedAttributeIdentification.getURI();
    }
-
-   public static boolean isDefined(String string) {
-      return valueStrings().contains(string);
-   }
-
 }

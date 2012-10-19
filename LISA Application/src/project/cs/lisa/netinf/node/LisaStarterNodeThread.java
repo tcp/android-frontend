@@ -1,15 +1,13 @@
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node;
 
 import netinf.node.access.AccessServer;
 import netinf.node.api.NetInfNode;
 import netinf.node.resolution.ResolutionController;
 import netinf.node.resolution.ResolutionService;
-import project.cs.lisa.MainActivity;
-import project.cs.lisa.MainApplication;
+import project.cs.lisa.application.MainActivity;
+import project.cs.lisa.application.MainApplication;
 import android.content.Intent;
 import android.util.Log;
-
-import com.google.inject.Provider;
 
 public class LisaStarterNodeThread extends Thread {
 	

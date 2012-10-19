@@ -1,4 +1,4 @@
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node.access.rest;
 
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
@@ -11,7 +11,8 @@ import org.restlet.Restlet;
 import org.restlet.routing.Extractor;
 import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
-import org.restlet.routing.Template;
+
+import project.cs.lisa.netinf.node.access.rest.resources.LisaIOResource;
 
 public class LisaRESTApplication extends Application {
 	
@@ -55,7 +56,7 @@ public class LisaRESTApplication extends Application {
 		      
 			router.attach("/ni/{hash_alg};{hash_cont}", extractor);
 			
-			router.attach("/io", LisaResource.class);
+			router.attach("/io", LisaIOResource.class);
 			
 			return router;
 		}

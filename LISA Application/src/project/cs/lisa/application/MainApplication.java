@@ -1,10 +1,10 @@
-package project.cs.lisa;
+package project.cs.lisa.application;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import project.cs.lisa.netinf.LisaModule;
+import project.cs.lisa.netinf.node.module.LisaModule;
 import android.app.Application;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
