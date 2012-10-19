@@ -77,13 +77,13 @@ public class BluetoothProvider implements ByteArrayProvider {
 
         try {
 
-            /** Connect */
+            /* Connect */
             socket = connectToRemoteDevice(locator);
 
-            /** Send request */
+            /* Send request */
             sendRequest(socket, hash);
 
-            /** Download file */
+            /* Download file */
             fileArray = downloadFile(socket);
 
         } catch (IOException e) {
@@ -111,13 +111,13 @@ public class BluetoothProvider implements ByteArrayProvider {
         BluetoothSocket socket = null;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
 
-        /** Get a BluetoothSocket for a connection with the given BluetoothDevice.
+        /* Get a BluetoothSocket for a connection with the given BluetoothDevice.
          * An insecure connection does never ask the user to pair
          * another device during a Bluetooth connection.
          */
         socket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
 
-        /** This is a blocking call and will only return on a
+        /* This is a blocking call and will only return on a
          * successful connection or an exception.
          */
         Log.d(TAG, "Trying to connect to a device through a socket...");
@@ -135,7 +135,7 @@ public class BluetoothProvider implements ByteArrayProvider {
     private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
         DataOutputStream outStream = null;
 
-        /** Get the output stream for sending the hash */
+        /* Get the output stream for sending the hash */
         outStream = new DataOutputStream(socket.getOutputStream());
         outStream.write(hash.getBytes());
     }
@@ -149,7 +149,7 @@ public class BluetoothProvider implements ByteArrayProvider {
         DataInputStream inStream = null;
         byte[] buffer = null;
 
-        /** Get the input stream for receiving the file */
+        /* Get the input stream for receiving the file */
         inStream = new DataInputStream(socket.getInputStream());
         int fileSize = inStream.readInt();
         inStream.readFully(buffer);

@@ -29,7 +29,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -44,11 +43,10 @@ import android.util.Log;
  */
 public class BluetoothServer extends Thread {
 	
-
 	/** Debug Tag. */
 	private static final String TAG = "AcceptBluetoothThread";
 	
-	/** Unique UUID. For more information see {@link project.cs.lisa.bluetooth.provider#MY_UUID}*/
+	/** Unique UUID. For more information see {@link project.cs.lisa.bluetooth.provider#MY_UUID} */
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
     
@@ -128,16 +126,16 @@ public class BluetoothServer extends Thread {
 	 * @param socket The bluetooth socket used for communicating with the remote device
 	 */
 	private void handleIncomingRequest(BluetoothSocket socket) {
-		/** Receive the hash */
+		/* Receive the hash */
 		String hash = readHash(socket);
 		
-		/** Find the file on the device */
+		/* Find the file on the device */
 		File file = getFileByHash(hash);
 		
-		/** Create a byte array representation of the file */
+		/* Create a byte array representation of the file */
 		byte[] fileData = toByteArray(file);
 		
-		/** Send the data to the remote device */
+		/* Send the data to the remote device */
 		writeFile(fileData);
 		
 		try {
@@ -167,7 +165,6 @@ public class BluetoothServer extends Thread {
 			Log.e(TAG, "Exception occured during writing", e);
 
 		}		
-		
 	}
 
 
@@ -245,7 +242,6 @@ public class BluetoothServer extends Thread {
 		
 	}
 
-
 	/**
 	 * Shuts down the current server client connection.
 	 */
@@ -259,6 +255,4 @@ public class BluetoothServer extends Thread {
 			Log.d(TAG, "Error while closing Bluetooth socket");
 		}
 	}
-	
-	
 }
