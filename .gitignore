@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 *.class
 LISA\ Application/bin
+=======
+/LISA\ Application/gen
+/LISA\ Application/bin
+>>>>>>> refs/remotes/origin/master

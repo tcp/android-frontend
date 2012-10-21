@@ -16,14 +16,14 @@
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
 	<uses-permission android:name="android.permission.BLUETOOTH"/>
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    
 
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:name= ".application.MainApplication"
         android:theme="@style/AppTheme" android:permission="android.permission.ACCESS_WIFI_STATE">
         <activity
-            android:name="project.cs.lisa.connection.HttpActivity"
+            android:name=".application.MainActivity"
             android:label="@string/activity_http_title" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +36,7 @@
                 <action android:name="android.net.wifi.SCAN_RESULTS"/>
             </intent-filter>
         </activity>
-        <activity android:name="project.cs.lisa.wifi.WifiDeviceList">
+        <activity android:name=".wifi.WifiDeviceList">
             <intent-filter android:label="android.net.wifi.SCAN_RESULTS">
                 <action android:name="android.net.wifi.SCAN_RESULTS"/>
             </intent-filter>
