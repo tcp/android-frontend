@@ -42,7 +42,7 @@ public class Message {
 	}
 	
 	/**
-	 * Constructor with string
+	 * Constructor with string. Some comment.
 	 * @param string Message
 	 */
 	
