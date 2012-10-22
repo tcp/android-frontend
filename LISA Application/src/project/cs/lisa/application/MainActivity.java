@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
     	switch (view.getId()) {
     		case R.id.button1:
     			Log.d(TAG, "View: button1");
-    			LisaGetTask getTask = new LisaGetTask(this, "localhost", 8080);
+    			LisaGetTask getTask = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.PUBLISH, "sha-256", "ABCDEFG");
     			getTask.execute();
     		default:
     			Log.d(TAG, "Error: Unknown view clicked.");
