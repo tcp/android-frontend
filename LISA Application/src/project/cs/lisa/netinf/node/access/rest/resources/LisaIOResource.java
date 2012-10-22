@@ -51,7 +51,7 @@ public class LisaIOResource extends LisaServerResource {
 	@Get
 	public InformationObject handleGet() {
 		Log.d(TAG, "handleGet()");
-		
+
 	    // TODO handle other request types as well
 		
 		if(mMethod.equals(GET)){			 			

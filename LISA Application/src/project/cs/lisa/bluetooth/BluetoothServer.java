@@ -205,9 +205,8 @@ public class BluetoothServer extends Thread {
 	 * @return		The file that is identified with the specified hash
 	 */
 	private File getFileByHash(String hash) {
-		/* TODO: Get the file. Check in the meta data what file we are sending. */
 		
-		String filepath = SHARED_FILES_DIR + hash + ".jpg";
+		String filepath = SHARED_FILES_DIR + hash;
 		File requestedFile = new File(filepath);
 	
 		return requestedFile;
