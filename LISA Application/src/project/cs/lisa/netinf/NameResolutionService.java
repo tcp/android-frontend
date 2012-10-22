@@ -10,7 +10,10 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Scanner;
 
+import netinf.common.datamodel.DatamodelFactory;
+import netinf.common.datamodel.DefinedAttributePurpose;
 import netinf.common.datamodel.Identifier;
+import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
 import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
@@ -25,7 +28,11 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
+import com.google.inject.Inject;
 
 import android.util.Log;
 
@@ -36,10 +43,25 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	//TODO Extract NRS_SERVER IP address and port from a properties file or any other kind of config file 
 	private static final String NRS_SERVER = "http://130.238.15.227";
 	private static final String NRS_SERVER_PORT = "1337"; 
+	
+	/* Response code in case of affiliated data and content*/
+	private static final int RESPONSE_CODE_200 = 200;
+	
+	/* Response code in case of only affiliated data*/
+	private static final int RESPONSE_CODE_203 = 203;
+	
+	/*Datamodel Factory*/
+	private final DatamodelFactory mDatamodelFactory;
+	
+	
 	//TODO is this ok?
 	private static final Random randomGenerator = new Random();
 	private HttpClient client = new DefaultHttpClient(); 
 	
+	 @Inject
+	   public NameResolutionService(DatamodelFactory datamodelFactory) {
+	      this.mDatamodelFactory = datamodelFactory;
+	   }
 	
 	@Override
 	public void delete(Identifier arg0) {
@@ -55,18 +77,98 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 
 	@Override
 	public InformationObject get(Identifier identifier) {
+		Log.d(TAG,"get()");
 		
+	
+		InformationObject io = mDatamodelFactory.createInformationObject();
 		//Extracting values to identify the object we are going to get
 		String hashAlg     = identifier.getIdentifierLabel(SailDefinedLabelName.HASH_ALG.getLabelName()).getLabelValue();
 	    String hashValue   = identifier.getIdentifierLabel(SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+	    
 	    
 	    String uri = "ni:///" + hashAlg + ";" + hashValue;
 	    
 	    HttpPost post = createGet(uri);
 	    
+	    try {
+	    	//Execute request
+			HttpResponse response = client.execute(post);
+			int responseCode = response.getStatusLine().getStatusCode();
+			
+			if (responseCode == RESPONSE_CODE_203) {
+				String contentType = response.getEntity().getContentType().getValue();
+				
+				//Check if the response is a JSON
+				if ("application/json".equalsIgnoreCase(contentType)) {
+					InputStream content = response.getEntity().getContent();
+					String jsonString = streamToString(content);
+
+					//Convert String to JSON Object
+					Object tempObject = JSONValue.parse(jsonString);
+					JSONObject jsonObject = (JSONObject) tempObject;
+					//TODO Are we gonna do something with this?
+					String netInfVersion = (String)jsonObject.get("NetInf");
+					String msgid = (String)jsonObject.get("msgid");
+					String ni = (String)jsonObject.get("ni");
+					String ts = (String)jsonObject.get("ts");
+					String ct = (String)jsonObject.get("ct");
+					JSONArray metadata = (JSONArray)jsonObject.get("metadata");
+					
+					Log.d(TAG, "Metadata: " + metadata.toString());
+					
+					JSONArray locators = (JSONArray)jsonObject.get("loc");
+					
+					//Creating a Content Type label to the identifier
+					IdentifierLabel label = mDatamodelFactory.createIdentifierLabel();
+					label.setLabelName(SailDefinedLabelName.CONTENT_TYPE.getLabelName());
+					label.setLabelValue(ct);
+					identifier.addIdentifierLabel(label);
+					
+					//Updating io
+					io.setIdentifier(identifier);
+					
+					for (Object locator: locators) {
+						String loc = locator.toString();
+						
+						Attribute newLocator = mDatamodelFactory.createAttribute();
+						newLocator.setAttributePurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
+						newLocator.setIdentification(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
+						newLocator.setValue(loc);
+						
+						
+						//TODO LocatorPriority??????????
+						
+						io.addAttribute(newLocator);
+						
+						
+					}
+	
+				} 
+				else {
+					Log.e(TAG, "Wrong content type - The content type value is not application/json");
+				}
+				
+				
+			} else {
+				if (responseCode == RESPONSE_CODE_200) {
+					//TODO Do we need to implement this?
+					Log.e(TAG, "Response Code 200 - Not handle yet");
+				}
+				else {
+					Log.e(TAG, "Unexpected Response Code from server");
+				}
+			}
+			
+			
+			
+		} catch (ClientProtocolException e) {
+			Log.e(TAG, e.toString());
+		} catch (IOException e) {
+			Log.e(TAG, e.toString());
+		}
 	    
 	    
-		return null;
+		return io;
 	}
 	
 	
