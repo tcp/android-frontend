@@ -60,9 +60,10 @@ import android.os.Environment;
 import android.util.Log;
 
 /**
+ * Requests and Retrieves a BO.
  * 
- * @author Hugo 
- * @author Miguel
+ * @author Miguel Sosa
+ * @author Hugo Negrette
  * @author Paolo Boshini
  * @author Kim-Anh Tran
  *
@@ -78,10 +79,11 @@ public class BOResource extends LisaServerResource {
 	/** HashMap Key: Content type */
 	private static final String CONTENT_TYPE = "contenType";
 
+	/** The hash value of the requested BO. */
 	private String mHashValue;
 
+    /** The hash algorithm used to generate the hash value . */
 	private String mHashAlgorithm;
-
 
 	/**
 	 * Initializes the context of a BOResource.
@@ -93,30 +95,13 @@ public class BOResource extends LisaServerResource {
 		mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
 	}
 
-	/*
-	 * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
-	 * (Full list of owners see http://www.netinf.org/about-2/license)
+	/**
+	 * Responds to an HTTP get request.
+	 * Returns a Map describing the retrieved file.
 	 * 
-	 * All rights reserved.
-	 * 
-	 * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-	 * 
-	 *     * Redistributions of source code must retain the above copyright notice,
-	 *       this list of conditions and the following disclaimer.
-	 *     * Redistributions in binary form must reproduce the above copyright notice,
-	 *       this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-	 *     * Neither the name of the University of Paderborn nor the names of its contributors may be used to endorse
-	 *       or promote products derived from this software without specific prior written permission.
-	 * 
-	 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-	 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-	 * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
-	 * SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-	 * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-	 * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-	 * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-	 * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-	 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	 * @return The Map that contains the information about the file:
+	 *         First key: the file path
+	 *         Second key: the content type of the file
 	 */
 	@Get
 	public HashMap<String, String> retrieveBO() {
@@ -125,6 +110,7 @@ public class BOResource extends LisaServerResource {
 		String filePath = null;
 		String contentType = null;
 
+		/* Retrieve a data object from a node (could be an NRS) */
 		Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
 		InformationObject io = null;
 		try {
@@ -136,18 +122,20 @@ public class BOResource extends LisaServerResource {
 		/* Retrieve the data corresponding to the hash from another device. */
 		if (io != null) {
 
-			contentType = io.getIdentifier().getIdentifierLabel(
+		    /* Store the content type of the requested BO */
+		    contentType = io.getIdentifier().getIdentifierLabel(
 					SailDefinedLabelName.CONTENT_TYPE.getLabelName())
 					.getLabelValue();
 			
-			TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
-
+            /* Attempt to transfer the BO from a remote device */
+		    TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
 			try {
 				fileData = tsDispatcher.getByteArray(io);
 			} catch (IOException e) {
 				Log.d(TAG, "Couldn't retrieve the requested data.");
 			}
 
+			/* Writes the received data to file */ 
 			if (fileData != null) {
 
 				String hash = io.getIdentifier().getIdentifierLabel(
@@ -159,7 +147,6 @@ public class BOResource extends LisaServerResource {
 			} else {
 				Log.d(TAG, "No file data to write.");
 			}
-
 		}
 
 		HashMap<String, String> map = new HashMap<String, String>(2);
@@ -199,5 +186,4 @@ public class BOResource extends LisaServerResource {
 			}
 		}		
 	}	
-
 }
