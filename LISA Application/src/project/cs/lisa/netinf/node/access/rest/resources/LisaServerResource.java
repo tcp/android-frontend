@@ -23,7 +23,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node.access.rest.resources;
 
 import netinf.common.communication.NetInfNodeConnection;
 import netinf.common.datamodel.DatamodelFactory;
@@ -31,6 +31,9 @@ import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.IdentifierLabel;
 
 import org.restlet.resource.ServerResource;
+
+import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import project.cs.lisa.netinf.node.access.rest.LisaRESTApplication;
 
 /**
  * Abstract resource that provides a NetInfNodeConnection and a DatamodelFactory.

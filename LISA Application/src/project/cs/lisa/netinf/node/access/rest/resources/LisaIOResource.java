@@ -1,4 +1,4 @@
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node.access.rest.resources;
 
 import netinf.common.communication.NetInfNodeConnection;
 import netinf.common.datamodel.DatamodelFactory;
@@ -11,9 +11,11 @@ import netinf.common.exceptions.NetInfCheckedException;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
+import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
+
 import android.util.Log;
 
-public class LisaResource extends LisaServerResource {
+public class LisaIOResource extends LisaServerResource {
 	
 	public static final String TAG = "LisaResource";
   

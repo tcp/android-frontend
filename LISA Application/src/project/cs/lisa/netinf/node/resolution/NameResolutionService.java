@@ -1,4 +1,4 @@
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node.resolution;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,21 +28,27 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import com.google.inject.Inject;
-
+import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
+import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import android.util.Log;
 
-public class NameResolutionService extends AbstractResolutionServiceWithoutId implements ResolutionService {
+import com.google.inject.Inject;
+
+public class NameResolutionService extends LisaAbstractResolutionServiceWithoutId implements ResolutionService {
 
 	
 	private static final String TAG = "NameResolutionService";
 	//TODO Extract NRS_SERVER IP address and port from a properties file or any other kind of config file 
 	private static final String NRS_SERVER = "http://130.238.15.227";
 	private static final String NRS_SERVER_PORT = "1337"; 
+	private static final int TIMEOUT = 2000;
 	
 	/* Response code in case of affiliated data and content*/
 	private static final int RESPONSE_CODE_200 = 200;
@@ -53,15 +59,19 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	/*Datamodel Factory*/
 	private final DatamodelFactory mDatamodelFactory;
 	
-	
 	//TODO is this ok?
 	private static final Random randomGenerator = new Random();
-	private HttpClient client = new DefaultHttpClient(); 
+	private HttpClient mClient; 
 	
-	 @Inject
-	   public NameResolutionService(DatamodelFactory datamodelFactory) {
-	      this.mDatamodelFactory = datamodelFactory;
-	   }
+	@Inject
+	public NameResolutionService(DatamodelFactory datamodelFactory) {
+	    // Setup HTTP client
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
+        this.mClient = new DefaultHttpClient(params);
+        this.mDatamodelFactory = datamodelFactory;
+	}
 	
 	@Override
 	public void delete(Identifier arg0) {
@@ -79,7 +89,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	public InformationObject get(Identifier identifier) {
 		Log.d(TAG,"get()");
 		
-	
+		
 		InformationObject io = mDatamodelFactory.createInformationObject();
 		//Extracting values to identify the object we are going to get
 		String hashAlg     = identifier.getIdentifierLabel(SailDefinedLabelName.HASH_ALG.getLabelName()).getLabelValue();
@@ -92,7 +102,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	    
 	    try {
 	    	//Execute request
-			HttpResponse response = client.execute(post);
+			HttpResponse response = mClient.execute(post);
 			int responseCode = response.getStatusLine().getStatusCode();
 			
 			if (responseCode == RESPONSE_CODE_203) {
@@ -107,10 +117,12 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 					Object tempObject = JSONValue.parse(jsonString);
 					JSONObject jsonObject = (JSONObject) tempObject;
 					//TODO Are we gonna do something with this?
+					/*
 					String netInfVersion = (String)jsonObject.get("NetInf");
 					String msgid = (String)jsonObject.get("msgid");
 					String ni = (String)jsonObject.get("ni");
 					String ts = (String)jsonObject.get("ts");
+					*/
 					String ct = (String)jsonObject.get("ct");
 					JSONArray metadata = (JSONArray)jsonObject.get("metadata");
 					
@@ -170,8 +182,6 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	    
 		return io;
 	}
-	
-	
 
 	@Override
 	public List<Identifier> getAllVersions(Identifier arg0) {
@@ -198,7 +208,8 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 		HttpPost post = createPublish(hashAlg, hash, ct, bluetoothMac);
 		
 		try {
-			HttpResponse response = client.execute(post);
+		    Log.d(TAG, "Executing HTTP Post to " + post.getURI());
+			HttpResponse response = mClient.execute(post);
 			Log.d(TAG, "RESP_CODE: " + Integer.toString(response.getStatusLine().getStatusCode()));
 			Log.d(TAG, "PUBLISH_RESP: " + streamToString(response.getEntity().getContent()));
 		} catch (ClientProtocolException e) {
@@ -215,7 +226,8 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
     private HttpPost createPublish(String hashAlg, String hash, String contentType, String bluetoothMac) {
 	    HttpPost post = null;
 	    try {
-	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish");
+	        // TODO this should not be *index.php when calling the actual NRS
+	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish/index.php");
 	    }
 	    catch (Exception e) {
 	        Log.e(TAG, e.toString());
@@ -226,7 +238,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 		try {
 			StringBody uri = new StringBody("ni:///" + hashAlg + ";" + hash + "?ct=" + contentType);
 			entity.addPart("URI", uri);
-			
+		    
 			StringBody msgid = new StringBody(Integer.toString(randomGenerator.nextInt(100000000))); // generate
 			entity.addPart("msgid", msgid);
 			
@@ -253,7 +265,13 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+		try {
+            entity.writeTo(System.out);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 		post.setEntity(entity);
 		
 		return post;
@@ -270,7 +288,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 		
 		String encodeUrl = null;
 		try {
-			encodeUrl = URLEncoder.encode(uri, "UTF-8");
+			encodeUrl = URLEncoder.encode(completeUri, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -310,7 +328,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	 * 
 	 * @return ByteArrayInputStream
 	 */
-	public static InputStream fromString(String str) {
+	private static InputStream fromString(String str) {
 		byte[] bytes = str.getBytes();
 		return new ByteArrayInputStream(bytes);
 	}

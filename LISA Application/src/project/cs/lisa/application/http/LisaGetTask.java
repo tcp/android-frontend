@@ -1,4 +1,4 @@
-package project.cs.lisa.netinf;
+package project.cs.lisa.application.http;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.EditText;
 
-public class LisaGETTask extends AsyncTask<Void, Void, String> {
+public class LisaGetTask extends AsyncTask<Void, Void, String> {
 
 	
 	/** Debug Log Tag. **/
@@ -36,7 +36,7 @@ public class LisaGETTask extends AsyncTask<Void, Void, String> {
 	/** The rest of the URI. **/
 	private String mMessage;
 	
-	public LisaGETTask(Activity activity, String host, int port) {
+	public LisaGetTask(Activity activity, String host, int port) {
 		mActivity = activity;
 		mHost = host;
 		mPort = port;

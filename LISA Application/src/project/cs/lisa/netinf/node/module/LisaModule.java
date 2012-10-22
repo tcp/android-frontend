@@ -1,4 +1,4 @@
-package project.cs.lisa.netinf;
+package project.cs.lisa.netinf.node.module;
 
 import java.util.Properties;
 
@@ -20,6 +20,9 @@ import netinf.node.transfer.TransferController;
 import netinf.node.transfer.impl.TransferControllerImpl;
 
 import org.apache.commons.lang.ArrayUtils;
+
+import project.cs.lisa.netinf.node.access.rest.LisaRESTAccessServer;
+import project.cs.lisa.netinf.node.resolution.NameResolutionService;
 
 import android.util.Log;
 
