@@ -1,8 +1,10 @@
 package project.cs.lisa.netinf;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -14,10 +16,12 @@ import netinf.common.datamodel.attribute.Attribute;
 import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
 import netinf.node.resolution.ResolutionService;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -50,10 +54,22 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	}
 
 	@Override
-	public InformationObject get(Identifier arg0) {
-		// TODO Auto-generated method stub
+	public InformationObject get(Identifier identifier) {
+		
+		//Extracting values to identify the object we are going to get
+		String hashAlg     = identifier.getIdentifierLabel(SailDefinedLabelName.HASH_ALG.getLabelName()).getLabelValue();
+	    String hashValue   = identifier.getIdentifierLabel(SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+	    
+	    String uri = "ni:///" + hashAlg + ";" + hashValue;
+	    
+	    HttpPost post = createGet(uri);
+	    
+	    
+	    
 		return null;
 	}
+	
+	
 
 	@Override
 	public List<Identifier> getAllVersions(Identifier arg0) {
@@ -140,6 +156,30 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 		
 		return post;
 	}
+	
+	private static HttpPost createGet(String uri)  {
+		
+		HttpPost post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT +"/netinfproto/get"); 
+		
+		String msgid = Integer.toString(randomGenerator.nextInt(100000000));
+		String ext = "no extension";
+
+		String completeUri= "URI="+uri+"&msgid="+msgid+"&ext="+ext;
+		
+		String encodeUrl = null;
+		try {
+			encodeUrl = URLEncoder.encode(uri, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		HttpEntity newEntity = new InputStreamEntity(fromString(encodeUrl), encodeUrl.getBytes().length);
+		
+		post.addHeader("Content-Type","application/x-www-form-urlencoded");
+		post.setEntity(newEntity);
+		return post;
+	}
 
 	@Override
 	protected ResolutionServiceIdentityObject createIdentityObject() {
@@ -160,5 +200,17 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
             return "";
         }
     }
+	
+	/**
+	 * Converts a string to a type ByteArrayInputStream
+	 * 
+	 * @param str string to be converted
+	 * 
+	 * @return ByteArrayInputStream
+	 */
+	public static InputStream fromString(String str) {
+		byte[] bytes = str.getBytes();
+		return new ByteArrayInputStream(bytes);
+	}
 
 }
