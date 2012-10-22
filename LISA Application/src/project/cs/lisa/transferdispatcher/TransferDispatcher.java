@@ -45,13 +45,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import netinf.android.transferdispatcher.providers.HttpProvider;
 import netinf.common.datamodel.DefinedAttributePurpose;
+import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
-
+import netinf.node.transferdispatcher.streamprovider.NetInfNoStreamProviderFoundException;
 import project.cs.lisa.bluetooth.provider.BluetoothProvider;
 import project.cs.lisa.bluetooth.provider.ByteArrayProvider;
-import android.bluetooth.BluetoothAdapter;
+import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import android.util.Log;
 
 /**
@@ -76,12 +76,6 @@ public enum TransferDispatcher {
     private static final String TAG = "TransferDispatcher";
     
     /**
-     * The bluetooth mac address of this device.
-     */
-    private String bluetoothMacAddress;
-
-    
-    /**
      * The list of available byte array providers.
      */
     private List<ByteArrayProvider> byteArrayProviders;
@@ -91,12 +85,6 @@ public enum TransferDispatcher {
      */
     TransferDispatcher() {
         addByteArrayProviders();
-        
-        BluetoothAdapter bluetoothDefaultAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        if ((bluetoothDefaultAdapter != null) && (bluetoothDefaultAdapter.isEnabled())){
-            bluetoothMacAddress = BluetoothAdapter.getDefaultAdapter().getAddress();
-        }   
     }
 
     /**
@@ -124,9 +112,10 @@ public enum TransferDispatcher {
        for (Attribute currentLocator : locators) {
            
            try {           
-               resultArray = getByteArray(locSel.next(), hash);         
+
+               resultArray = getByteArray(currentLocator.getValue(String.class), hash);         
                if (resultArray != null) return resultArray;
-                      
+               
             } catch (NetInfNoStreamProviderFoundException e) {
                Log.d(TAG, "No suitable provider could be found for the locators.");
             }
@@ -142,10 +131,8 @@ public enum TransferDispatcher {
      * @param io    The information object that contains the list of locators
      * @return      The list of locators
      */
-    private List<Atrribute> extractLocators(InformationObject io) {
-        List<Attribute> result = new ArrayList<Attribute>();
+    private List<Attribute> extractLocators(InformationObject io) {
         List<Attribute> locators = io.getAttributesForPurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.getAttributePurpose());
-        
         return locators;
     }
     
@@ -184,5 +171,4 @@ public enum TransferDispatcher {
        }
        return null;
     }    
-    
 }
