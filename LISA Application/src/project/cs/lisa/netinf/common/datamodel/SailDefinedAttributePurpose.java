@@ -25,53 +25,40 @@
  */
 package project.cs.lisa.netinf.common.datamodel;
 
-import netinf.common.datamodel.rdf.DefinedRdfNames;
-
 /**
- * This class contains a list of all predefined attribute identifications. With the help of the
- * {@link SailDefinedAttributeIdentification#getURI()} method, it is possible to access the underlying URI of the according defined
- * attribute.
+ * A {@link SailDefinedAttributePurpose} determines how the attribute has to be interpreted. Is it used system internally to handle
+ * particular pieces of functionality not directly visible to the user, or is the attribute created by the user? This is
+ * determined in this class.
  * 
  * @author PG Augnet 2, University of Paderborn
  */
-public enum SailDefinedAttributeIdentification {
+public enum SailDefinedAttributePurpose {
 
-   LOCATOR_PRIORITY("locator_priority", false), // specifies the priority for a locator
-   BLUETOOTH_MAC("bluetooth_mac", false),  
-   WIFI_MAC("wifi_mac", false),
-   WIFI_IP("wifi_ip", false),
-   NCS_URL("ncs_url", false),
-   META_DATA("meta_data", false);
-   
-   private final String uri;
+   USER_ATTRIBUTE("USER_ATTRIBUTE"),
+   SYSTEM_ATTRIBUTE("SYSTEM_ATTRIBUTE"),
+   LOCATOR_ATTRIBUTE("LOCATOR_ATTRIBUTE"),
+   META_ATTRIBUTE("META_ATTRIBUTE");
 
-   private SailDefinedAttributeIdentification(String uri, boolean fromNetInf) {
-      if (fromNetInf) {
-         // TODO: This is currently a little bit ugly, since we are using RDF in an non-RDF part of the code.
-         this.uri = DefinedRdfNames.NETINF_RDF_SCHEMA_URI + uri;
-      } else {
-         this.uri = uri;
-      }
+   private final String attributePurpose;
+
+   public String getAttributePurpose() {
+      return attributePurpose;
    }
 
-   public String getURI() {
-      return uri;
+   private SailDefinedAttributePurpose(String attributePurpose) {
+      this.attributePurpose = attributePurpose;
    }
 
-   public static SailDefinedAttributeIdentification getDefinedAttributeIdentificationByURI(String uri) {
-      SailDefinedAttributeIdentification result = null;
+   public static SailDefinedAttributePurpose getDefinedAttributePurpose(String attributePurpose) {
+      SailDefinedAttributePurpose result = null;
 
-      for (SailDefinedAttributeIdentification definedAttributeIdentification : SailDefinedAttributeIdentification.values()) {
-         if (definedAttributeIdentification.getURI().equals(uri)) {
-            result = definedAttributeIdentification;
+      for (SailDefinedAttributePurpose definedAttributePurpose : SailDefinedAttributePurpose.values()) {
+         if (definedAttributePurpose.getAttributePurpose().equals(attributePurpose)) {
+            result = definedAttributePurpose;
             break;
          }
       }
 
       return result;
-   }
-
-   public static String getURIByAttributeIdentification(SailDefinedAttributeIdentification definedAttributeIdentification) {
-      return definedAttributeIdentification.getURI();
    }
 }
