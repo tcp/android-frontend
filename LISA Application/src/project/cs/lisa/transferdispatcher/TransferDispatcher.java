@@ -48,7 +48,7 @@ import java.util.List;
 import netinf.common.datamodel.DefinedAttributePurpose;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
-import netinf.node.transferdispatcher.streamprovider.NetInfNoStreamProviderFoundException;
+import project.cs.lisa.bluetooth.BluetoothDiscovery;
 import project.cs.lisa.bluetooth.provider.BluetoothProvider;
 import project.cs.lisa.bluetooth.provider.ByteArrayProvider;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
@@ -64,22 +64,22 @@ import android.util.Log;
  * @pat.task Forces that only one instance of this class exists.
  */
 public enum TransferDispatcher {
-    
+
     /**
      * The Transfer Dispatcher instance.
      */
     INSTANCE;
-    
+
     /**
      * The debug tag.
      */
     private static final String TAG = "TransferDispatcher";
-    
+
     /**
      * The list of available byte array providers.
      */
-    private List<ByteArrayProvider> byteArrayProviders;
-    
+    private List<ByteArrayProvider> mByteArrayProviders;
+
     /**
      * Initializes the Transfer Dispatcher.
      */
@@ -91,40 +91,76 @@ public enum TransferDispatcher {
      * Adds available ByteArrayProviders to the TransferDispatcher.
      */   
     private void addByteArrayProviders() {
-        byteArrayProviders = new ArrayList<ByteArrayProvider>();
-        byteArrayProviders.add(new BluetoothProvider());
+        mByteArrayProviders = new ArrayList<ByteArrayProvider>();
+        mByteArrayProviders.add(new BluetoothProvider());
     }
-    
+
     /**
      * Provides the stream by a given DO.
      * 
-     * @param dataObj
-     *           The DO.
+     * @param io The information object...
+     * 
      * @return Stream to the underlying BO.
-     * @throws IOException
+     * @throws IOException	Thrown if no locator could be found
      */
-    public byte[] getByteArray(InformationObject myIO) throws IOException {
-       
-       byte[] resultArray;
-       String hash    = myIO.getIdentifier().getIdentifierLabel(SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+    public byte[] getByteArray(InformationObject io) throws IOException {
 
-       List<Attribute> locators = extractLocators(myIO);
-       for (Attribute currentLocator : locators) {
-           
-           try {           
+        List<Attribute> locators = extractLocators(io);
 
-               resultArray = getByteArray(currentLocator.getValue(String.class), hash);         
-               if (resultArray != null) return resultArray;
-               
-            } catch (NetInfNoStreamProviderFoundException e) {
-               Log.d(TAG, "No suitable provider could be found for the locators.");
+        /* Try to discover available devices and only keep those
+         * locators that are right now available via bluetooth.
+         */
+        List<String> availableFilteredBluetoothLocators = filterLocators(locators);
+        
+        byte[] resultArray;
+        String hash = io.getIdentifier().getIdentifierLabel(
+        		SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+
+        /* Tries to retrieve the BO from the first possible locator. */
+        for (String currentLocator : availableFilteredBluetoothLocators) {
+
+        	resultArray = getByteArray(currentLocator, hash);         
+            if (resultArray != null) {
+            	Log.d(TAG, "Received data from the following locator " + currentLocator);
+            	
+            	return resultArray;
             }
-            
-       }
-    
-       throw new IOException("No suitable locator could be found.");
+        }
+
+        throw new IOException("No suitable locator could be found.");
     }
-    
+
+    /**
+     * Returns a sublist of locators that are currently 
+     * available via Bluetooth.
+     * 
+     * @param locators	The list of all locators that own the BO.
+     * @return			The sublist of locators that are available
+     * 					via bluetooth.
+     */
+    private List<String> filterLocators(List<Attribute> locators) {
+    	Log.d(TAG, "Filter locators.");
+    	
+    	BluetoothDiscovery btDiscovery = BluetoothDiscovery.INSTANCE;
+        List<String> availableLocators = btDiscovery.startBluetoothDiscovery();
+        
+        /* 
+         * Converts the Attribute locators to String locators that represent
+         * the MAC address of each locator.
+         */
+        List<String> stringLocators = new ArrayList<String>(locators.size());
+        for (Attribute locator : locators) {
+        	stringLocators.add(locator.getValue(String.class));
+        }
+        
+        /* Keep only those locators that are available right now */
+        stringLocators.retainAll(availableLocators);
+        
+        Log.d(TAG, "Filtered locator list: " + stringLocators.toString());
+        
+        return stringLocators;
+    }
+
     /**
      * Returns the list of locators from a specified information object.
      * 
@@ -132,11 +168,12 @@ public enum TransferDispatcher {
      * @return      The list of locators
      */
     private List<Attribute> extractLocators(InformationObject io) {
-        List<Attribute> locators = io.getAttributesForPurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.getAttributePurpose());
+        List<Attribute> locators = io.getAttributesForPurpose(
+        		DefinedAttributePurpose.LOCATOR_ATTRIBUTE.getAttributePurpose());
         return locators;
     }
-    
-    
+
+
     /**
      * Given a locator and a file hash, this method provides the byte array corresponding
      * to the hash.
@@ -148,27 +185,39 @@ public enum TransferDispatcher {
      * @return The byte array corresponding to the hash of the file obtained from the address
      *         specified in the locator.
      */
-    public byte[] getByteArray(String locator, String hash) throws NetInfNoStreamProviderFoundException {
-           Log.d(TAG, "Connecting to the following locator: " + locator);
-        
-           ByteArrayProvider provider = getByteArrayProvider(locator);
-           return (provider != null) ? provider.getByteArray(locator, hash) : null;
+    public byte[] getByteArray(String locator, String hash) {
+
+        /*
+         * At this point any service (bluetooth, wifi) could be used to
+         * retrieve the BO. We should have some way to choose the best
+         * service depending on the available type of locators,
+         * go through the list of locators contained in the io,
+         * and start the transfer of the BO.
+         */
+
+        Log.d(TAG, "Connecting to the following locator: " + locator);
+
+        ByteArrayProvider provider = getByteArrayProvider(locator);
+        if (provider != null) {
+        	return provider.getByteArray(locator, hash);
+        } else {
+        	return null;
+        }
     }   
-      
+
     /**
      * Provides the appropriate ByteArrayProvider.
      * 
-     * @param url
-     *           The locator from where the file will be fetched
+     * @param locator	The locator from where the file will be fetched
      * @return The specific ByteArrayProvider.
      */
-    ByteArrayProvider getByteArrayProvider(String locator)  {
-       for (ByteArrayProvider provider : byteArrayProviders) {
-          if (provider.canHandle(locator)) {
-             Log.d(TAG, "Choosing the following provider: " + provider.describe());
-             return provider;
-          }
-       }
-       return null;
+    ByteArrayProvider getByteArrayProvider(String locator) {
+        for (ByteArrayProvider provider : mByteArrayProviders) {
+            if (provider.canHandle(locator)) {
+                Log.e(TAG, "Choosing the following provider: " + provider.describe());
+                return provider;
+            }
+        }
+        return null;
     }    
 }

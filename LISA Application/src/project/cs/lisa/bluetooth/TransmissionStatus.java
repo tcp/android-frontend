@@ -20,11 +20,11 @@ package project.cs.lisa.bluetooth;
  * The Enum Transmission indicates the result of a transmission.
  */
 public enum TransmissionStatus {
-	
-	/** Transmission succeeded. */
-	SUCCEED,
-	
-	/** Transmission failed. */
-	FAILED;
+
+    /** Transmission succeeded. */
+    SUCCEED,
+
+    /** Transmission failed. */
+    FAILED;
 
 }
