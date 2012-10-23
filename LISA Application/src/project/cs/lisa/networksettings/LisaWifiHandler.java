@@ -13,7 +13,7 @@
  *
  * Copyright (C) 2012 LISA team
  */
-package project.cs.lisa.wifi;
+package project.cs.lisa.networksettings;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
-public class WifiHandler {
+public class LisaWifiHandler {
     //constants
     public static final int WEP = 1;
     public static final int WAP = 2;
@@ -42,7 +42,7 @@ public class WifiHandler {
      * Constructor initializes WifiManager and WifiInfo.
      * @param context
      */
-    public WifiHandler(Context context) {
+    public LisaWifiHandler(Context context) {
         wifiMgr  = getWifiManager(context);		// gets wifiMgr in the current context 
         wifiInfo = getWifiInfo(context);			// gets wifiInfo in the current context
         wifiConf = getWifiConf(context);			// gets wifiConf in the current context

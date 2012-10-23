@@ -17,7 +17,7 @@
 package project.cs.lisa.connection;
 
 import project.cs.lisa.R;
-import project.cs.lisa.wifi.WifiDeviceList;
+import project.cs.lisa.networksettings.LisaNetworkSettings;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -129,7 +129,7 @@ public class HttpActivity extends Activity {
     			//setContentView(R.layout.activity_wifi);
     		}
     	});
-    	Intent intent = new Intent(this, WifiDeviceList.class);
+    	Intent intent = new Intent(this, LisaNetworkSettings.class);
     	startActivity(intent);
     }
     
