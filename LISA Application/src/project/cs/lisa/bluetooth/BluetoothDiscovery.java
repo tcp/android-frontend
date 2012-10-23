@@ -80,7 +80,8 @@ public enum BluetoothDiscovery {
      * @return  The list of available devices represented by MAC:addresses.
      */
     public synchronized List<String> startBluetoothDiscovery() {
-
+    	Log.d(TAG, "Start bluetooth discovery.");
+    	
         /* Initiate a new list every time we start a discovery */
         mAvailableDevices = new ArrayList<String>();
 
@@ -95,6 +96,8 @@ public enum BluetoothDiscovery {
 
         /* Discovery done */
         mBluetoothAdapter.cancelDiscovery();
+        
+        Log.d(TAG, "Bluetooth discovery is finished.");
 
         return mAvailableDevices;
     }
@@ -105,6 +108,8 @@ public enum BluetoothDiscovery {
      * for now intercept only Bluetooth discovery.
      */
     private void setUpBroadcastReceiver() {
+    	Log.d(TAG, "Set up broadcast receiver.");
+    	
         mBroadcastReceiver = new BroadcastReceiver() {
 
             @Override

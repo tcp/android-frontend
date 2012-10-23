@@ -48,7 +48,6 @@ import java.util.List;
 import netinf.common.datamodel.DefinedAttributePurpose;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
-import netinf.node.transferdispatcher.streamprovider.NetInfNoStreamProviderFoundException;
 import project.cs.lisa.bluetooth.BluetoothDiscovery;
 import project.cs.lisa.bluetooth.provider.BluetoothProvider;
 import project.cs.lisa.bluetooth.provider.ByteArrayProvider;
@@ -122,6 +121,8 @@ public enum TransferDispatcher {
 
         	resultArray = getByteArray(currentLocator, hash);         
             if (resultArray != null) {
+            	Log.d(TAG, "Received data from the following locator " + currentLocator);
+            	
             	return resultArray;
             }
         }
@@ -138,6 +139,8 @@ public enum TransferDispatcher {
      * 					via bluetooth.
      */
     private List<String> filterLocators(List<Attribute> locators) {
+    	Log.d(TAG, "Filter locators.");
+    	
     	BluetoothDiscovery btDiscovery = BluetoothDiscovery.INSTANCE;
         List<String> availableLocators = btDiscovery.startBluetoothDiscovery();
         
@@ -152,6 +155,8 @@ public enum TransferDispatcher {
         
         /* Keep only those locators that are available right now */
         stringLocators.retainAll(availableLocators);
+        
+        Log.d(TAG, "Filtered locator list: " + stringLocators.toString());
         
         return stringLocators;
     }
