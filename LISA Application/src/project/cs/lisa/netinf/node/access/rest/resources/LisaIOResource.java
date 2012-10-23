@@ -2,7 +2,6 @@ package project.cs.lisa.netinf.node.access.rest.resources;
 
 import netinf.common.communication.NetInfNodeConnection;
 import netinf.common.datamodel.DatamodelFactory;
-import netinf.common.datamodel.DefinedAttributePurpose;
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
@@ -12,7 +11,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
 import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
-
+import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributePurpose;
 import android.util.Log;
 
 public class LisaIOResource extends LisaServerResource {
@@ -39,21 +38,21 @@ public class LisaIOResource extends LisaServerResource {
     	super.doInit();
     	Log.d(TAG, "doInit()");
     	
-    	mHashAlg          = getQuery().getFirstValue("HASH_ALG=", true);
-    	mHash          	  = getQuery().getFirstValue("HASH=", true);
-    	mContentType      = getQuery().getFirstValue("CT=", true);
-    	mMethod           = getQuery().getFirstValue("METHOD=", true);
-    	mBluetoothMac     = getQuery().getFirstValue("BTMAC=", true);
-    	mMeta             = getQuery().getFirstValue("META=", true);
+    	mHashAlg          = getQuery().getFirstValue("HASH_ALG", true);
+    	mHash          	  = getQuery().getFirstValue("HASH", true);
+    	mContentType      = getQuery().getFirstValue("CT", true);
+    	mMethod           = getQuery().getFirstValue("METHOD", true);
+    	mBluetoothMac     = getQuery().getFirstValue("BTMAC", true);
+    	mMeta             = getQuery().getFirstValue("META", true);
         mDatamodelFactory = getDatamodelFactory();
         mNodeConnection   = getNodeConnection();
     	
-        Log.d(TAG, "HASH_ALG" + mHashAlg);
-        Log.d(TAG, "HASH" + mHash);
-        Log.d(TAG, "CT" + mContentType);
-        Log.d(TAG, "METHOD" + mMethod);
-        Log.d(TAG, "BTMAC" + mBluetoothMac);
-        Log.d(TAG, "META" + mMeta);
+        Log.d(TAG, "HASH_ALG=" + mHashAlg);
+        Log.d(TAG, "HASH=" + mHash);
+        Log.d(TAG, "CT=" + mContentType);
+        Log.d(TAG, "METHOD=" + mMethod);
+        Log.d(TAG, "BTMAC=" + mBluetoothMac);
+        Log.d(TAG, "META=" + mMeta);
         
 	}
 
@@ -106,12 +105,20 @@ public class LisaIOResource extends LisaServerResource {
         Identifier identifier = createIdentifier(mHashAlg, mHash, mContentType);
         io.setIdentifier(identifier); 
         
-        if(mBluetoothMac.length()>0){
-            Attribute address   = mDatamodelFactory.createAttribute();
-            address.setAttributePurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
+        if (mBluetoothMac.length()>0){
+            Attribute address = mDatamodelFactory.createAttribute();
+            address.setAttributePurpose(SailDefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
             address.setIdentification(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
             address.setValue(mBluetoothMac);
             io.addAttribute(address);   
+        }
+        
+        if (mMeta.length()>0){
+            Attribute meta = mDatamodelFactory.createAttribute();
+            meta.setAttributePurpose(SailDefinedAttributePurpose.META_ATTRIBUTE.toString());
+            meta.setIdentification(SailDefinedAttributeIdentification.META_DATA.getURI());
+            meta.setValue(mMeta);
+            io.addAttribute(meta);
         }
                                            
         //Putting the IO

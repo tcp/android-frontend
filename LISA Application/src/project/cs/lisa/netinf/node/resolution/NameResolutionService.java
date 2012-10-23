@@ -216,7 +216,15 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
             bluetoothMac = bluetoothMac.substring(bluetoothMac.indexOf(":")+1);
         }
 		
-		HttpPost post = createPublish(hashAlg, hash, ct, bluetoothMac);
+        // Get meta data, it is stored as an attribute in the io
+        Attribute metaAttribute = io.getSingleAttribute(SailDefinedAttributeIdentification.META_DATA.getURI());
+        String meta = null;
+        if (metaAttribute != null) {
+            meta = metaAttribute.getValueRaw();
+            meta = meta.substring(meta.indexOf(":")+1);
+        }
+        
+		HttpPost post = createPublish(hashAlg, hash, ct, bluetoothMac, meta);
 		
 		try {
 		    Log.d(TAG, "Executing HTTP Post to " + post.getURI());
@@ -234,7 +242,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	}
 	
 	@SuppressWarnings("unchecked")
-    private HttpPost createPublish(String hashAlg, String hash, String contentType, String bluetoothMac) {
+    private HttpPost createPublish(String hashAlg, String hash, String contentType, String bluetoothMac, String meta) {
 	    HttpPost post = null;
 	    try {
 	        // TODO this should not be *index.php when calling the actual NRS
@@ -259,17 +267,13 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
                 entity.addPart("loc1", l);
             }
 			
+			if(meta != null) {
+			    StringBody ext = new StringBody(meta.toString());
+			    entity.addPart("ext", ext);
+			}
+			
 			StringBody rform = new StringBody("json");
 			entity.addPart("rform", rform);
-			
-			JSONObject jsonext = new JSONObject();
-			JSONObject meta = new JSONObject();
-			meta.put("ct", contentType);
-			meta.put("time", "today");
-			jsonext.put("meta", meta);
-			
-			StringBody ext = new StringBody(jsonext.toString());
-			entity.addPart("ext", ext);
 			
 			
 		} catch (UnsupportedEncodingException e) {
