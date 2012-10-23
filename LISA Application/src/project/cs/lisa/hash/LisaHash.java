@@ -217,6 +217,7 @@ public class LisaHash {
 
         System.out.println("SHA-256 base64url byte length: " + numberOfBytes);
 
+        // USING THE HASH LENGTH if available
         // TODO: Remove this after sprint 2
         if (mLisaFlag > 0)
             return base64String.substring(0, mLisaFlag);
@@ -224,6 +225,7 @@ public class LisaHash {
         return base64String;
     }
     
+    // Sets the hash length
     // TODO: Remove this after sprint 2
     public void hashLisa(int maxChars) {
         mLisaFlag = maxChars;
