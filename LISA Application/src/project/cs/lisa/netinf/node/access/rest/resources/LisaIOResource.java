@@ -29,6 +29,7 @@ public class LisaIOResource extends LisaServerResource {
 	private String mContentType;
 	private String mMethod;
 	private String mBluetoothMac;
+	private String mMeta;
 	
     private DatamodelFactory mDatamodelFactory;
     private NetInfNodeConnection mNodeConnection;
@@ -38,14 +39,22 @@ public class LisaIOResource extends LisaServerResource {
     	super.doInit();
     	Log.d(TAG, "doInit()");
     	
-    	mHashAlg          = getQuery().getFirstValue("HASH_ALG", true);
-    	mHash          	  = getQuery().getFirstValue("HASH_CONT", true);
-    	mContentType      = getQuery().getFirstValue("CT", true);
-    	mMethod           = getQuery().getFirstValue("METHOD", true);
-    	mBluetoothMac     = getQuery().getFirstValue("BTMAC", true);
+    	mHashAlg          = getQuery().getFirstValue("HASH_ALG=", true);
+    	mHash          	  = getQuery().getFirstValue("HASH=", true);
+    	mContentType      = getQuery().getFirstValue("CT=", true);
+    	mMethod           = getQuery().getFirstValue("METHOD=", true);
+    	mBluetoothMac     = getQuery().getFirstValue("BTMAC=", true);
+    	mMeta             = getQuery().getFirstValue("META=", true);
         mDatamodelFactory = getDatamodelFactory();
         mNodeConnection   = getNodeConnection();
     	
+        Log.d(TAG, "HASH_ALG" + mHashAlg);
+        Log.d(TAG, "HASH" + mHash);
+        Log.d(TAG, "CT" + mContentType);
+        Log.d(TAG, "METHOD" + mMethod);
+        Log.d(TAG, "BTMAC" + mBluetoothMac);
+        Log.d(TAG, "META" + mMeta);
+        
 	}
 
 	@Get

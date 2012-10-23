@@ -46,15 +46,16 @@ public class LisaRESTApplication extends Application {
 //			router.attach("/", HelloWorldResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
 			
 			// Redirect short uri requests
-			String target = "{rh}/io?HASH_ALG={hash_alg}&HASH_CONT={hash_cont}&CT={cont_type}" +
-					"&METHOD={Method}&BTMAC={bluetoothaddress}";	     
+			String target = "{rh}/io?HASH_ALG={hash_alg}&HASH={hash}&CT={ct}" +
+					"&METHOD={method}&BTMAC={btmac}&META={meta}";	     
 			Redirector redirector = new Redirector(getContext(), target, Redirector.MODE_CLIENT_TEMPORARY);
 			Extractor extractor = new Extractor(getContext(), redirector);	      	          
-			extractor.extractFromQuery("bluetoothaddress", "BTMAC", true);
-			extractor.extractFromQuery("Method", "METHOD", true);
-			extractor.extractFromQuery("cont_type", "CT", true);
+			extractor.extractFromQuery("btmac", "BTMAC", true);
+			extractor.extractFromQuery("method", "METHOD", true);
+			extractor.extractFromQuery("ct", "CT", true);
+			extractor.extractFromQuery("meta", "META", true);
 		      
-			router.attach("/ni/{hash_alg};{hash_cont}", extractor);
+			router.attach("/ni/{hash_alg};{hash}", extractor);
 			
 			router.attach("/io", LisaIOResource.class);
 			
