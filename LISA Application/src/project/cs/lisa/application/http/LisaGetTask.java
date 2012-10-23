@@ -59,6 +59,15 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 	/** The rest of the URI. **/
 	private String mQuery;
 	
+	/**
+	 * Create a new asynchronous NetInf message sent using Http GET
+	 * @param activity     Activity creating this object
+	 * @param host         Target host of the message
+	 * @param port         Target port
+	 * @param messageType  Type of the message, publish, get, etc.
+	 * @param hashAlg      Hash algorithm used
+	 * @param hash         Hash
+	 */
 	public LisaGetTask(MainActivity activity, String host, int port, MessageType messageType, String hashAlg, String hash) {
 		mActivity = activity;
 		mHost = host;
@@ -100,12 +109,18 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 
 	}
 	
-	
+	/**
+	 * Does nothing
+	 */
 	@Override
     protected void onPreExecute() {
 		Log.d(TAG, "onPreExecute()");
     }
 	
+	/**
+	 * Sends the Http GET request containing the netInf message to the target
+	 * @param params   Either null or two strings with content type and meta data
+	 */
 	@Override
 	protected HttpResponse doInBackground(String... params) {
 		Log.d(TAG, "doInBackground()");
@@ -152,6 +167,10 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 
 	}
 	
+	/**
+	 * Handles the response to the sent NetInf message
+	 * @param response     The Http Response
+	 */
     @Override
     protected void onPostExecute(HttpResponse response) { 	
     	Log.d(TAG, "onPostExecute()");
@@ -175,10 +194,18 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
     	
     }
 	
+    /**
+     * Handles the response to a publish message
+     * @param response  the http response
+     */
     private void handlePublishResponse(HttpResponse response) {
         Log.d(TAG, "handlePublishResponse()");
     }
     
+    /**
+     * Handles the response to a get message
+     * @param response  the http response
+     */
     private void handleGetResponse(HttpResponse response) {
         Log.d(TAG, "handleGetResponse()");
         try {
