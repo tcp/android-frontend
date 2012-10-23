@@ -112,8 +112,8 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 		
 		// If it is a publish, try to get the content type and meta data
 		if(mMessageType == MessageType.PUBLISH && params.length == 2) {
-		    mQuery += "CT="+params[0];
-		    mQuery += "META="+params[1];
+		    mQuery += "&CT="+params[0];
+		    mQuery += "&META="+params[1];
 		} else {
 		    Log.d(TAG, "Content type and meta data not provided");
 		}
