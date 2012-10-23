@@ -48,7 +48,6 @@ import java.util.List;
 import netinf.common.datamodel.DefinedAttributePurpose;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
-import netinf.node.transferdispatcher.streamprovider.NetInfNoStreamProviderFoundException;
 import project.cs.lisa.bluetooth.BluetoothDiscovery;
 import project.cs.lisa.bluetooth.provider.BluetoothProvider;
 import project.cs.lisa.bluetooth.provider.ByteArrayProvider;

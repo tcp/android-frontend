@@ -104,7 +104,8 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Attempt a connection to a remote device via Bluetooth
      * and returns a socket after a successful connection.
      * @param   locator     The device we want to connect to
-     * @return  The Bluetooth socket for the communication. 
+     * @return  The Bluetooth socket for the communication.
+     * @throws  IOException The exception for the socket.
      */
     private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
 
@@ -131,6 +132,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * for retrieving the corresponding BO. 
      * @param   socket  The socket for connecting with the remote device    
      * @param   hash    The identifier for requesting the BO
+     * @throws  IOException Exception for the stream.
      */
     private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
         DataOutputStream outStream = null;
@@ -144,6 +146,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Attempt to retrieve a BO blocking the connection.
      * @param   socket  The socket for the connection
      * @return  The byte stream representing the retrieved BO
+     * @throws  IOException Exception for the streams
      */
     private byte[] downloadFile(BluetoothSocket socket) throws IOException {
         DataInputStream inStream = null;
