@@ -2,6 +2,7 @@ package project.cs.lisa.application;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.LisaGetTask;
+import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.netinf.node.LisaStarterNodeThread;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -22,18 +23,27 @@ public class MainActivity extends Activity {
 	TextView mTextView;
 	private MainApplication mApplication;
 	private LisaStarterNodeThread mStarterNodeThread;
+	
+	/**
+	 * The Server listening for incoming Bluetooth requests.
+	 */
+	private BluetoothServer mBluetoothServer;
   
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
+        
         mApplication = (MainApplication) getApplication();
+        
         setupBroadcastReceiver();
         setupNode();
+        setupBluetoothServer();
+        
         setContentView(R.layout.activity_temp);
     }
 
-    @Override
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
@@ -70,11 +80,26 @@ public class MainActivity extends Activity {
     	}
     }
     
-    
     private void setupNode() {
     	// Start NetInfNode
     	mStarterNodeThread = new LisaStarterNodeThread(mApplication);
     	mStarterNodeThread.start();
     }
+    
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	
+    	mBluetoothServer.cancel();
+    }
+
+    /**
+     * Initiates and starts the Bluetooth Server.
+     */
+    private void setupBluetoothServer() {
+    	mBluetoothServer = new BluetoothServer();
+    	mBluetoothServer.start();
+	}
     
 }
