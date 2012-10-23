@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import project.cs.lisa.netinf.node.module.LisaModule;
 import android.app.Application;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.util.Log;
@@ -21,6 +22,8 @@ public class MainApplication extends Application {
 	private Properties mProperties;
 	private Injector mInjector;
 	
+	private static Context context;
+	
     @Override
     public void onCreate() {
         super.onCreate();
@@ -28,6 +31,9 @@ public class MainApplication extends Application {
         loadProperties();
         Log.d(TAG, "Creating injector...");
         mInjector = Guice.createInjector(new LisaModule(mProperties));
+        
+        /* Get the context of this application */
+        MainApplication.context = getApplicationContext();
     }
 	
     public Properties getProperties() {
@@ -53,4 +59,13 @@ public class MainApplication extends Application {
     	}
     }
     
+    /**
+     * Returns the current application context.
+     * This is useful i.e. for registering broadcast receivers.
+     * 
+     * @return  The application context.
+     */
+    public static Context getAppContext() {
+        return MainApplication.context;
+    }
 }
