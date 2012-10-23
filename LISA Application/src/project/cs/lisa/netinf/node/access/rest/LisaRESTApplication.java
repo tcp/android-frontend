@@ -12,6 +12,7 @@ import org.restlet.routing.Extractor;
 import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 
+import project.cs.lisa.netinf.node.access.rest.resources.BOResource;
 import project.cs.lisa.netinf.node.access.rest.resources.LisaIOResource;
 
 public class LisaRESTApplication extends Application {
@@ -43,21 +44,26 @@ public class LisaRESTApplication extends Application {
 		public Restlet createInboundRoot() {
 			Router router = new Router(getContext());
 			
-//			router.attach("/", HelloWorldResource.class).setMatchingMode(Template.MODE_STARTS_WITH);
-			
-			// Redirect short uri requests
-			String target = "{rh}/io?HASH_ALG={hash_alg}&HASH={hash}&CT={ct}" +
+			// Redirect NetInf Publish requests
+			String target = "/io?HASH_ALG={hash_alg}&HASH={hash}&CT={ct}" +
 					"&METHOD={method}&BTMAC={btmac}&META={meta}";	     
 			Redirector redirector = new Redirector(getContext(), target, Redirector.MODE_CLIENT_TEMPORARY);
-			Extractor extractor = new Extractor(getContext(), redirector);	      	          
+			Extractor extractor = new Extractor(getContext(), redirector);    	          
 			extractor.extractFromQuery("btmac", "BTMAC", true);
 			extractor.extractFromQuery("method", "METHOD", true);
 			extractor.extractFromQuery("ct", "CT", true);
-			extractor.extractFromQuery("meta", "META", true);
-		      
-			router.attach("/ni/{hash_alg};{hash}", extractor);
+			extractor.extractFromQuery("meta", "META", true); 
 			
+			router.attach("/ni/{hash_alg};{hash}", extractor);
 			router.attach("/io", LisaIOResource.class);
+			
+			// Redirect NetInf Get requests
+			String getTarget = "/io?HASH_ALG={hash_alg}&HASH={hash}";  
+			Redirector getRedirector = new Redirector(getContext(), getTarget, Redirector.MODE_CLIENT_TEMPORARY);
+			Extractor getExtractor = new Extractor(getContext(), getRedirector);
+			
+			router.attach("/bo/{hash_alg};{hash}", getExtractor);
+			router.attach("/bo", BOResource.class);
 			
 			return router;
 		}
