@@ -214,7 +214,7 @@ public enum TransferDispatcher {
     ByteArrayProvider getByteArrayProvider(String locator) {
         for (ByteArrayProvider provider : mByteArrayProviders) {
             if (provider.canHandle(locator)) {
-                Log.d(TAG, "Choosing the following provider: " + provider.describe());
+                Log.e(TAG, "Choosing the following provider: " + provider.describe());
                 return provider;
             }
         }

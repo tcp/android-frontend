@@ -87,12 +87,12 @@ public class BluetoothProvider implements ByteArrayProvider {
             fileArray = downloadFile(socket);
 
         } catch (IOException e) {
-            Log.d(TAG, "Trying to close the socket due to a fail in the connection...");
+            Log.e(TAG, "Trying to close the socket due to a fail in the connection...");
             if (socket != null) {
                 try {
                     socket.close();
                 } catch (IOException e1) {
-                    Log.d(TAG, "Something went wrong when closing the socket!");
+                    Log.e(TAG, "Something went wrong when closing the socket!");
                 }
             }
         }
@@ -104,7 +104,8 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Attempt a connection to a remote device via Bluetooth
      * and returns a socket after a successful connection.
      * @param   locator     The device we want to connect to
-     * @return  The Bluetooth socket for the communication. 
+     * @return  The Bluetooth socket for the communication.
+     * @throws  IOException The exception for the socket.
      */
     private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
 
@@ -120,7 +121,7 @@ public class BluetoothProvider implements ByteArrayProvider {
         /* This is a blocking call and will only return on a
          * successful connection or an exception.
          */
-        Log.d(TAG, "Trying to connect to a device through a socket...");
+        Log.e(TAG, "Trying to connect to a device through a socket...");
         socket.connect();
 
         return socket;
@@ -131,6 +132,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * for retrieving the corresponding BO. 
      * @param   socket  The socket for connecting with the remote device    
      * @param   hash    The identifier for requesting the BO
+     * @throws  IOException Exception for the stream.
      */
     private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
         DataOutputStream outStream = null;
@@ -144,6 +146,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Attempt to retrieve a BO blocking the connection.
      * @param   socket  The socket for the connection
      * @return  The byte stream representing the retrieved BO
+     * @throws  IOException Exception for the streams
      */
     private byte[] downloadFile(BluetoothSocket socket) throws IOException {
         DataInputStream inStream = null;
