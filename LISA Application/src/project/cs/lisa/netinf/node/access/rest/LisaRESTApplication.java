@@ -13,7 +13,7 @@ import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 
 import project.cs.lisa.netinf.node.access.rest.resources.BOResource;
-import project.cs.lisa.netinf.node.access.rest.resources.LisaIOResource;
+import project.cs.lisa.netinf.node.access.rest.resources.IOResource;
 
 public class LisaRESTApplication extends Application {
 	
@@ -55,7 +55,7 @@ public class LisaRESTApplication extends Application {
 			extractor.extractFromQuery("meta", "META", true); 
 			
 			router.attach("/ni/{hash_alg};{hash}", extractor);
-			router.attach("/io", LisaIOResource.class);
+			router.attach("/io", IOResource.class);
 			
 			// Redirect NetInf Get requests
 			String getTarget = "/io?HASH_ALG={hash_alg}&HASH={hash}";  

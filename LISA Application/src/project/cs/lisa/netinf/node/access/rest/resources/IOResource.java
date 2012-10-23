@@ -14,7 +14,7 @@ import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentificatio
 import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributePurpose;
 import android.util.Log;
 
-public class LisaIOResource extends LisaServerResource {
+public class IOResource extends LisaServerResource {
 	
 	public static final String TAG = "LisaResource";
   
