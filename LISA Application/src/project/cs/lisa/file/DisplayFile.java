@@ -25,7 +25,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 /**
@@ -112,5 +114,10 @@ public class DisplayFile {
         }
         
         return OK;
+    }
+    
+    // TODO: Needs testing
+    public String getFileContentType(String path) {
+        return MimeTypeMap.getFileExtensionFromUrl(path);
     }
 }
