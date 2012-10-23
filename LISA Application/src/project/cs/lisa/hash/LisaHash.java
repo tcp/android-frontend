@@ -56,6 +56,11 @@ public class LisaHash {
 
     String base64String;
     byte[] mByteArray;
+    
+    // TODO: Remove this after the sprint 2
+    // Our flag for returning max 'LisaFlag' chars of the hashing.
+    // 0 and the flag is not set, returns normal result.
+    int mLisaFlag = 0;
 
     // Mapping table from 6-bit nibbles to Base64 characters.
     private static final char[] map1 = new char[64];
@@ -212,6 +217,15 @@ public class LisaHash {
 
         System.out.println("SHA-256 base64url byte length: " + numberOfBytes);
 
+        // TODO: Remove this after sprint 2
+        if (mLisaFlag > 0)
+            return base64String.substring(0, mLisaFlag);
+        
         return base64String;
+    }
+    
+    // TODO: Remove this after sprint 2
+    public void hashLisa(int maxChars) {
+        mLisaFlag = maxChars;
     }
 }
