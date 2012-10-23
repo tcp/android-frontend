@@ -13,7 +13,7 @@
  *
  * Copyright (C) 2012 LISA team
  */
-package project.cs.lisa.wifi;
+package project.cs.lisa.networksettings;
 
 import java.util.ListIterator;
 
@@ -44,21 +44,21 @@ import android.widget.AdapterView.OnItemClickListener;
  * @author Thiago Costa Porto
  */
 
-public class WifiDeviceList extends Activity {
+public class LisaNetworkSettings extends Activity {
     // Debug Tag
     private static final String TAG = "WiFiDeviceList";
-    
+
     // Adapters and TextView
     private BluetoothAdapter mBluetoothAdapter;
     private ArrayAdapter<String> mDiscoveredWifiAdapter;
     private TextView mConnectedWifiTextView;
-    
+
     // Intent Filter
     private IntentFilter iFilter;
-    
+
     // Wifi Handler
-    private WifiHandler wifi;
-    
+    private LisaWifiHandler wifi;
+
     // vars
     private boolean scanning = false;
     private boolean listening = false;
@@ -74,7 +74,7 @@ public class WifiDeviceList extends Activity {
         setContentView(R.layout.show_networks);
 
         // init wifi
-        wifi = new WifiHandler(this);
+        wifi = new LisaWifiHandler(this);
 
         // Activity result
         setResult(Activity.RESULT_CANCELED);
@@ -105,7 +105,7 @@ public class WifiDeviceList extends Activity {
         discoveredWifiListView.setAdapter(mDiscoveredWifiAdapter);
         discoveredWifiListView.setOnItemClickListener(mDeviceClickListener);
         Log.d(TAG, "Adapters set");
-        
+
         // set up toggle buttons
         checkInitialWifiToggle();
         checkInitialBTToggle();
@@ -129,14 +129,14 @@ public class WifiDeviceList extends Activity {
             // Using row_id, we can use wifiScan and get the BSSID that
             // we are supposed to connect to
             Log.d(TAG, "Row clicked: " + row_id);
-            
+
             // Connect to wifi network
             wifi.connectToSelectedNetwork(((TextView) v).getText().toString(), "");
-            
+
             // Set up intent for connectivity            
             iFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             registerReceiver(mReceive, iFilter);
-            
+
             // Set listening variable
             listening = true;
         }
@@ -148,7 +148,7 @@ public class WifiDeviceList extends Activity {
      * the list of devices found.
      */
     public void doWifiScan() {
-     // Register for broadcasts when WiFi is scanned and results are available
+        // Register for broadcasts when WiFi is scanned and results are available
         // read note on mReceive at the top.
         Log.d(TAG, "Setting up intentfilter");
         iFilter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
@@ -162,36 +162,38 @@ public class WifiDeviceList extends Activity {
             Log.d(TAG, "Scanning for WiFi networks");
         }
     }
-    
+
     /**
      * Function to check the initial state of the Toggle Button
      */
     public void checkInitialWifiToggle() {
         // Toggle Button
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
-        
+
         // Checks if WiFi is enabled and sets button accordingly.
         if (wifi.checkWifiEnabled()) {
+            Log.d(TAG, "Wifi is enabled");
             toggleButton.setChecked(true);
         }
         else {
+            Log.d(TAG, "Wifi is disabled");
             toggleButton.setChecked(false);
         }
     }
-    
+
     public void checkInitialBTToggle() {
         // Toggle Button
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButtonBT);
-        
+
         if (mBluetoothAdapter == null) {
-            // Device does not support Bluetooth
+            // Device does not support BlueTooth
             Log.d(TAG, "Device does not support Bluetooth");
             toggleButton.setChecked(false);
         } else {
             toggleButton.setChecked(true);
             Log.d(TAG, "Bluetooth is enabled");
             if (!mBluetoothAdapter.isEnabled()) {
-                // Bluetooth is not enable :)
+                // BlueTooth is not enable :)
                 Log.d(TAG, "Bluetooth is disabled");
                 toggleButton.setChecked(false);
             }
@@ -216,7 +218,7 @@ public class WifiDeviceList extends Activity {
         Log.d("WiFi Activity", "Toggle Response: " + toggleOn);
 
         if (toggleOn) {
-            // Changes button if Wifi is disconnected
+            // Changes button if WiFi is disconnected
             if (!wifi.enableWifi()) {
                 Log.d("WiFi Activity", "Failed to enable WiFi");
                 ((ToggleButton) view).setChecked(false);
@@ -224,7 +226,7 @@ public class WifiDeviceList extends Activity {
                 mDiscoveredWifiAdapter.clear();
             }
             else {
-                // Wifi connected but we havent accessed wifiInfo yet.
+                // WiFi connected but we have not accessed wifiInfo yet.
                 Log.d("WiFi Activity", "WiFi enabled");
                 ((ToggleButton) view).setChecked(true);
                 mConnectedWifiTextView.setText("Not connected");
@@ -243,12 +245,12 @@ public class WifiDeviceList extends Activity {
             }
         }
     }
-    
+
     public void onToggleBTClicked(View view) {
         // Toggle Button
         boolean toggleOn = ((ToggleButton) view).isChecked();
         Log.d("WiFi Activity", "BT Toggle Response: " + toggleOn);
-        
+
         // Loads BT
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -292,12 +294,12 @@ public class WifiDeviceList extends Activity {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
                 // State is now connected!
                 Log.d(TAG, "Connectivity_Action received");
-            
+
                 // Refresh settings
                 // TODO: Create refresh configs method in WifiHandler
-                wifi = new WifiHandler(context);
+                wifi = new LisaWifiHandler(context);
                 Log.d(TAG, "wifi.wifiInfo is " + wifi.wifiInfo);
-                
+
                 // Check if its connected
                 if (wifi.wifiInfo != null &&
                         wifi.wifiInfo.getSupplicantState().toString().equals("COMPLETED")) {
@@ -326,13 +328,13 @@ public class WifiDeviceList extends Activity {
 
                     // debug: what is in wifiScan
                     Log.d(TAG, "wifiScan is " + wifi.wifiScan.toString());
-                    
+
                     // iterate over list of wifis
                     ListIterator<ScanResult> lit = wifi.wifiScan.listIterator();
-                    
+
                     // cleans adapter
                     mDiscoveredWifiAdapter.clear();
-                    
+
                     // populates adapter
                     while (lit.hasNext()) {
                         mDiscoveredWifiAdapter.add(lit.next().SSID);
