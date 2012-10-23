@@ -23,7 +23,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.EditText;
 
-public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
+public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 
     /** Type of NetInf message **/
 	public static enum MessageType {
@@ -39,7 +39,7 @@ public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
 	private static final int TIMEOUT = 2000;
 	
 	/** Publish Message Type String Representation **/
-	private static final String PUBLISH = "PUBLISH";
+	private static final String PUBLISH = "PUT";
 	/** Get Message Type String Representation **/
 	private static final String GET = "GET";
 	
@@ -79,8 +79,8 @@ public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
 		        // Add locators
 		        // TODO Currently only publishes your own bluetooth mac address
 		        BluetoothAdapter bluetoothDefaultAdapter = BluetoothAdapter.getDefaultAdapter();
-		        if(bluetoothDefaultAdapter != null) {
-		            if(bluetoothDefaultAdapter.isEnabled()) {
+		        if (bluetoothDefaultAdapter != null) {
+		            if (bluetoothDefaultAdapter.isEnabled()) {
 		                String btMac = BluetoothAdapter.getDefaultAdapter().getAddress();
 		                mQuery += "&BTMAC=" + btMac;
 		            } else {
@@ -107,8 +107,16 @@ public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
     }
 	
 	@Override
-	protected HttpResponse doInBackground(Void... params) {
+	protected HttpResponse doInBackground(String... params) {
 		Log.d(TAG, "doInBackground()");
+		
+		// If it is a publish, try to get the content type and meta data
+		if(mMessageType == MessageType.PUBLISH && params.length == 2) {
+		    mQuery += "CT="+params[0];
+		    mQuery += "META="+params[1];
+		} else {
+		    Log.d(TAG, "Content type and meta data not provided");
+		}
 		
 		// Create uri
 		String uri = HTTP + mHost + ":" + Integer.toString(mPort) + mQuery;
@@ -123,7 +131,7 @@ public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
     	HttpGet get = new HttpGet(uri);
     	HttpResponse response = null;
     	
-    	Log.d(TAG, "doInBackground()\tExecuting Http Get");
+    	Log.d(TAG, "doInBackground(), Executing Http Get: " + uri);
     	
     	// Try to execute the http get
     	try {
@@ -138,7 +146,7 @@ public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
     		Log.d(TAG, e.toString());
     	}
     	
-    	Log.d(TAG, "doInBackground()\tReading Http Get Response");
+    	Log.d(TAG, "doInBackground(), Returning Http Get Response");
     	
     	return response;
 
@@ -162,8 +170,8 @@ public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
     	}
     	
     	EditText log = (EditText) mActivity.findViewById(R.id.editText1);
-    	log.setText(response);
-    	Log.d(TAG, response);
+    	log.setText(response.toString());
+    	Log.d(TAG, response.toString());
     	
     }
 	
@@ -182,7 +190,7 @@ public class LisaGetTask extends AsyncTask<Void, Void, HttpResponse> {
             // "contentType"
             // "filePath"
             Log.d(TAG, "response map:");
-            for(String key : responseMap.keySet()) {
+            for (String key : responseMap.keySet()) {
                 Log.d(TAG, key + " => " + responseMap.get(key));
             }
         } catch (IOException e) {
