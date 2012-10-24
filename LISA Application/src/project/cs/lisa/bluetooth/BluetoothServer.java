@@ -44,7 +44,7 @@ import android.util.Log;
 public class BluetoothServer extends Thread {
 	
 	/** Debug Tag. */
-	private static final String TAG = "AcceptBluetoothThread";
+	private static final String TAG = "BluetoothServer";
 	
 	/** Unique UUID. For more information see {@link project.cs.lisa.bluetooth.provider#MY_UUID} */
     private static final UUID MY_UUID =
@@ -52,7 +52,7 @@ public class BluetoothServer extends Thread {
     
     /** The directory containing the published files. */
     private static final String SHARED_FILES_DIR = 
-    		Environment.getExternalStorageDirectory() + "/LISA/";
+    		Environment.getExternalStorageDirectory() + "DCIM/100MEDIA/";
 
     /** The buffer for reading in the hash out of a file request message. */
 	private static final int BUFFER_SIZE = 1024;

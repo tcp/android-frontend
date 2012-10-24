@@ -166,11 +166,13 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 					
 					for (Object locator: locators) {
 						String loc = locator.toString();
-						
+						Log.d(TAG,"Locator: " + loc);
+						String cutLocator = loc.split("://")[1];
+						Log.d(TAG,"Cut locator: " + cutLocator);
 						Attribute newLocator = mDatamodelFactory.createAttribute();
 						newLocator.setAttributePurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
 						newLocator.setIdentification(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
-						newLocator.setValue(loc);
+						newLocator.setValue(cutLocator);
 						
 						
 						//TODO LocatorPriority??????????

@@ -50,7 +50,7 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
 	private static final String HTTP = "http://";
 	// TODO add to properties file
 	/** HTTP Timeout. **/
-	private static final int TIMEOUT = 2000;
+	private static final int TIMEOUT = 20000;
 	
 	/** Publish Message Type String Representation. **/
 	private static final String PUBLISH = "PUT";
@@ -90,7 +90,7 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
         mMessageType = messageType;
 		mHashAlg = hashAlg;
 		mHash = hash;
-		mQuery = "/ni/" + mHashAlg + ";" + mHash + "?METHOD=";
+		mQuery = mHashAlg + ";" + mHash + "?METHOD=";
 		
 		// Example of full uris
 		// http://example.com:80/ni/
@@ -101,6 +101,7 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
 		// Construct the query depending on message type
 		switch (mMessageType) {
 		    case PUBLISH:
+		    	mQuery = "/ni/" + mQuery;
 		        mQuery += PUBLISH;
 		        // Add locators
 		        // TODO Currently only publishes your own bluetooth mac address
@@ -117,6 +118,7 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
 		        }
 		        break;
 		    case GET:
+		    	mQuery = "/bo/" + mQuery;
 		        mQuery += GET;
 		        break;
 		    default:
@@ -251,7 +253,7 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
      *                  with their respective values set appropriately
      */
     private HashMap<String, String> readGetResponse(HttpResponse response) {
-    	 Log.d(TAG, "handleGetResponse()");
+    	Log.d(TAG, "handleGetResponse()");
         HashMap<String, String> responseMap = null;
         try {
             InputStream content = response.getEntity().getContent(); 

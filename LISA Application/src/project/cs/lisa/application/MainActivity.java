@@ -66,12 +66,12 @@ public class MainActivity extends Activity {
     	switch (view.getId()) {
     		case R.id.button1:
     			Log.d(TAG, "View: button1");
-    			LisaGetTask getTask = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.PUBLISH, "sha-256", "ABCDEFG");
+    			LisaGetTask getTask = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.PUBLISH, "sha-256", "0001");
     			getTask.execute(new String[] {"text/plain", "meta"});
     			break;
     		case R.id.button2:
     			Log.d(TAG, "View: button2");
-    			LisaGetTask getTask2 = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.GET, "sha-256", "ABCDEFG");
+    			LisaGetTask getTask2 = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.GET, "sha-256", "0001");
     			getTask2.execute();
     			break;
     		default:
