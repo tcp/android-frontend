@@ -48,11 +48,11 @@ public class LisaFileHandler {
     private static final int OK = 1;
     
     private static final String TAG = "DisplayFile";
-    
-    private Intent mIntent;
-    private File mFile;
-    
-    public int displayContent(Context context, String path, String mimetype) {
+    @SuppressWarnings("unused")
+    public static int displayContent(Context context, String path, String mimetype) {
+        Intent mIntent;
+        File mFile;
+        
         Log.d(TAG, "Received file " + path);
         Log.d(TAG, "File type: " + mimetype);
         
@@ -87,8 +87,9 @@ public class LisaFileHandler {
 
         // Get list of apps who can open the file
         PackageManager pkgManager = context.getPackageManager();
-        List<ResolveInfo> listAppsViewFile = pkgManager.queryIntentActivities(new Intent().setType(mimetype),
-                PackageManager.MATCH_DEFAULT_ONLY);
+        List<ResolveInfo> listAppsViewFile = 
+                pkgManager.queryIntentActivities(new Intent().setType(mimetype),
+                        PackageManager.MATCH_DEFAULT_ONLY);
         
         // List of applications that can open the file must have at least one element.
         // Otherwise, we cannot open the file.

@@ -7,7 +7,6 @@ import org.apache.commons.io.FileUtils;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfRequest;
-import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.file.LisaFileHandler;
 import project.cs.lisa.hash.LisaHash;
 import project.cs.lisa.metadata.LisaMetadata;
@@ -49,23 +48,14 @@ public class DemoSprint2Activity extends Activity {
 
     /** Please comment. */
     private LisaStarterNodeThread mStarterNodeThread;
-    
-	/**
-	 * The Server listening for incoming Bluetooth requests.
-	 */
-	private BluetoothServer mBluetoothServer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
-        
         mApplication = (MainApplication) getApplication();
-        
         setupBroadcastReceiver();
         setupNode();
-        setupBluetoothServer();
-
         setContentView(R.layout.activity_demo_sprint2);
     }
 
@@ -208,20 +198,5 @@ public class DemoSprint2Activity extends Activity {
 
         }                       
     }
-    
-    @Override
-    protected void onDestroy() {
-    	super.onDestroy();
-    	
-    	mBluetoothServer.cancel();
-    }
-    
-    /**
-     * Initiates and starts the Bluetooth Server.
-     */
-    private void setupBluetoothServer() {
-    	mBluetoothServer = new BluetoothServer();
-    	mBluetoothServer.start();
-	}
 
 }

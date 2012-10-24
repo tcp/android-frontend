@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 
 import java.util.List;
@@ -58,7 +59,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	private static final String NRS_SERVER = "http://130.238.15.227";
 	// TODO add to properties file
 	private static final String NRS_SERVER_PORT = "1337"; 
-	private static final int TIMEOUT = 2000;
+	private static final int TIMEOUT = 5000;
 	
 	/* Response code in case of affiliated data and content*/
 	private static final int RESPONSE_CODE_200 = 200;
@@ -201,10 +202,16 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 			
 		} catch (ClientProtocolException e) {
 			Log.e(TAG, e.toString());
+			io = null;
+		} catch (SocketTimeoutException e) {
+		    Log.d(TAG, "Returning null because we timed out");
+		    Log.d(TAG, "You are probably not connected to the internet");
+		    Log.d(TAG, "Also check if the server is up");
+		    io = null;
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
+			io = null;
 		}
-	    
 	    
 		return io;
 	}
@@ -249,6 +256,10 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (SocketTimeoutException e) {
+		    Log.d(TAG, "Did not put any objects because we timed out");
+            Log.d(TAG, "You are probably not connected to the internet");
+            Log.d(TAG, "Also check if the server is up");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

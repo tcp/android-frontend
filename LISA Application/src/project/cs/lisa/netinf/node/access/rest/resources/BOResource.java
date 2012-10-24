@@ -47,7 +47,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
@@ -56,6 +55,7 @@ import netinf.common.exceptions.NetInfCheckedException;
 import org.restlet.resource.Get;
 
 import project.cs.lisa.application.MainApplication;
+import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
 import android.media.MediaScannerConnection;
@@ -67,23 +67,25 @@ import android.util.Log;
  * 
  * @author Miguel Sosa
  * @author Hugo Negrette
- * @author Paolo Boshini
+ * @author Paolo Boschini
  * @author Kim-Anh Tran
- *
+ * @author Linus Sunde
+ * @author Thiago Costa Porto
+ * 
  */
 public class BOResource extends LisaServerResource {
 
-	/** Debugging Tag. */
-	private static final String TAG = "BOResource";
-	
-	/** HashMap Key: Filepath. */
-	private static final String FILEPATH = "filePath";
-	
-	/** HashMap Key: Content type. */
-	private static final String CONTENT_TYPE = "contenType";
+    /** Debugging Tag. */
+    private static final String TAG = "BOResource";
 
-	/** The hash value of the requested BO. */
-	private String mHashValue;
+    /** HashMap Key: Filepath. */
+    private static final String FILEPATH = "filePath";
+
+    /** HashMap Key: Content type. */
+    private static final String CONTENT_TYPE = "contentType";
+
+    /** The hash value of the requested BO. */
+    private String mHashValue;
 
     /** The hash algorithm used to generate the hash value. */
 	private String mHashAlgorithm;
@@ -91,6 +93,7 @@ public class BOResource extends LisaServerResource {
     /** The directory containing the published files. */
     private String mSharedFolder = 
     		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+
 
 	/**
 	 * Initializes the context of a BOResource.
@@ -105,43 +108,45 @@ public class BOResource extends LisaServerResource {
 		createSharedFolder();
 	}
 
-	/**
-	 * Responds to an HTTP get request.
-	 * Returns a Map describing the retrieved file.
-	 * 
-	 * @return The Map that contains the information about the file:
-	 *         First key: the file path
-	 *         Second key: the content type of the file
-	 */
-	@Get
-	public HashMap<String, String> retrieveBO() {
-		Log.d(TAG, "Trying to retrieve the BO.");
-		
-		byte[] fileData = null;
-		String filePath = "";
-		String contentType = "";
+    /**
+     * Responds to an HTTP get request. Returns a Map describing the retrieved
+     * file.
+     * 
+     * @return The Map that contains the information about the file: First key:
+     *         the file path Second key: the content type of the file
+     */
+    @Get
+    public String retrieveBO() {
+	Log.d(TAG, "Trying to retrieve the BO.");
+	
+	
+        byte[] fileData = null;
+        String filePath = "";
+        String contentType = "";
+        String returnString = null;
 
-		/* Retrieve a data object from a node (could be an NRS) */
-		InformationObject io = retrieveDO();
+        /* Retrieve a data object from a node (could be an NRS) */
+        InformationObject io = retrieveDO();	
 
-		/* Retrieve the data corresponding to the hash from another device. */
-		if (io != null) {
-			
-		    /* Store the content type of the requested BO */
-		    contentType = io.getIdentifier().getIdentifierLabel(
-					SailDefinedLabelName.CONTENT_TYPE.getLabelName())
-					.getLabelValue();
-			
+        /* Retrieve the data corresponding to the hash from another device. */
+        if (io != null) {
+
+            /* Store the content type of the requested BO */
+            contentType = io.getIdentifier().getIdentifierLabel(
+                    SailDefinedLabelName.CONTENT_TYPE.getLabelName())
+                    .getLabelValue();
+
             /* Attempt to transfer the BO from a remote device */
-		    TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
-			try {
-				fileData = tsDispatcher.getByteArray(io);
-			} catch (IOException e) {
-				Log.e(TAG, "Couldn't retrieve the requested data.");
-			}
+            TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
+            try {
+                fileData = tsDispatcher.getByteArray(io);
+            } catch (IOException e) {
+                Log.e(TAG, "Couldn't retrieve the requested data.");
+            }
 
-			/* Writes the received data to file */ 
-			if (fileData != null) {
+            /* Writes the received data to file */ 
+            if (fileData != null) {
+
 
 				String hash = io.getIdentifier().getIdentifierLabel(
 						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
@@ -149,31 +154,49 @@ public class BOResource extends LisaServerResource {
 				filePath = mSharedFolder + hash;
 				writeByteStreamToFile(filePath, fileData);
 				makeFileVisibleToPhone(filePath, contentType);
+				
+	            LisaMetadata lisaMetadata = new LisaMetadata();
+	            lisaMetadata.insert(CONTENT_TYPE, contentType);
+	            lisaMetadata.insert(FILEPATH, filePath);
+	            
+	            returnString = lisaMetadata.convertToString();
 
-			} else {
-				Log.e(TAG, "No file data to write.");
-			}
-		}
 
-		HashMap<String, String> map = new HashMap<String, String>(2);
-		map.put(FILEPATH, filePath);
-		map.put(CONTENT_TYPE, contentType);
-		
-		return map;
-	}
-	
-	/**
-	 * Makes the file specified by file path visible to the user.
-	 * 
-	 * @param filePath		The file path pointing to the file.
-	 * @param contentType	The content type of the file.
-	 */
-	private void makeFileVisibleToPhone(String filePath, String contentType) {
-		String[] paths = {filePath};
-		String[] mediaType = {contentType};
-		MediaScannerConnection.scanFile(MainApplication.getAppContext(), paths, mediaType, null);
-	}
-	
+            } else {
+                Log.e(TAG, "No file data to write.");
+            }
+
+            return returnString;
+        }
+        else {
+            // TODO: Think about an exception to be thrown here. Maybe handle the return value
+            // TODO: and throw an exception if that happens.
+            Log.d(TAG, "InformationObject is null. Nothing was done here.");
+            return returnString;
+        }
+    }
+
+    /**
+     * Returns an IO (i.e. DO) containing the list of locators that own the
+     * requested BO.
+     * 
+     * @return The IO that contains the locator list.
+     */
+    private InformationObject retrieveDO() {
+        Log.d(TAG,
+                "Retrieve the IO containing the locators from a remote node.");
+
+        Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
+        InformationObject io = null;
+        try {
+            io = getNodeConnection().getIO(identifier);
+        } catch (NetInfCheckedException e) {
+            Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: "
+                    + mHashValue);
+        }
+        return io;
+    }
+
 	/**
 	 * Creates the folder that contains the files to be shared with other phones.
 	 */
@@ -190,55 +213,50 @@ public class BOResource extends LisaServerResource {
 			}
 		}
 	}
-
-
+	
 	/**
-	 * Returns an IO (i.e. DO) containing the list of locators that 
-	 * own the requested BO.
+	 * Makes the file specified by file path visible to the user.
 	 * 
-	 * @return	The IO that contains the locator list.
+	 * @param filePath		The file path pointing to the file.
+	 * @param contentType	The content type of the file.
 	 */
-	private InformationObject retrieveDO() {
-		Log.d(TAG, "Retrieve the IO containing the locators from a remote node.");
-		
-		Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
-		InformationObject io = null;
-		try {
-			io = getNodeConnection().getIO(identifier);
-		} catch (NetInfCheckedException e) {
-			Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: " + mHashValue);
-		}
-		return io;
+	private void makeFileVisibleToPhone(String filePath, String contentType) {
+		String[] paths = {filePath};
+		String[] mediaType = {contentType};
+		MediaScannerConnection.scanFile(MainApplication.getAppContext(), paths, mediaType, null);
 	}
+    
+    /**
+     * Creates a new file containing the specified fileData at the specified
+     * targetPath.
+     * 
+     * @param targetPath
+     *            The location to create the file
+     * @param fileData
+     *            The data to write at the specified path
+     */
+    private void writeByteStreamToFile(String targetPath, byte[] fileData) {
+        Log.d(TAG, "Writing received data to " + targetPath);
 
-	/**
-	 * Creates a new file containing the specified fileData at the specified
-	 * targetPath.
-	 * 
-	 * @param targetPath	The location to create the file
-	 * @param fileData		The data to write at the specified path
-	 */
-	private void writeByteStreamToFile(String targetPath, byte[] fileData) {
-		Log.d(TAG, "Writing received data to " + targetPath);
-		
-		FileOutputStream fos = null;
+        FileOutputStream fos = null;
 
-		try {
-			fos = new FileOutputStream(targetPath);
-			fos.write(fileData);
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, "Couldn't find file: " + targetPath);
-		} catch (IOException e) {
-			Log.e(TAG, "Failed while writing data to " + targetPath);
-		} finally {	  
+        try {
+            fos = new FileOutputStream(targetPath);
+            fos.write(fileData);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "Couldn't find file: " + targetPath);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed while writing data to " + targetPath);
+        } finally {
 
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					Log.e(TAG, "Failed closing the stream after writing to file.");
-				}        	
-			}
-		}		
-	}	
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    Log.e(TAG,
+                            "Failed closing the stream after writing to file.");
+                }
+            }
+        }
+    }
 }
