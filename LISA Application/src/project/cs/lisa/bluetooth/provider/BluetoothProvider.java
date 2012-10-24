@@ -123,6 +123,7 @@ public class BluetoothProvider implements ByteArrayProvider {
          * successful connection or an exception.
          */
         Log.d(TAG, "Trying to connect to a device through a socket...");
+        mBluetoothAdapter.cancelDiscovery();
         socket.connect();
 
         return socket;
