@@ -113,6 +113,7 @@ public class BluetoothServer extends Thread {
 				
 			} catch (IOException e) {
 				Log.e(TAG, "Error occured during wating for an incoming pairing request.");
+				e.printStackTrace();
 				break;
 			}
 			
