@@ -87,8 +87,7 @@ public class BluetoothServer extends Thread {
 		BluetoothServerSocket tmp = null;
 		try {
 			
-			tmp = 
-				mBtAdapter.listenUsingInsecureRfcommWithServiceRecord("Request Listener", MY_UUID);
+			tmp = InsecureBluetooth.listenUsingRfcommWithServiceRecord(mBtAdapter, TAG, MY_UUID, true);
 			
 		} catch (IOException e) {
 			Log.e(TAG, "Bluetooth Server Socket couldn't be initialized.");
@@ -120,7 +119,7 @@ public class BluetoothServer extends Thread {
 			if (socket != null) {
 				setUpIoStreams(socket);
 				handleIncomingRequest(socket);
-				cleanUp(socket);
+				//cleanUp(socket);
 			}
 		}	
 	}

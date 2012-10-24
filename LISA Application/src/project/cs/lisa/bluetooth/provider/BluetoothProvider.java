@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
+import project.cs.lisa.bluetooth.InsecureBluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -115,12 +116,9 @@ public class BluetoothProvider implements ByteArrayProvider {
         BluetoothSocket socket = null;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
 
-        /* Get a BluetoothSocket for a connection with the given BluetoothDevice.
-         * An insecure connection does never ask the user to pair
-         * another device during a Bluetooth connection.
-         */
-        socket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-
+        /* Get a BluetoothSocket for a connection with the given BluetoothDevice. */
+        socket   = InsecureBluetooth.createRfcommSocketToServiceRecord(device, MY_UUID, true);
+		
         /* This is a blocking call and will only return on a
          * successful connection or an exception.
          */
