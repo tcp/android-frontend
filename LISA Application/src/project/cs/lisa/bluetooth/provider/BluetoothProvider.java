@@ -117,7 +117,7 @@ public class BluetoothProvider implements ByteArrayProvider {
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
 
         /* Get a BluetoothSocket for a connection with the given BluetoothDevice. */
-        socket   = InsecureBluetooth.createRfcommSocketToServiceRecord(device, MY_UUID, true);
+        socket   = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
 		
         /* This is a blocking call and will only return on a
          * successful connection or an exception.

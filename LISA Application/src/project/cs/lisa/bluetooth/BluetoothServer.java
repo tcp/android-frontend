@@ -86,13 +86,11 @@ public class BluetoothServer extends Thread {
 		 * is needed in order to pair with another device. */
 		BluetoothServerSocket tmp = null;
 		try {
-			
-			tmp = InsecureBluetooth.listenUsingRfcommWithServiceRecord(mBtAdapter, TAG, MY_UUID, true);
-			
+			tmp = mBtAdapter.listenUsingInsecureRfcommWithServiceRecord(TAG, MY_UUID);
 		} catch (IOException e) {
 			Log.e(TAG, "Bluetooth Server Socket couldn't be initialized.");
 		}
-			
+		
 		mBtServerSocket = tmp;
 		mServerListens = true;
 	}
