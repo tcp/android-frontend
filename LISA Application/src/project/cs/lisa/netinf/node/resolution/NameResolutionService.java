@@ -92,8 +92,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 
 	@Override
 	public String describe() {
-		// TODO Auto-generated method stub
-		return null;
+		return "backend NRS";
 	}
 
 	@Override

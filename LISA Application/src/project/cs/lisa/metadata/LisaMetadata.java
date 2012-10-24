@@ -1,4 +1,4 @@
-package project.cs.lisa.json.parser;
+package project.cs.lisa.metadata;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

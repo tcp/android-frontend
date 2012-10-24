@@ -6,9 +6,9 @@
     <uses-sdk
         android:minSdkVersion="10"
         android:targetSdkVersion="15" />
-    
     # wifi connectivity
     <uses-feature android:name="android.hardware.wifi" />
+
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     # network connectivity
     <uses-permission android:name="android.permission.INTERNET" />
@@ -20,28 +20,39 @@
    	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"></uses-permission>
    	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+
     <application
+        android:name=".application.MainApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:name= ".application.MainApplication"
-        android:theme="@style/AppTheme" android:permission="android.permission.ACCESS_WIFI_STATE">
+        android:permission="android.permission.ACCESS_WIFI_STATE"
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".application.MainActivity"
             android:label="@string/activity_http_title" >
-            <intent-filter>
+<!--             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name="project.cs.lisa.wifi.WifiActivity">
+ -->        </activity>
+        <activity android:name="project.cs.lisa.wifi.WifiActivity" >
             <intent-filter>
-                <action android:name="android.net.wifi.SCAN_RESULTS"/>
+                <action android:name="android.net.wifi.SCAN_RESULTS" />
             </intent-filter>
         </activity>
-        <activity android:name=".wifi.WifiDeviceList">
-            <intent-filter android:label="android.net.wifi.SCAN_RESULTS">
-                <action android:name="android.net.wifi.SCAN_RESULTS"/>
+        <activity android:name=".wifi.WifiDeviceList" >
+            <intent-filter android:label="android.net.wifi.SCAN_RESULTS" >
+                <action android:name="android.net.wifi.SCAN_RESULTS" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".application.DemoSprint2Activity"
+            android:label="@string/title_activity_demo_sprint2" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>

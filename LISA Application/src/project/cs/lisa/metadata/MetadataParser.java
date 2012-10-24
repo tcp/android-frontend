@@ -14,7 +14,7 @@
  *
  * Copyright (C) 2012 LISA team
  */
-package project.cs.lisa.json.parser;
+package project.cs.lisa.metadata;
 
 import org.json.JSONException;
 import org.json.JSONObject;
