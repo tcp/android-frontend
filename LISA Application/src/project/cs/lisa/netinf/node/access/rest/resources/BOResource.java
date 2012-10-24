@@ -81,7 +81,7 @@ public class BOResource extends LisaServerResource {
 	
     /** The download folder. */
     private static final String DOWNLOAD_FOLDER = 
-    		Environment.getExternalStorageDirectory() + "";
+    		Environment.getExternalStorageDirectory() + "/";
 
 	/** The hash value of the requested BO. */
 	private String mHashValue;
