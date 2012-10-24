@@ -1,13 +1,11 @@
 package project.cs.lisa.networksettings;
 
-import project.cs.lisa.R;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
-import android.widget.ToggleButton;
 
 /**
  * Class for handling general BT connection

@@ -54,6 +54,7 @@ import netinf.common.exceptions.NetInfCheckedException;
 
 import org.restlet.resource.Get;
 
+import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
 import android.os.Environment;
@@ -104,7 +105,7 @@ public class BOResource extends LisaServerResource {
 	 *         Second key: the content type of the file
 	 */
 	@Get
-	public HashMap<String, String> retrieveBO() {
+	public String retrieveBO() {
 		byte[] fileData = null;
 		String filePath = "";
 		String contentType = "";
@@ -142,11 +143,11 @@ public class BOResource extends LisaServerResource {
 			}
 		}
 
-		HashMap<String, String> map = new HashMap<String, String>(2);
-		map.put(FILEPATH, filePath);
-		map.put(CONTENT_TYPE, contentType);
-		
-		return map;
+		LisaMetadata lisaMetadata = new LisaMetadata();
+		lisaMetadata.insert(CONTENT_TYPE, contentType);
+		lisaMetadata.insert(FILEPATH, filePath);
+				
+		return lisaMetadata.convertToString();
 	}
 
 
