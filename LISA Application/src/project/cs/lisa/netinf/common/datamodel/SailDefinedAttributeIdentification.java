@@ -1,3 +1,9 @@
+/* Modified by Linus
+ * Based on netinf.common.datamodel.DefinedAttributeIdentification
+ * added META_DATA("meta_data", false);
+ *     an attribute that contains the meta data
+ */
+
 /*
  * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
  * (Full list of owners see http://www.netinf.org/about-2/license)

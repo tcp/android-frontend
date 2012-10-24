@@ -88,7 +88,7 @@ public class BluetoothServer extends Thread {
 				mBtAdapter.listenUsingInsecureRfcommWithServiceRecord("Request Listener", MY_UUID);
 			
 		} catch (IOException e) {
-			Log.d(TAG, "Bluetooth Server Socket couldn't be initialized.");
+			Log.e(TAG, "Bluetooth Server Socket couldn't be initialized.");
 		}
 			
 		mBtServerSocket = tmp;
@@ -109,7 +109,7 @@ public class BluetoothServer extends Thread {
 				Log.d(TAG, "Accepted Request");
 				
 			} catch (IOException e) {
-				Log.d(TAG, "Error occured during wating for an incoming pairing request.");
+				Log.e(TAG, "Error occured during wating for an incoming pairing request.");
 				break;
 			}
 			
@@ -141,7 +141,7 @@ public class BluetoothServer extends Thread {
 		try {
 			socket.close();
 		} catch (IOException e) {
-			Log.d(TAG, "Closing the bluetooth socket failed.");
+			Log.e(TAG, "Closing the bluetooth socket failed.");
 		}
 	}
 
@@ -188,10 +188,10 @@ public class BluetoothServer extends Thread {
 			bis.close();
 			
 		} catch (FileNotFoundException e) {
-			Log.d(TAG, "The file " + file.getName() + " could not be found.");
+			Log.e(TAG, "The file " + file.getName() + " could not be found.");
 			
 		} catch (IOException e) {
-			Log.d(TAG, "Exception occured during file to byte array conversion.", e);
+			Log.e(TAG, "Exception occured during file to byte array conversion.", e);
 		}
 		
 		return fileByteArray;
@@ -234,7 +234,7 @@ public class BluetoothServer extends Thread {
 			mInStream.close();
 			
 		} catch (IOException e) {
-			Log.d(TAG, "Couldn't extract streams for Bluetooth transmission.");
+			Log.e(TAG, "Couldn't extract streams for Bluetooth transmission.");
 		}
 		
 		return readHash;
@@ -251,7 +251,7 @@ public class BluetoothServer extends Thread {
 			mServerListens = false;
 			mBtServerSocket.close();
 		} catch (IOException e) {
-			Log.d(TAG, "Error while closing Bluetooth socket");
+			Log.e(TAG, "Error while closing Bluetooth socket");
 		}
 	}
 }

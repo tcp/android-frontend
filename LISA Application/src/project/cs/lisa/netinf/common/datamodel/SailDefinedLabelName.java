@@ -1,3 +1,10 @@
+/* Modified by Linus and Harold
+ * Based on netinf.common.datamodel.DefinedLabelName
+ * added CONTENT_TYPE ("CONTENT_TYPE",6);
+ *     a label that contains the content type
+ * added constructors to utilise this label
+ */
+
 /*
  * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
  * (Full list of owners see http://www.netinf.org/about-2/license)

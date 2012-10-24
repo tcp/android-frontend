@@ -73,10 +73,10 @@ public class BOResource extends LisaServerResource {
 	/** Debugging Tag. */
 	private static final String TAG = "BOResource";
 	
-	/** HashMap Key: Filepath */
+	/** HashMap Key: Filepath. */
 	private static final String FILEPATH = "filePath";
 	
-	/** HashMap Key: Content type */
+	/** HashMap Key: Content type. */
 	private static final String CONTENT_TYPE = "contenType";
 
 	/** The hash value of the requested BO. */
@@ -105,23 +105,16 @@ public class BOResource extends LisaServerResource {
 	 */
 	@Get
 	public HashMap<String, String> retrieveBO() {
-
 		byte[] fileData = null;
-		String filePath = null;
-		String contentType = null;
+		String filePath = "";
+		String contentType = "";
 
 		/* Retrieve a data object from a node (could be an NRS) */
-		Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
-		InformationObject io = null;
-		try {
-			io = getNodeConnection().getIO(identifier);
-		} catch (NetInfCheckedException e) {
-			Log.d(TAG, "Failed retrieving the IO from the NRS. Hash value: " + mHashValue);
-		}
+		InformationObject io = retrieveDO();
 
 		/* Retrieve the data corresponding to the hash from another device. */
 		if (io != null) {
-
+			
 		    /* Store the content type of the requested BO */
 		    contentType = io.getIdentifier().getIdentifierLabel(
 					SailDefinedLabelName.CONTENT_TYPE.getLabelName())
@@ -132,7 +125,7 @@ public class BOResource extends LisaServerResource {
 			try {
 				fileData = tsDispatcher.getByteArray(io);
 			} catch (IOException e) {
-				Log.d(TAG, "Couldn't retrieve the requested data.");
+				Log.e(TAG, "Couldn't retrieve the requested data.");
 			}
 
 			/* Writes the received data to file */ 
@@ -145,7 +138,7 @@ public class BOResource extends LisaServerResource {
 				writeByteStreamToFile(filePath, fileData);
 
 			} else {
-				Log.d(TAG, "No file data to write.");
+				Log.e(TAG, "No file data to write.");
 			}
 		}
 
@@ -158,6 +151,25 @@ public class BOResource extends LisaServerResource {
 
 
 	/**
+	 * Returns an IO (i.e. DO) containing the list of locators that 
+	 * own the requested BO.
+	 * 
+	 * @return	The IO that contains the locator list.
+	 */
+	private InformationObject retrieveDO() {
+		Log.d(TAG, "Retrieve the IO containing the locators from a remote node.");
+		
+		Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
+		InformationObject io = null;
+		try {
+			io = getNodeConnection().getIO(identifier);
+		} catch (NetInfCheckedException e) {
+			Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: " + mHashValue);
+		}
+		return io;
+	}
+
+	/**
 	 * Creates a new file containing the specified fileData at the specified
 	 * targetPath.
 	 * 
@@ -165,23 +177,24 @@ public class BOResource extends LisaServerResource {
 	 * @param fileData		The data to write at the specified path
 	 */
 	private void writeByteStreamToFile(String targetPath, byte[] fileData) {
-
+		Log.d(TAG, "Writing received data to " + targetPath);
+		
 		FileOutputStream fos = null;
 
 		try {
 			fos = new FileOutputStream(targetPath);
 			fos.write(fileData);
 		} catch (FileNotFoundException e) {
-			Log.d(TAG, "Couldn't find file: " + targetPath);
+			Log.e(TAG, "Couldn't find file: " + targetPath);
 		} catch (IOException e) {
-			Log.d(TAG, "Failed while writing data to " + targetPath);
+			Log.e(TAG, "Failed while writing data to " + targetPath);
 		} finally {	  
 
 			if (fos != null) {
 				try {
 					fos.close();
 				} catch (IOException e) {
-					Log.d(TAG, "Failed closing the stream after writing to file.");
+					Log.e(TAG, "Failed closing the stream after writing to file.");
 				}        	
 			}
 		}		

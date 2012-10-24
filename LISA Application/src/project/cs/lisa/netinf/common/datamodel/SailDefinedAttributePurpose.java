@@ -1,3 +1,9 @@
+/* Modified by Linus
+ * Based on netinf.common.datamodel.DefinedAttributePurpose
+ * added META_ATTRIBUTE("META_ATTRIBUTE");
+ *     represents attributes that contains meta data
+ */
+
 /*
  * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
  * (Full list of owners see http://www.netinf.org/about-2/license)
