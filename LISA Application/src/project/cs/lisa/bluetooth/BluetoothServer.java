@@ -172,12 +172,11 @@ public class BluetoothServer extends Thread {
 		
 		try {
 			/* Clean up open streams and sockets. */
+			
+			mOutStream.close();
 			mInStream.close();
-			//DEBUG purpose
-			/*socket.close();
-			 * mInStream.close();
-			 * mOutStream.close();
-			 */
+			socket.close();
+
 		} catch (IOException e) {
 			Log.e(TAG, "Closing the bluetooth socket failed.");
 		}
