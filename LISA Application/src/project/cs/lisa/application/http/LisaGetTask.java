@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import netinf.common.datamodel.InformationObject;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -231,8 +233,14 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
      */
     private void handleGetResponse(HashMap<String, String> response) {
         Log.d(TAG, "handleGetResponse()");
-        for (String key : response.keySet()) {
-            Log.d(TAG, "\t" + key + " => " + response.get(key));
+        
+        if (response != null) {
+			for (String key : response.keySet()) {
+				Log.d(TAG, "\t" + key + " => " + response.get(key));
+			}
+		} 
+        else {
+        	Log.e(TAG, "Hash map is null");
         }
     }
     
@@ -243,16 +251,21 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
      *                  with their respective values set appropriately
      */
     private HashMap<String, String> readGetResponse(HttpResponse response) {
-        Log.d(TAG, "handleGetResponse()");
+    	 Log.d(TAG, "handleGetResponse()");
         HashMap<String, String> responseMap = null;
         try {
             InputStream content = response.getEntity().getContent(); 
             ObjectInputStream object = new ObjectInputStream(content);
+            InformationObject io = (InformationObject)object.readObject();
+            Log.d(TAG, "handleGetResponse() Information Object " + io.toString());
+            /*
+             * TODO change and use this commented code
             responseMap = (HashMap<String, String>) object.readObject();
             Log.d(TAG, "Read response map:");
             for (String key : responseMap.keySet()) {
                 Log.d(TAG, "\t" + key + " => " + responseMap.get(key));
             }
+            */
         } catch (IOException e) {
             Log.e(TAG, e.toString(), e);
         } catch (ClassNotFoundException e) {
