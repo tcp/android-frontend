@@ -116,10 +116,30 @@ public class BluetoothServer extends Thread {
 			if (socket != null) {
 				setUpIoStreams(socket);
 				handleIncomingRequest(socket);
+				cleanUp(socket);
 			}
 		}	
 	}
 	
+	/**
+	 * Cleans up the openend socket and corresponding streams.
+	 * 
+	 * @param socket	The socket used for the communication to the remote device.
+	 */
+	private void cleanUp(BluetoothSocket socket) {
+		try {
+			/* Clean up open streams and sockets. */
+			
+			//mOutStream.close();
+			mInStream.close();
+			//socket.close();
+
+		} catch (IOException e) {
+			Log.e(TAG, "Closing the bluetooth socket failed.");
+		}
+	}
+
+
 	/**
 	 * Shuts down the current server client connection.
 	 */
@@ -170,16 +190,6 @@ public class BluetoothServer extends Thread {
 		/* Send the data to the remote device */
 		writeFile(fileData);
 		
-		try {
-			/* Clean up open streams and sockets. */
-			
-			mOutStream.close();
-			mInStream.close();
-			socket.close();
-
-		} catch (IOException e) {
-			Log.e(TAG, "Closing the bluetooth socket failed.");
-		}
 	}
 
 
