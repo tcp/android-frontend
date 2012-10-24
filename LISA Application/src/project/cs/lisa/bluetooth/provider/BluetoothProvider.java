@@ -87,6 +87,8 @@ public class BluetoothProvider implements ByteArrayProvider {
 
         } catch (IOException e) {
             Log.e(TAG, "Trying to close the socket due to a fail in the connection...");
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
             if (socket != null) {
                 try {
                     socket.close();

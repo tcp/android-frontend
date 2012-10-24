@@ -50,7 +50,7 @@ public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>
 	private static final String HTTP = "http://";
 	// TODO add to properties file
 	/** HTTP Timeout. **/
-	private static final int TIMEOUT = 20000;
+	private static final int TIMEOUT = 20000000;
 	
 	/** Publish Message Type String Representation. **/
 	private static final String PUBLISH = "PUT";
