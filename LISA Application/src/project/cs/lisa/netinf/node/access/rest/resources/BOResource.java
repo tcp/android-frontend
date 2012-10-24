@@ -78,6 +78,10 @@ public class BOResource extends LisaServerResource {
 	
 	/** HashMap Key: Content type. */
 	private static final String CONTENT_TYPE = "contenType";
+	
+    /** The download folder. */
+    private static final String DOWNLOAD_FOLDER = 
+    		Environment.getExternalStorageDirectory() + "";
 
 	/** The hash value of the requested BO. */
 	private String mHashValue;
@@ -135,7 +139,7 @@ public class BOResource extends LisaServerResource {
 				String hash = io.getIdentifier().getIdentifierLabel(
 						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 				
-				filePath = Environment.getExternalStorageDirectory() + "/LISA/" + hash;
+				filePath = DOWNLOAD_FOLDER + hash;
 				writeByteStreamToFile(filePath, fileData);
 
 			} else {

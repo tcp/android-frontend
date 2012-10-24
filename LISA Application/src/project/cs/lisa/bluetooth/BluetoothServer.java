@@ -52,7 +52,7 @@ public class BluetoothServer extends Thread {
     
     /** The directory containing the published files. */
     private static final String SHARED_FILES_DIR = 
-    		Environment.getExternalStorageDirectory() + "DCIM/100MEDIA/";
+    		Environment.getExternalStorageDirectory() + "/DCIM/100MEDIA/";
 
     /** The buffer for reading in the hash out of a file request message. */
 	private static final int BUFFER_SIZE = 1024;
@@ -114,11 +114,43 @@ public class BluetoothServer extends Thread {
 			}
 			
 			if (socket != null) {
+				setUpIoStreams(socket);
 				handleIncomingRequest(socket);
 			}
 		}	
 	}
 	
+	/**
+	 * Shuts down the current server client connection.
+	 */
+	public void cancel() {
+		try {
+			Log.d(TAG, "Close BluetoothServerSocket. Stop listening.");
+			
+			mServerListens = false;
+			mBtServerSocket.close();
+		} catch (IOException e) {
+			Log.e(TAG, "Error while closing Bluetooth socket");
+		}
+	}
+	
+	
+	/**
+	 * Set up the streams used for reading in and writing to
+	 * a socket that connects this device to a remote device.
+	 * 
+	 * @param socket	The socket for reading and writing.
+	 */
+	private void setUpIoStreams(BluetoothSocket socket) {
+		try {
+			mInStream = new DataInputStream(socket.getInputStream());
+			mOutStream = new DataOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
+			Log.d(TAG, "Failed creating the streams for communicating.");
+		}
+	}
+
+
 	/**
 	 * Extracts the hash, searches for the file requested and sends the
 	 * corresponding file to the remote device.
@@ -139,7 +171,13 @@ public class BluetoothServer extends Thread {
 		writeFile(fileData);
 		
 		try {
-			socket.close();
+			/* Clean up open streams and sockets. */
+			mInStream.close();
+			//DEBUG purpose
+			/*socket.close();
+			 * mInStream.close();
+			 * mOutStream.close();
+			 */
 		} catch (IOException e) {
 			Log.e(TAG, "Closing the bluetooth socket failed.");
 		}
@@ -152,15 +190,15 @@ public class BluetoothServer extends Thread {
 	 * @param buffer The data to be send.
 	 */
 	private void writeFile(byte[] buffer) {
-		Log.d(TAG, "Sending file."); 
+		Log.d(TAG, "Sending file of size: " + buffer.length); 
 
 		try {
 			mOutStream.writeInt(buffer.length);
 			mOutStream.write(buffer, 0, buffer.length);
 			mOutStream.flush();
 			
-			mOutStream.close();
-		
+			Log.d(TAG, "Done writing file to remote device.");
+					
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
 
@@ -228,10 +266,8 @@ public class BluetoothServer extends Thread {
 		
 		try {
 	
-			mInStream = new DataInputStream(socket.getInputStream());			
 			length = mInStream.read(buffer);
 			readHash = new String(buffer, 0, length);
-			mInStream.close();
 			
 		} catch (IOException e) {
 			Log.e(TAG, "Couldn't extract streams for Bluetooth transmission.");
@@ -241,17 +277,4 @@ public class BluetoothServer extends Thread {
 		
 	}
 
-	/**
-	 * Shuts down the current server client connection.
-	 */
-	public void cancel() {
-		try {
-			Log.d(TAG, "Close BluetoothServerSocket. Stop listening.");
-			
-			mServerListens = false;
-			mBtServerSocket.close();
-		} catch (IOException e) {
-			Log.e(TAG, "Error while closing Bluetooth socket");
-		}
-	}
 }
