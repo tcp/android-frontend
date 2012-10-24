@@ -58,8 +58,15 @@ public class MainActivity extends Activity {
     			Log.d(TAG, "View: button1");
     			LisaGetTask getTask = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.PUBLISH, "sha-256", "ABCDEFG");
     			getTask.execute(new String[] {"text/plain", "meta"});
+    			break;
+    		case R.id.button2:
+    			Log.d(TAG, "View: button2");
+    			LisaGetTask getTask2 = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.GET, "sha-256", "ABCDEFG");
+    			getTask2.execute();
+    			break;
     		default:
     			Log.d(TAG, "Error: Unknown view clicked.");
+    			break;
     	}
     }
     
