@@ -154,14 +154,16 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @throws  IOException Exception for the streams
      */
     private byte[] downloadFile(BluetoothSocket socket) throws IOException {
+    	Log.d(TAG,"Begining downloading the file");
         DataInputStream inStream = null;
         byte[] buffer = null;
 
         /* Get the input stream for receiving the file */
         inStream = new DataInputStream(socket.getInputStream());
         int fileSize = inStream.readInt();
-        inStream.readFully(buffer);
         buffer = new byte[fileSize];
+        inStream.readFully(buffer);
+        Log.d(TAG,"Downloaded!");
 
         return buffer;
     }

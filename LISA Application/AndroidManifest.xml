@@ -18,6 +18,7 @@
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
    	<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
    	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"></uses-permission>
+   	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:icon="@drawable/ic_launcher"
