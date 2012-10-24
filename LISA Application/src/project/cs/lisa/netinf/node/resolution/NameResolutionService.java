@@ -246,7 +246,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	    HttpPost post = null;
 	    try {
 	        // TODO this should not be *index.php when calling the actual NRS
-	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish/index.php");
+	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish/");
 	    }
 	    catch (Exception e) {
 	        Log.e(TAG, e.toString());
