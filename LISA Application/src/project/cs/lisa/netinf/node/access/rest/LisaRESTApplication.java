@@ -58,7 +58,7 @@ public class LisaRESTApplication extends Application {
 			router.attach("/io", IOResource.class);
 			
 			// Redirect NetInf Get requests
-			String getTarget = "/io?HASH_ALG={hash_alg}&HASH={hash}";  
+			String getTarget = "/bo?HASH_ALG={hash_alg}&HASH={hash}";  
 			Redirector getRedirector = new Redirector(getContext(), getTarget, Redirector.MODE_CLIENT_TEMPORARY);
 			Extractor getExtractor = new Extractor(getContext(), getRedirector);
 			
