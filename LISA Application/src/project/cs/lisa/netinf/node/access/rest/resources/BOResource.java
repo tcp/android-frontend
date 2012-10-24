@@ -135,6 +135,8 @@ public class BOResource extends LisaServerResource {
             contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
+            
+            Log.d(TAG, "Trying to receive file with the following content type: " + contentType);
 
             /* Attempt to transfer the BO from a remote device */
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
