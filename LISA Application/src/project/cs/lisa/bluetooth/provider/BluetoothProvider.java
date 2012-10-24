@@ -51,7 +51,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * The following UUID was generated using http://www.famkruithof.net/uuid/uuidgen.
      */
     private static final UUID MY_UUID = UUID
-            .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+            .fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     /** The Bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter = null;

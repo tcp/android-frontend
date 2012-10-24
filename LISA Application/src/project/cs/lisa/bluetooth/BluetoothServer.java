@@ -48,7 +48,7 @@ public class BluetoothServer extends Thread {
 	
 	/** Unique UUID. For more information see {@link project.cs.lisa.bluetooth.provider#MY_UUID} */
     private static final UUID MY_UUID =
-            UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+            UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     /** The buffer for reading in the hash out of a file request message. */
 	private static final int BUFFER_SIZE = 1024;
