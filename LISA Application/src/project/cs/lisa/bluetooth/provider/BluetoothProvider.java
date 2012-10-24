@@ -76,7 +76,6 @@ public class BluetoothProvider implements ByteArrayProvider {
         BluetoothSocket socket = null;
 
         try {
-
             /* Connect */
             socket = connectToRemoteDevice(locator);
 
@@ -109,6 +108,8 @@ public class BluetoothProvider implements ByteArrayProvider {
      */
     private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
 
+   	 	Log.d(TAG, "Start requesting a socket to a remote device: " + locator);
+
         BluetoothSocket socket = null;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
 
@@ -121,7 +122,7 @@ public class BluetoothProvider implements ByteArrayProvider {
         /* This is a blocking call and will only return on a
          * successful connection or an exception.
          */
-        Log.e(TAG, "Trying to connect to a device through a socket...");
+        Log.d(TAG, "Trying to connect to a device through a socket...");
         socket.connect();
 
         return socket;
@@ -135,6 +136,8 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @throws  IOException Exception for the stream.
      */
     private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
+    	Log.d(TAG, "Write the hash request to the connected locator. ");
+    	
         DataOutputStream outStream = null;
 
         /* Get the output stream for sending the hash */
@@ -168,7 +171,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      */
     @Override
     public boolean canHandle(String locator) {
-        return false;
+        return true;
     }
 
     /**
