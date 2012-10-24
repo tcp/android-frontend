@@ -38,7 +38,7 @@ import android.widget.Toast;
  * @author Thiago Costa Porto
  */
 
-public class DisplayFile {
+public class LisaFileHandler {
     private static final int ERR_NULL_PATH_RECEIVED = -1;
     private static final int ERR_NULL_TYPE_RECEIVED = -2;
     private static final int ERR_EMPTY_PATH_RECEIVED = -3;
@@ -124,7 +124,7 @@ public class DisplayFile {
      * @return String with the MimeType
      */
     
-    public String getFileContentType(String path) {
+    public static String getFileContentType(String path) {
         // Gets file extension
         String extension = MimeTypeMap.getFileExtensionFromUrl(path);
         // Returns MimeType

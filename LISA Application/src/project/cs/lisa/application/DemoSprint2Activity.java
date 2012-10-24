@@ -1,9 +1,15 @@
 package project.cs.lisa.application;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfRequest;
+import project.cs.lisa.file.LisaFileHandler;
+import project.cs.lisa.hash.LisaHash;
+import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.node.LisaStarterNodeThread;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -107,20 +113,20 @@ public class DemoSprint2Activity extends Activity {
                 NetInfRequest.RequestType.GET, HASH_ALG, hash.substring(0,3));
         getRequest.execute();
 
-//        For now open the received file in the asynch task.
-//        Later, uncomment this code and use a Handler to get back
-//        the filePath and the contentType.
+        //        For now open the received file in the asynch task.
+        //        Later, uncomment this code and use a Handler to get back
+        //        the filePath and the contentType.
 
-//        String filePath = "";
-//        String contentType = "";
-//
-//        /* Display the file according to the file type. */
-//        Intent intent = new Intent(Intent.ACTION_VIEW);
-//        File file = new File(filePath);
-//
-//        /* Replace image/* with contentType */
-//        intent.setDataAndType(Uri.fromFile(file), "image/*");
-//        startActivity(intent);
+        //        String filePath = "";
+        //        String contentType = "";
+        //
+        //        /* Display the file according to the file type. */
+        //        Intent intent = new Intent(Intent.ACTION_VIEW);
+        //        File file = new File(filePath);
+        //
+        //        /* Replace image/* with contentType */
+        //        intent.setDataAndType(Uri.fromFile(file), "image/*");
+        //        startActivity(intent);
     }
 
     /**
@@ -140,21 +146,21 @@ public class DemoSprint2Activity extends Activity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        
+
         if (resultCode != RESULT_OK) {
             return;
         }
-        
+
         /* Get the file path of the selected image. */
         Uri selectedImage = data.getData();
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(
-                           selectedImage, filePathColumn, null, null, null);
+                selectedImage, filePathColumn, null, null, null);
         cursor.moveToFirst();
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String filePath = cursor.getString(columnIndex);
         cursor.close();
-        
+
         /* From File Manager */
         if (filePath == null) {
             filePath = selectedImage.getPath();            
@@ -163,15 +169,26 @@ public class DemoSprint2Activity extends Activity {
         File file = new File(filePath);
         if (file.exists()) {
 
-            /* Extract here the content type */
-            String contentType = "";
-            
-            /* Create hash */
-            String hash = "";
-            
-            /* Create metadata */
-            String metaData = "";
-            
+            /* Help class for files, extract content type */
+            String contentType = LisaFileHandler.getFileContentType(filePath);
+
+            /* Help class for files, generate the hash */
+            LisaHash lisaHash = null;
+            String hash = null;
+            try {
+                lisaHash = new LisaHash(FileUtils.readFileToByteArray(file));
+                lisaHash.hashLisa(3);
+                hash = LisaHash.encodeLines(FileUtils.readFileToByteArray(file));
+                Log.d(TAG, "The generated hash is: " + hash);
+            } catch (IOException e1) {
+                Log.e(TAG, "Error, could not open the file: " + file.getPath());
+            }
+
+            /* Create meta data */
+            LisaMetadata lisaMetaData = new LisaMetadata();
+            lisaMetaData.insert("size", String.valueOf(file.length()));
+            String metaData = lisaMetaData.convertToString();
+
             /* Publish! */
             Log.d(TAG, "Trying to publish a new file.");
             NetInfRequest publishRequest = new NetInfRequest(

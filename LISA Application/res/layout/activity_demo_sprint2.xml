@@ -10,6 +10,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="90dp"
+        android:singleLine="true"
         android:hint="@string/enter_hash" >
 
         <requestFocus />
