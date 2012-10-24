@@ -43,6 +43,7 @@
 
 package project.cs.lisa.netinf.node.access.rest.resources;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,8 +55,10 @@ import netinf.common.exceptions.NetInfCheckedException;
 
 import org.restlet.resource.Get;
 
+import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
+import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.util.Log;
 
@@ -78,16 +81,15 @@ public class BOResource extends LisaServerResource {
 	
 	/** HashMap Key: Content type. */
 	private static final String CONTENT_TYPE = "contenType";
-	
-    /** The download folder. */
-    private static final String DOWNLOAD_FOLDER = 
-    		Environment.getExternalStorageDirectory() + "/";
 
 	/** The hash value of the requested BO. */
 	private String mHashValue;
 
-    /** The hash algorithm used to generate the hash value . */
+    /** The hash algorithm used to generate the hash value. */
 	private String mHashAlgorithm;
+
+	/** The folder where to save the downloaded file. */
+	private String mSharedFolder;
 
 	/**
 	 * Initializes the context of a BOResource.
@@ -95,8 +97,11 @@ public class BOResource extends LisaServerResource {
 	@Override
 	protected void doInit() {
 		super.doInit();
+		
 		mHashValue = getQuery().getFirstValue("HASH", true);
 		mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
+		
+		createSharedFolder();
 	}
 
 	/**
@@ -109,7 +114,8 @@ public class BOResource extends LisaServerResource {
 	 */
 	@Get
 	public HashMap<String, String> retrieveBO() {
-		Log.d(TAG,"retrieveBO()");
+		Log.d(TAG, "Trying to retrieve the BO.");
+		
 		byte[] fileData = null;
 		String filePath = "";
 		String contentType = "";
@@ -139,8 +145,9 @@ public class BOResource extends LisaServerResource {
 				String hash = io.getIdentifier().getIdentifierLabel(
 						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 				
-				filePath = DOWNLOAD_FOLDER + hash;
+				filePath = mSharedFolder + hash;
 				writeByteStreamToFile(filePath, fileData);
+				makeFileVisibleToPhone(filePath, contentType);
 
 			} else {
 				Log.e(TAG, "No file data to write.");
@@ -152,6 +159,35 @@ public class BOResource extends LisaServerResource {
 		map.put(CONTENT_TYPE, contentType);
 		
 		return map;
+	}
+	
+	/**
+	 * Makes the file specified by file path visible to the user.
+	 * 
+	 * @param filePath		The file path pointing to the file.
+	 * @param contentType	The content type of the file.
+	 */
+	private void makeFileVisibleToPhone(String filePath, String contentType) {
+		String[] paths = {filePath};
+		String[] mediaType = {contentType};
+		MediaScannerConnection.scanFile(MainApplication.getAppContext(), paths, mediaType, null);
+	}
+	
+	/**
+	 * Creates the folder that contains the files to be shared with other phones.
+	 */
+	private void createSharedFolder() {
+		File folder = new File(mSharedFolder);
+		
+		if (!folder.exists()) {
+			Log.d(TAG, "Creating shared folder " + mSharedFolder);
+			boolean created = folder.mkdir();
+			
+			if (!created) {
+				Log.e(TAG, "Failed creating the shared folder. Set shared folder to DCIM/");
+				mSharedFolder = Environment.getExternalStorageDirectory() + "/DCIM/";
+			}
+		}
 	}
 
 

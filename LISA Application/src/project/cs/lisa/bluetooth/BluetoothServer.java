@@ -49,10 +49,6 @@ public class BluetoothServer extends Thread {
 	/** Unique UUID. For more information see {@link project.cs.lisa.bluetooth.provider#MY_UUID} */
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-    
-    /** The directory containing the published files. */
-    private static final String SHARED_FILES_DIR = 
-    		Environment.getExternalStorageDirectory() + "/DCIM/100MEDIA/";
 
     /** The buffer for reading in the hash out of a file request message. */
 	private static final int BUFFER_SIZE = 1024;
@@ -72,11 +68,18 @@ public class BluetoothServer extends Thread {
 	/** The output stream used for writing the file to the remote device. */
 	private DataOutputStream mOutStream;
 	
+    /** The directory containing the published files. */
+    private String mSharedFolder = 
+    		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+	
 	/**
 	 * Creates a new BluetoothServer that waits for incoming
 	 * bluetooth requests and handles file requests.
 	 */
 	public BluetoothServer() {
+		
+		createSharedFolder();
+		
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 		
 		/* Start listening for incoming pairing requests. No authorization from the user
@@ -94,8 +97,8 @@ public class BluetoothServer extends Thread {
 		mBtServerSocket = tmp;
 		mServerListens = true;
 	}
-	
-	
+
+
 	@Override
 	public void run() {
 		Log.d(TAG, "Start Listening..");
@@ -122,25 +125,6 @@ public class BluetoothServer extends Thread {
 	}
 	
 	/**
-	 * Cleans up the openend socket and corresponding streams.
-	 * 
-	 * @param socket	The socket used for the communication to the remote device.
-	 */
-	private void cleanUp(BluetoothSocket socket) {
-		try {
-			/* Clean up open streams and sockets. */
-			
-			//mOutStream.close();
-			mInStream.close();
-			//socket.close();
-
-		} catch (IOException e) {
-			Log.e(TAG, "Closing the bluetooth socket failed.");
-		}
-	}
-
-
-	/**
 	 * Shuts down the current server client connection.
 	 */
 	public void cancel() {
@@ -154,6 +138,42 @@ public class BluetoothServer extends Thread {
 		}
 	}
 	
+	
+	/**
+	 * Creates the folder that contains the files to be shared with other phones.
+	 */
+	private void createSharedFolder() {
+		File folder = new File(mSharedFolder);
+		
+		if (!folder.exists()) {
+			Log.d(TAG, "Creating shared folder " + mSharedFolder);
+			boolean created = folder.mkdir();
+			
+			if (!created) {
+				Log.e(TAG, "Failed creating the shared folder. Set shared folder to DCIM/");
+				mSharedFolder = Environment.getExternalStorageDirectory() + "/DCIM/";
+			}
+		}
+	}
+	
+	
+	/**
+	 * Cleans up the openend socket and corresponding streams.
+	 * 
+	 * @param socket	The socket used for the communication to the remote device.
+	 */
+	private void cleanUp(BluetoothSocket socket) {
+		try {
+			/* Clean up open streams and sockets. */
+			
+			mOutStream.close();
+			mInStream.close();
+			socket.close();
+
+		} catch (IOException e) {
+			Log.e(TAG, "Closing the bluetooth socket failed.");
+		}
+	}
 	
 	/**
 	 * Set up the streams used for reading in and writing to
@@ -253,7 +273,7 @@ public class BluetoothServer extends Thread {
 	 */
 	private File getFileByHash(String hash) {
 		
-		String filepath = SHARED_FILES_DIR + hash;
+		String filepath = mSharedFolder + hash;
 		File requestedFile = new File(filepath);
 	
 		return requestedFile;
