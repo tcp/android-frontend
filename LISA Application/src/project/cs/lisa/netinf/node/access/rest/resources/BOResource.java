@@ -88,8 +88,9 @@ public class BOResource extends LisaServerResource {
     /** The hash algorithm used to generate the hash value. */
 	private String mHashAlgorithm;
 
-	/** The folder where to save the downloaded file. */
-	private String mSharedFolder;
+    /** The directory containing the published files. */
+    private String mSharedFolder = 
+    		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
 
 	/**
 	 * Initializes the context of a BOResource.
