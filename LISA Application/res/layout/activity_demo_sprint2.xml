@@ -27,13 +27,13 @@
 
 
     <Button
-        android:id="@+id/push_button"
+        android:id="@+id/publish_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="130dp"
-        android:text="@string/put_button"
-        android:onClick="pushButtonClicked" />
+        android:text="@string/publish_button"
+        android:onClick="publishButtonClicked" />
 
 </RelativeLayout>

@@ -1,7 +1,7 @@
 package project.cs.lisa.application;
 
 import project.cs.lisa.R;
-import project.cs.lisa.application.http.LisaGetTask;
+import project.cs.lisa.application.http.NetInfRequest;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.netinf.node.LisaStarterNodeThread;
 import android.app.Activity;
@@ -66,12 +66,12 @@ public class MainActivity extends Activity {
     	switch (view.getId()) {
     		case R.id.button1:
     			Log.d(TAG, "View: button1");
-    			LisaGetTask getTask = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.PUBLISH, "sha-256", "ABCDEFG");
+    			NetInfRequest getTask = new NetInfRequest(this, "localhost", 8080, NetInfRequest.RequestType.PUBLISH, "sha-256", "ABCDEFG");
     			getTask.execute(new String[] {"text/plain", "meta"});
     			break;
     		case R.id.button2:
     			Log.d(TAG, "View: button2");
-    			LisaGetTask getTask2 = new LisaGetTask(this, "localhost", 8080, LisaGetTask.MessageType.GET, "sha-256", "ABCDEFG");
+    			NetInfRequest getTask2 = new NetInfRequest(this, "localhost", 8080, NetInfRequest.RequestType.GET, "sha-256", "ABCDEFG");
     			getTask2.execute();
     			break;
     		default:

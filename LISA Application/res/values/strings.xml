@@ -22,7 +22,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_demo_sprint2">DemoSprint2Activity</string>
     <string name="get_button">Fetch File</string>
-    <string name="put_button">Publish File</string>
+    <string name="publish_button">Publish File</string>
     <string name="enter_hash">Enter the hash value</string>
 
 </resources>

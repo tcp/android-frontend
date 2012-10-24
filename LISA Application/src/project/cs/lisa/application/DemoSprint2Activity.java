@@ -3,6 +3,7 @@ package project.cs.lisa.application;
 import java.io.File;
 
 import project.cs.lisa.R;
+import project.cs.lisa.application.http.NetInfRequest;
 import project.cs.lisa.netinf.node.LisaStarterNodeThread;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -24,8 +25,17 @@ public class DemoSprint2Activity extends Activity {
     /** Debugging tag. */
     public static final String TAG = "DemoSpring2Activity";
 
+    /** Hash algorithm constant. */
+    public static final String HASH_ALG = "sha-256";
+
     /** Please comment. */
     public static final String NODE_STARTED = "project.cs.list.node.started";
+
+    /** Local NetInf node that will redirect the request to an NRS. */
+    private static final String HOST = "localhost";
+
+    /** Port for connecting to the internal NetInf node. */
+    private static final int PORT = 8080;
 
     /** Please comment. */
     private MainApplication mApplication;
@@ -80,33 +90,44 @@ public class DemoSprint2Activity extends Activity {
      */
     public final void getButtonClicked(final View v) {
 
+        /* Store the input string */
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
 
-        if (hash.isEmpty()) {
+        if (hash.length() != 3) {
             Toast.makeText(getApplicationContext(),
-                    "Fill in the hash filed please!", Toast.LENGTH_SHORT).show();
+                    "Only three characters are allowed!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        /* Send the hash here, and get back the file path and the content type */
-        String filePath = "";
-        String contentType = "";
+        /* Create a new get request with the current hash */
+        Log.d(TAG, "Requesting the following hash: " + hash.substring(0,3));
+        NetInfRequest getRequest = new NetInfRequest(
+                this, HOST, PORT,
+                NetInfRequest.RequestType.GET, HASH_ALG, hash.substring(0,3));
+        getRequest.execute();
 
-        /* Display the file according to the file type. */
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        File file = new File(filePath);
+//        For now open the received file in the asynch task.
+//        Later, uncomment this code and use a Handler to get back
+//        the filePath and the contentType.
 
-        /* Replace image/* with contentType */
-        intent.setDataAndType(Uri.fromFile(file), "image/*");
-        startActivity(intent);
+//        String filePath = "";
+//        String contentType = "";
+//
+//        /* Display the file according to the file type. */
+//        Intent intent = new Intent(Intent.ACTION_VIEW);
+//        File file = new File(filePath);
+//
+//        /* Replace image/* with contentType */
+//        intent.setDataAndType(Uri.fromFile(file), "image/*");
+//        startActivity(intent);
     }
 
     /**
      * Creates an intent to select an image from the gallery.
      * @param v The view that fired this event.
      */
-    public final void pushButtonClicked(final View v) {
+    public final void publishButtonClicked(final View v) {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -141,10 +162,23 @@ public class DemoSprint2Activity extends Activity {
 
         File file = new File(filePath);
         if (file.exists()) {
+
             /* Extract here the content type */
+            String contentType = "";
+            
             /* Create hash */
+            String hash = "";
+            
+            /* Create metadata */
+            String metaData = "";
+            
             /* Publish! */
-            Log.d(TAG, "Publishing...");
+            Log.d(TAG, "Trying to publish a new file.");
+            NetInfRequest publishRequest = new NetInfRequest(
+                    this, HOST, PORT,
+                    NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
+            publishRequest.execute(new String[] {contentType, metaData});
+
         }                       
     }
 
