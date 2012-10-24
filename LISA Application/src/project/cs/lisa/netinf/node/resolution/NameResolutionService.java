@@ -102,8 +102,10 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 		
 		InformationObject io = mDatamodelFactory.createInformationObject();
 		//Extracting values to identify the object we are going to get
-		String hashAlg     = identifier.getIdentifierLabel(SailDefinedLabelName.HASH_ALG.getLabelName()).getLabelValue();
-	    String hashValue   = identifier.getIdentifierLabel(SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+		String hashAlg     = 
+		        identifier.getIdentifierLabel(SailDefinedLabelName.HASH_ALG.getLabelName()).getLabelValue();
+	    String hashValue   = 
+	    		identifier.getIdentifierLabel(SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 	    
 	    
 	    String uri = "ni:///" + hashAlg + ";" + hashValue;
@@ -114,18 +116,27 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	    	//Execute request
 			HttpResponse response = mClient.execute(post);
 			int responseCode = response.getStatusLine().getStatusCode();
+			Log.d(TAG,"get(): Response Code" + responseCode);
 			
 			if (responseCode == RESPONSE_CODE_203) {
 				String contentType = response.getEntity().getContentType().getValue();
-				
+				Log.d(TAG,"Enter in Response Code 203");
 				//Check if the response is a JSON
 				if ("application/json".equalsIgnoreCase(contentType)) {
+					Log.d(TAG,"Reading JSON");
 					InputStream content = response.getEntity().getContent();
+					Log.d(TAG,"Content" + content);
 					String jsonString = streamToString(content);
-
+					Log.d(TAG,"Content string" + jsonString);
 					//Convert String to JSON Object
-					Object tempObject = JSONValue.parse(jsonString);
-					JSONObject jsonObject = (JSONObject) tempObject;
+					JSONObject jsonObject = null;
+					try {
+						Object tempObject = JSONValue.parse(jsonString);
+						jsonObject = (JSONObject) tempObject;
+					} catch (Exception e) {
+						Log.d(TAG,"Fan! " + e.toString());
+					}
+					Log.d(TAG,"JObject " + jsonObject.toString());
 					//TODO Are we gonna do something with this?
 					/*
 					String netInfVersion = (String)jsonObject.get("NetInf");
@@ -133,12 +144,15 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 					String ni = (String)jsonObject.get("ni");
 					String ts = (String)jsonObject.get("ts");
 					*/
-					String ct = (String)jsonObject.get("ct");
-					JSONArray metadata = (JSONArray)jsonObject.get("metadata");
+					String ct = (String)(jsonObject.get("ct"));
+					Log.d(TAG, "CT: " + ct);
+					JSONObject metadata = (JSONObject)jsonObject.get("metadata");
 					
 					Log.d(TAG, "Metadata: " + metadata.toString());
 					
-					JSONArray locators = (JSONArray)jsonObject.get("loc");
+					JSONArray locators = (JSONArray)(jsonObject.get("loc"));
+					
+					Log.d(TAG,"Locators: " + locators.toString());
 					
 					//Creating a Content Type label to the identifier
 					IdentifierLabel label = mDatamodelFactory.createIdentifierLabel();
@@ -245,7 +259,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	    HttpPost post = null;
 	    try {
 	        // TODO this should not be *index.php when calling the actual NRS
-	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish/index.php");
+	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish/");
 	    }
 	    catch (Exception e) {
 	        Log.e(TAG, e.toString());

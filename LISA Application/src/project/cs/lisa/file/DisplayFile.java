@@ -117,7 +117,17 @@ public class DisplayFile {
     }
     
     // TODO: Needs testing
+    /**
+     * Function that returns a file content-type. Remember that this obtained by the file
+     * extension, so it is insecure.
+     * @param path Path to the file
+     * @return String with the MimeType
+     */
+    
     public String getFileContentType(String path) {
-        return MimeTypeMap.getFileExtensionFromUrl(path);
+        // Gets file extension
+        String extension = MimeTypeMap.getFileExtensionFromUrl(path);
+        // Returns MimeType
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 }

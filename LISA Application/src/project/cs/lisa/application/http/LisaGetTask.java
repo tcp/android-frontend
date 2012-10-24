@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import netinf.common.datamodel.InformationObject;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -23,11 +25,23 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.EditText;
 
-public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
+/**
+ * Used to send requests to the OpenNetInf RESTful API.
+ * @author Linus, Harold
+ *
+ */
+public class LisaGetTask extends AsyncTask<String, Void, HashMap<String, String>> {
 
-    /** Type of NetInf message **/
+    /**
+     * Respresent different NetInf requests.
+     * @author Linus
+     *
+     */
 	public static enum MessageType {
-	    PUBLISH, GET;
+	    /** Represents a NetInf publish request. **/
+	    PUBLISH,
+	    /** Represents a NetInf get request. **/
+	    GET;
 	}
     
 	/** Debug Log Tag. **/
@@ -35,12 +49,12 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 	/** HTTP Scheme. **/
 	private static final String HTTP = "http://";
 	// TODO add to properties file
-	/** HTTP Timeout **/
+	/** HTTP Timeout. **/
 	private static final int TIMEOUT = 2000;
 	
-	/** Publish Message Type String Representation **/
+	/** Publish Message Type String Representation. **/
 	private static final String PUBLISH = "PUT";
-	/** Get Message Type String Representation **/
+	/** Get Message Type String Representation. **/
 	private static final String GET = "GET";
 	
 	
@@ -50,17 +64,17 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 	private String mHost;
 	/** Target Port. **/
 	private int mPort;
-	/** Message Type **/
+	/** Message Type. **/
     private MessageType mMessageType;
-	/** Hash Algorithm **/
+	/** Hash Algorithm. **/
     private String mHashAlg;
-    /** Hash **/
+    /** Hash. **/
     private String mHash;
 	/** The rest of the URI. **/
 	private String mQuery;
 	
 	/**
-	 * Create a new asynchronous NetInf message sent using Http GET
+	 * Create a new asynchronous NetInf message sent using HTTP GET.
 	 * @param activity     Activity creating this object
 	 * @param host         Target host of the message
 	 * @param port         Target port
@@ -68,7 +82,8 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 	 * @param hashAlg      Hash algorithm used
 	 * @param hash         Hash
 	 */
-	public LisaGetTask(MainActivity activity, String host, int port, MessageType messageType, String hashAlg, String hash) {
+	public LisaGetTask(MainActivity activity, String host, int port,
+	        MessageType messageType, String hashAlg, String hash) {
 		mActivity = activity;
 		mHost = host;
 		mPort = port;
@@ -78,8 +93,10 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 		mQuery = "/ni/" + mHashAlg + ";" + mHash + "?METHOD=";
 		
 		// Example of full uris
-		// http://example.com:80/ni/sha-256;ABCDEFGHIJKLMNOPQRSTUVWXYZ?METHOD=GET
-		// http://example.com:80/ni/sha-256;ABCDEFGHIJKLMNOPQRSTUVWXYZ?METHOD=PUBLISH&BTMAC=12:34:56:78:90
+		// http://example.com:80/ni/
+		//     sha-256;ABCDEFGHIJKLMNOPQRSTUVWXYZ?METHOD=GET
+		// http://example.com:80/ni/
+		//     sha-256;ABCDEFGHIJKLMNOPQRSTUVWXYZ?METHOD=PUBLISH&BTMAC=12:34:56:78:90
 		
 		// Construct the query depending on message type
 		switch (mMessageType) {
@@ -110,7 +127,7 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
 	}
 	
 	/**
-	 * Does nothing
+	 * Does nothing.
 	 */
 	@Override
     protected void onPreExecute() {
@@ -118,17 +135,17 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
     }
 	
 	/**
-	 * Sends the Http GET request containing the netInf message to the target
+	 * Sends the HTTP GET request containing the netInf message to the target.
 	 * @param params   Either null or two strings with content type and meta data
 	 */
 	@Override
-	protected HttpResponse doInBackground(String... params) {
+	protected HashMap<String, String> doInBackground(String... params) {
 		Log.d(TAG, "doInBackground()");
 		
 		// If it is a publish, try to get the content type and meta data
-		if(mMessageType == MessageType.PUBLISH && params.length == 2) {
-		    mQuery += "&CT="+params[0];
-		    mQuery += "&META="+params[1];
+		if (mMessageType == MessageType.PUBLISH && params.length == 2) {
+		    mQuery += "&CT=" + params[0];
+		    mQuery += "&META=" + params[1];
 		} else {
 		    Log.d(TAG, "Content type and meta data not provided");
 		}
@@ -161,24 +178,33 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
     		Log.d(TAG, e.toString());
     	}
     	
-    	Log.d(TAG, "doInBackground(), Returning Http Get Response");
+    	Log.d(TAG, "doInBackground(), Extracting Http Get Response Content");
     	
-    	return response;
+    	switch (mMessageType) {
+            case PUBLISH:
+                Log.d(TAG, "NetInf Publish response, returning null");
+                return null;
+            case GET:
+                Log.d(TAG, "NetInf Get response, returning HashMap");
+                return readGetResponse(response);
+            default:
+                Log.d(TAG, "Unreachable code: Invalid message type, returning null");
+                return null;
+    	}
 
 	}
 	
 	/**
-	 * Handles the response to the sent NetInf message
-	 * @param response     The Http Response
+	 * Handles the response to the sent NetInf message.
+	 * @param response     The HTTP Response
 	 */
     @Override
-    protected void onPostExecute(HttpResponse response) { 	
+    protected void onPostExecute(HashMap<String, String> response) { 	
     	Log.d(TAG, "onPostExecute()");
-    	Log.d(TAG, "Http response code: " + response.getStatusLine().getStatusCode());
     	
     	switch (mMessageType) {
     	    case PUBLISH:
-    	        handlePublishResponse(response);
+    	        handlePublishResponse();
     	        break;
     	    case GET:
     	        handleGetResponse(response);
@@ -188,43 +214,64 @@ public class LisaGetTask extends AsyncTask<String, Void, HttpResponse> {
     	        break;
     	}
     	
-    	EditText log = (EditText) mActivity.findViewById(R.id.editText1);
-    	log.setText(response.toString());
-    	Log.d(TAG, response.toString());
+//    	EditText log = (EditText) mActivity.findViewById(R.id.editText1);
+//    	log.setText(response.toString());
+//    	Log.d(TAG, response);
     	
     }
 	
     /**
-     * Handles the response to a publish message
-     * @param response  the http response
+     * Handles the response to a NetInf Publish message.
      */
-    private void handlePublishResponse(HttpResponse response) {
+    private void handlePublishResponse() {
         Log.d(TAG, "handlePublishResponse()");
     }
     
     /**
-     * Handles the response to a get message
-     * @param response  the http response
+     * Handles the response to a NetInf Get message.
+     * @param response  HashMap containing filename and content type
      */
-    private void handleGetResponse(HttpResponse response) {
+    private void handleGetResponse(HashMap<String, String> response) {
         Log.d(TAG, "handleGetResponse()");
+        
+        if (response != null) {
+			for (String key : response.keySet()) {
+				Log.d(TAG, "\t" + key + " => " + response.get(key));
+			}
+		} 
+        else {
+        	Log.e(TAG, "Hash map is null");
+        }
+    }
+    
+    /**
+     * Extracts the HashMap from a NetInf Get response.
+     * @param response  the HTTP response
+     * @return          a HashMap containing the keys "filePath" and "contentType"
+     *                  with their respective values set appropriately
+     */
+    private HashMap<String, String> readGetResponse(HttpResponse response) {
+    	 Log.d(TAG, "handleGetResponse()");
+        HashMap<String, String> responseMap = null;
         try {
             InputStream content = response.getEntity().getContent(); 
             ObjectInputStream object = new ObjectInputStream(content);
-            HashMap<String, String> responseMap = (HashMap<String, String>) object.readObject();
-            // TODO Do something with the file and content type
-            // HashMap<String, String>
-            // "contentType"
-            // "filePath"
-            Log.d(TAG, "response map:");
+            InformationObject io = (InformationObject)object.readObject();
+            Log.d(TAG, "handleGetResponse() Information Object " + io.toString());
+            /*
+             * TODO change and use this commented code
+            responseMap = (HashMap<String, String>) object.readObject();
+            Log.d(TAG, "Read response map:");
             for (String key : responseMap.keySet()) {
-                Log.d(TAG, key + " => " + responseMap.get(key));
+                Log.d(TAG, "\t" + key + " => " + responseMap.get(key));
             }
+            */
         } catch (IOException e) {
             Log.e(TAG, e.toString(), e);
         } catch (ClassNotFoundException e) {
             Log.e(TAG, e.toString(), e);
         }
+        return responseMap;
     }
     
 	/**
