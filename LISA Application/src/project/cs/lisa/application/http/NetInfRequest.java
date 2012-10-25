@@ -19,6 +19,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import project.cs.lisa.metadata.LisaMetadata;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -34,7 +36,7 @@ import android.util.Log;
  * @author Linus, Harold
  *
  */
-public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, String>> {
+public class NetInfRequest extends AsyncTask<String, Void, String> {
 
     /**
      * Respresent different NetInf requests.
@@ -94,7 +96,7 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
         mMessageType = messageType;
         mHashAlg = hashAlg;
         mHash = hash;
-        mQuery = "/ni/" + mHashAlg + ";" + mHash + "?METHOD=";
+        mQuery = mHashAlg + ";" + mHash;
 
         // Example of full uris
         // http://example.com:80/ni/
@@ -105,7 +107,7 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
         // Construct the query depending on message type
         switch (mMessageType) {
         case PUBLISH:
-            mQuery += PUBLISH;
+            mQuery = "/ni/" + mQuery + "?METHOD=" + PUBLISH;
             // Add locators
             // TODO Currently only publishes your own bluetooth mac address
             BluetoothAdapter bluetoothDefaultAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -121,7 +123,8 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
             }
             break;
         case GET:
-            mQuery += GET;
+            mQuery = "/bo/" + mQuery + "?METHOD=" + GET;
+//            mQuery += GET;
             break;
         default:
             Log.d(TAG, "Unreachable code: Invalid message type");
@@ -143,7 +146,7 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
      * @param params   Either null or two strings with content type and meta data
      */
     @Override
-    protected HashMap<String, String> doInBackground(String... params) {
+    protected String doInBackground(String... params) {
         Log.d(TAG, "doInBackground()");
 
         // If it is a publish, try to get the content type and meta data
@@ -195,7 +198,6 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
             Log.d(TAG, "Unreachable code: Invalid message type, returning null");
             return null;
         }
-
     }
 
     /**
@@ -203,7 +205,7 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
      * @param response     The HTTP Response
      */
     @Override
-    protected void onPostExecute(HashMap<String, String> response) { 	
+    protected void onPostExecute(String response) { 	
         Log.d(TAG, "onPostExecute()");
 
         switch (mMessageType) {
@@ -229,9 +231,10 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
      * Handles the response to a NetInf Get message.
      * @param response  HashMap containing filename and content type
      */
-    private void logGetResponse(HashMap<String, String> response) {
+    private void logGetResponse(String response) {
         Log.d(TAG, "handleGetResponse()");
-
+        
+        Log.d(TAG, "string response " + response);/*
         if (response != null) {
             for (String key : response.keySet()) {
                 Log.d(TAG, "\t" + key + " => " + response.get(key));
@@ -239,7 +242,7 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
         } 
         else {
             Log.e(TAG, "Hash map is null");
-        }
+        }*/
     }
 
     /**
@@ -252,9 +255,10 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
      * 
      * @param response  The response from this background thread. 
      */
-    private void handleGetResponse(HashMap<String, String> response) {
-        String filePath = response.get("filePath");
-        String contentType = response.get("contentType");
+    private void handleGetResponse(String response) {
+        LisaMetadata lM = new LisaMetadata(response);
+        String filePath = lM.get("filePath");
+        String contentType = lM.get("contentType");
 
         /* Display the file according to the file type. */
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -276,27 +280,27 @@ public class NetInfRequest extends AsyncTask<String, Void, HashMap<String, Strin
      * @return          a HashMap containing the keys "filePath" and "contentType"
      *                  with their respective values set appropriately
      */
-    private HashMap<String, String> readGetResponse(HttpResponse response) {
+    private String readGetResponse(HttpResponse response) {
         Log.d(TAG, "handleGetResponse()");
-        HashMap<String, String> responseMap = null;
+        String responseMap = null;
         try {
-            InputStream content = response.getEntity().getContent(); 
-            ObjectInputStream object = new ObjectInputStream(content);
-            InformationObject io = (InformationObject) object.readObject();
-            Log.d(TAG, "handleGetResponse() Information Object " + io.toString());
-            /*
-             * TODO change and use this commented code
-            responseMap = (HashMap<String, String>) object.readObject();
-            Log.d(TAG, "Read response map:");
-            for (String key : responseMap.keySet()) {
-                Log.d(TAG, "\t" + key + " => " + responseMap.get(key));
-            }
-             */
+            InputStream content = response.getEntity().getContent();
+            responseMap = streamToString(content);
+            Log.d(TAG, responseMap);
+            //ObjectInputStream object = new ObjectInputStream(content);
+            //InformationObject io = (InformationObject) object.readObject();
+            //Log.d(TAG, "handleGetResponse() Information Object " + io.toString());
+            // TODO change and use this commented code
+            //Log.d(TAG, "" + object.toString());
+            //responseMap = (String) object.readObject().toString();
+            //Log.d(TAG, "Read response map: " + responseMap);
+            //for (String key : responseMap.keySet()) {
+            //    Log.d(TAG, "\t" + key + " => " + responseMap.get(key));
+            //}
         } catch (IOException e) {
             Log.e(TAG, e.toString(), e);
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, e.toString(), e);
         }
+        
         return responseMap;
     }
 

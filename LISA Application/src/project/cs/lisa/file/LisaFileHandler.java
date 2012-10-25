@@ -87,8 +87,9 @@ public class LisaFileHandler {
 
         // Get list of apps who can open the file
         PackageManager pkgManager = context.getPackageManager();
-        List<ResolveInfo> listAppsViewFile = pkgManager.queryIntentActivities(new Intent().setType(mimetype),
-                PackageManager.MATCH_DEFAULT_ONLY);
+        List<ResolveInfo> listAppsViewFile = 
+                pkgManager.queryIntentActivities(new Intent().setType(mimetype),
+                        PackageManager.MATCH_DEFAULT_ONLY);
         
         // List of applications that can open the file must have at least one element.
         // Otherwise, we cannot open the file.

@@ -15,7 +15,7 @@ public class LisaMetadata {
     private final String TAG = "MetadataClass";
     
     // Metadata Object
-    private final JSONObject mJSONObject;
+    private JSONObject mJSONObject;
     
     /**
      * Constructor
@@ -23,6 +23,19 @@ public class LisaMetadata {
     
     public LisaMetadata() {
         mJSONObject = new JSONObject();
+    }
+    
+    public LisaMetadata(String _JSONString) {
+        mJSONObject = null;
+        try {
+            mJSONObject = new JSONObject(_JSONString);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            Log.d(TAG, "Problems creating LisaMetadata with a previous valid JSON declaration");
+            Log.d(TAG, "Got: " + _JSONString);
+            Log.d(TAG, "Error was: " + e.toString());
+            e.printStackTrace();
+        }
     }
     
     /**

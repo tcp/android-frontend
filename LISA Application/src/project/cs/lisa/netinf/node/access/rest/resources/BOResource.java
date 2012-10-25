@@ -67,137 +67,147 @@ import android.util.Log;
  * @author Hugo Negrette
  * @author Paolo Boshini
  * @author Kim-Anh Tran
- *
+ * 
  */
 public class BOResource extends LisaServerResource {
 
-	/** Debugging Tag. */
-	private static final String TAG = "BOResource";
-	
-	/** HashMap Key: Filepath. */
-	private static final String FILEPATH = "filePath";
-	
-	/** HashMap Key: Content type. */
-	private static final String CONTENT_TYPE = "contenType";
+    /** Debugging Tag. */
+    private static final String TAG = "BOResource";
 
-	/** The hash value of the requested BO. */
-	private String mHashValue;
+    /** HashMap Key: Filepath. */
+    private static final String FILEPATH = "filePath";
+
+    /** HashMap Key: Content type. */
+    private static final String CONTENT_TYPE = "contentType";
+
+    /** The hash value of the requested BO. */
+    private String mHashValue;
 
     /** The hash algorithm used to generate the hash value . */
-	private String mHashAlgorithm;
+    private String mHashAlgorithm;
 
-	/**
-	 * Initializes the context of a BOResource.
-	 */
-	@Override
-	protected void doInit() {
-		super.doInit();
-		mHashValue = getQuery().getFirstValue("HASH_VALUE", true);
-		mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
-	}
+    /**
+     * Initializes the context of a BOResource.
+     */
+    @Override
+    protected void doInit() {
+        super.doInit();
+        mHashValue = getQuery().getFirstValue("HASH_VALUE", true);
+        mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
+    }
 
-	/**
-	 * Responds to an HTTP get request.
-	 * Returns a Map describing the retrieved file.
-	 * 
-	 * @return The Map that contains the information about the file:
-	 *         First key: the file path
-	 *         Second key: the content type of the file
-	 */
-	@Get
-	public String retrieveBO() {
-		byte[] fileData = null;
-		String filePath = "";
-		String contentType = "";
+    /**
+     * Responds to an HTTP get request. Returns a Map describing the retrieved
+     * file.
+     * 
+     * @return The Map that contains the information about the file: First key:
+     *         the file path Second key: the content type of the file
+     */
+    @Get
+    public String retrieveBO() {
+        byte[] fileData = null;
+        String filePath = "";
+        String contentType = "";
 
-		/* Retrieve a data object from a node (could be an NRS) */
-		InformationObject io = retrieveDO();
+        /* Retrieve a data object from a node (could be an NRS) */
+        InformationObject io = retrieveDO();
 
-		/* Retrieve the data corresponding to the hash from another device. */
-		if (io != null) {
-			
-		    /* Store the content type of the requested BO */
-		    contentType = io.getIdentifier().getIdentifierLabel(
-					SailDefinedLabelName.CONTENT_TYPE.getLabelName())
-					.getLabelValue();
-			
-            /* Attempt to transfer the BO from a remote device */
-		    TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
-			try {
-				fileData = tsDispatcher.getByteArray(io);
-			} catch (IOException e) {
-				Log.e(TAG, "Couldn't retrieve the requested data.");
-			}
+        // TODO NO THIS NOOOOO
+        LisaMetadata lisaMetadata = new LisaMetadata();
+        lisaMetadata.insert(CONTENT_TYPE, "k");
+        lisaMetadata.insert(FILEPATH, "o");
 
-			/* Writes the received data to file */ 
-			if (fileData != null) {
+        return lisaMetadata.convertToString();		
 
-				String hash = io.getIdentifier().getIdentifierLabel(
-						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
-				
-				filePath = Environment.getExternalStorageDirectory() + "/LISA/" + hash;
-				writeByteStreamToFile(filePath, fileData);
+        /* Retrieve the data corresponding to the hash from another device. */
+//        if (io != null) {
+//
+//            /* Store the content type of the requested BO */
+//            contentType = io.getIdentifier().getIdentifierLabel(
+//                    SailDefinedLabelName.CONTENT_TYPE.getLabelName())
+//                    .getLabelValue();
+//
+//            /* Attempt to transfer the BO from a remote device */
+//            TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
+//            try {
+//                fileData = tsDispatcher.getByteArray(io);
+//            } catch (IOException e) {
+//                Log.e(TAG, "Couldn't retrieve the requested data.");
+//            }
+//
+//            /* Writes the received data to file */ 
+//            if (fileData != null) {
+//
+//                String hash = io.getIdentifier().getIdentifierLabel(
+//                        SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+//
+//                filePath = Environment.getExternalStorageDirectory() + "/LISA/" + hash;
+//                writeByteStreamToFile(filePath, fileData);
+//
+//            } else {
+//                Log.e(TAG, "No file data to write.");
+//            }
+//        }
+//
+//        LisaMetadata lisaMetadata = new LisaMetadata();
+//        lisaMetadata.insert(CONTENT_TYPE, contentType);
+//        lisaMetadata.insert(FILEPATH, filePath);
+//
+//        return lisaMetadata.convertToString();
+    }
 
-			} else {
-				Log.e(TAG, "No file data to write.");
-			}
-		}
+    /**
+     * Returns an IO (i.e. DO) containing the list of locators that own the
+     * requested BO.
+     * 
+     * @return The IO that contains the locator list.
+     */
+    private InformationObject retrieveDO() {
+        Log.d(TAG,
+                "Retrieve the IO containing the locators from a remote node.");
 
-		LisaMetadata lisaMetadata = new LisaMetadata();
-		lisaMetadata.insert(CONTENT_TYPE, contentType);
-		lisaMetadata.insert(FILEPATH, filePath);
-				
-		return lisaMetadata.convertToString();
-	}
+        Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
+        InformationObject io = null;
+        try {
+            io = getNodeConnection().getIO(identifier);
+        } catch (NetInfCheckedException e) {
+            Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: "
+                    + mHashValue);
+        }
+        return io;
+    }
 
+    /**
+     * Creates a new file containing the specified fileData at the specified
+     * targetPath.
+     * 
+     * @param targetPath
+     *            The location to create the file
+     * @param fileData
+     *            The data to write at the specified path
+     */
+    private void writeByteStreamToFile(String targetPath, byte[] fileData) {
+        Log.d(TAG, "Writing received data to " + targetPath);
 
-	/**
-	 * Returns an IO (i.e. DO) containing the list of locators that 
-	 * own the requested BO.
-	 * 
-	 * @return	The IO that contains the locator list.
-	 */
-	private InformationObject retrieveDO() {
-		Log.d(TAG, "Retrieve the IO containing the locators from a remote node.");
-		
-		Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
-		InformationObject io = null;
-		try {
-			io = getNodeConnection().getIO(identifier);
-		} catch (NetInfCheckedException e) {
-			Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: " + mHashValue);
-		}
-		return io;
-	}
+        FileOutputStream fos = null;
 
-	/**
-	 * Creates a new file containing the specified fileData at the specified
-	 * targetPath.
-	 * 
-	 * @param targetPath	The location to create the file
-	 * @param fileData		The data to write at the specified path
-	 */
-	private void writeByteStreamToFile(String targetPath, byte[] fileData) {
-		Log.d(TAG, "Writing received data to " + targetPath);
-		
-		FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(targetPath);
+            fos.write(fileData);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "Couldn't find file: " + targetPath);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed while writing data to " + targetPath);
+        } finally {
 
-		try {
-			fos = new FileOutputStream(targetPath);
-			fos.write(fileData);
-		} catch (FileNotFoundException e) {
-			Log.e(TAG, "Couldn't find file: " + targetPath);
-		} catch (IOException e) {
-			Log.e(TAG, "Failed while writing data to " + targetPath);
-		} finally {	  
-
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					Log.e(TAG, "Failed closing the stream after writing to file.");
-				}        	
-			}
-		}		
-	}	
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    Log.e(TAG,
+                            "Failed closing the stream after writing to file.");
+                }
+            }
+        }
+    }
 }
