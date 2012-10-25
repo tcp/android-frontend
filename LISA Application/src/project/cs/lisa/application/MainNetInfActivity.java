@@ -27,7 +27,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class DemoSprint2Activity extends Activity {
+public class MainNetInfActivity extends Activity {
 
     /** Debugging tag. */
     public static final String TAG = "DemoSpring2Activity";

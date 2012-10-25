@@ -47,7 +47,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".application.DemoSprint2Activity"
+            android:name=".application.MainNetInfActivity"
             android:label="@string/title_activity_demo_sprint2" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

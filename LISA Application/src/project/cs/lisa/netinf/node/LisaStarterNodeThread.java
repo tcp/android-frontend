@@ -4,8 +4,8 @@ import netinf.node.access.AccessServer;
 import netinf.node.api.NetInfNode;
 import netinf.node.resolution.ResolutionController;
 import netinf.node.resolution.ResolutionService;
-import project.cs.lisa.application.MainActivity;
 import project.cs.lisa.application.MainApplication;
+import project.cs.lisa.application.MainNetInfActivity;
 import android.content.Intent;
 import android.util.Log;
 
@@ -29,7 +29,7 @@ public class LisaStarterNodeThread extends Thread {
 //		startN2NAccess();	// Start Node2Node services
 		
 		Intent intent = new Intent();
-		intent.setAction(MainActivity.NODE_STARTED);
+		intent.setAction(MainNetInfActivity.NODE_STARTED);
 		mApplication.sendBroadcast(intent);
 	}
 
