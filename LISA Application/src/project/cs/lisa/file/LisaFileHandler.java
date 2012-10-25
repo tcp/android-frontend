@@ -99,6 +99,9 @@ public class LisaFileHandler {
             // makes the new activity -- the one that visualizes the file --
             // independent of our main activity.
             mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            
+            // Open file with default viewer
+            mIntent.setAction(Intent.ACTION_VIEW);
 
             // Set data fields
             mIntent.setDataAndType(Uri.fromFile(mFile), mimetype);
