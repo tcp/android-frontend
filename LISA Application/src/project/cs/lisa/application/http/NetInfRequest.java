@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -54,7 +55,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     }
 
     /** Debug Log Tag. **/
-    private static final String TAG = "LisaGetTask";
+    private static final String TAG = "NetInfRequest";
     /** HTTP Scheme. **/
     private static final String HTTP = "http://";
     // TODO add to properties file
@@ -176,11 +177,15 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
 
         Log.d(TAG, "doInBackground(), Executing Http Get: " + uri);
 
+        // TODO: Refactor and figure out a way of fixing the exceptions!
         // Try to execute the http get
         try {
             response = client.execute(get);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
+        } catch (SocketTimeoutException e) {
+            Log.d(TAG, "TimeoutException");
+            response = null;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -260,16 +265,21 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param response  The response from this background thread. 
      */
     private void handleGetResponse(String _JSONString) {
-        LisaMetadata lM = new LisaMetadata(_JSONString);
-        String filePath = lM.get("filePath");
-        String contentType = lM.get("contentType");
-
-        /* Display the file according to the file type. */
-        LisaFileHandler.displayContent(mActivity, filePath, contentType);
-//        Intent intent = new Intent(Intent.ACTION_VIEW);
-//        File file = new File(filePath);
-//        intent.setDataAndType(Uri.fromFile(file), contentType);
-//        mActivity.startActivity(intent);
+        Log.d(TAG, "handleGetResponse()");
+        if (_JSONString != null) {
+            LisaMetadata lM = new LisaMetadata(_JSONString);
+            String filePath = lM.get("filePath");
+            String contentType = lM.get("contentType");
+            /* Display the file according to the file type. */
+            LisaFileHandler.displayContent(mActivity, filePath, contentType);
+            //        Intent intent = new Intent(Intent.ACTION_VIEW);
+            //        File file = new File(filePath);
+            //        intent.setDataAndType(Uri.fromFile(file), contentType);
+            //        mActivity.startActivity(intent);
+        }
+        else {
+            Log.d(TAG, "_JSONSTring null, probably TimeoutException happened... HAHAHAHA.");
+        }
     }
 
     /**
@@ -286,7 +296,9 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      *                  with their respective values set appropriately
      */
     private String readGetResponse(HttpResponse response) {
-        Log.d(TAG, "handleGetResponse()");
+        Log.d(TAG, "readGetResponse()");
+        if (response == null)
+            return null;
         String _JSONString = null;
         try {
             InputStream content = response.getEntity().getContent();
