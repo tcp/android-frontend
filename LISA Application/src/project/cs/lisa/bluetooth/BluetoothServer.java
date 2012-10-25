@@ -103,12 +103,11 @@ public class BluetoothServer extends Thread {
 		
 		while (mServerListens) {
 			try {
-				
 				/* Accept an incoming pairing request */
 				socket = mBtServerSocket.accept();
 				Log.d(TAG, "Accepted Request");
-				
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				Log.e(TAG, "Error occured during wating for an incoming pairing request.");
 				e.printStackTrace();
 				break;
@@ -198,6 +197,7 @@ public class BluetoothServer extends Thread {
 	private void handleIncomingRequest(BluetoothSocket socket) {
 		/* Receive the hash */
 		String hash = readHash(socket);
+		Log.d(TAG, "Received hash: " + hash);
 		
 		/* Find the file on the device */
 		File file = getFileByHash(hash);
@@ -207,7 +207,6 @@ public class BluetoothServer extends Thread {
 		
 		/* Send the data to the remote device */
 		writeFile(fileData);
-		
 	}
 
 
@@ -225,10 +224,9 @@ public class BluetoothServer extends Thread {
 			mOutStream.flush();
 			
 			Log.d(TAG, "Done writing file to remote device.");
-					
+				
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
-
 		}		
 	}
 
