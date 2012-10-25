@@ -56,7 +56,7 @@ public class LisaHash {
 
     String base64String;
     byte[] mByteArray;
-    
+
     // TODO: Remove this after the sprint 2
     // Our flag for returning max 'LisaFlag' chars of the hashing.
     // 0 and the flag is not set, returns normal result.
@@ -64,7 +64,7 @@ public class LisaHash {
 
     // Mapping table from 6-bit nibbles to Base64 characters.
     private static final char[] map1 = new char[64];
-    
+
     static {
         int i = 0;
         for (char c = 'A'; c <= 'Z'; c++)
@@ -92,7 +92,7 @@ public class LisaHash {
      *            An array containing the data bytes to be encoded.
      * @return A String containing the Base64 encoded data, broken into lines.
      */
-    
+
     public static String encodeLines(byte[] in) {
         return encodeLines(in, 0, in.length, 76, systemLineSeparator);
     }
@@ -115,7 +115,7 @@ public class LisaHash {
      *            The line separator to be used to separate the output lines.
      * @return A String containing the Base64 encoded data, broken into lines.
      */
-   
+
     public static String encodeLines(byte[] in, int iOff, int iLen,
             int lineLen, String lineSeparator) {
         int blockLen = (lineLen * 3) / 4;
@@ -147,7 +147,7 @@ public class LisaHash {
      *            <code>iOff</code>.
      * @return A character array containing the Base64 encoded data.
      */
-    
+
     public static char[] encode(byte[] in, int iOff, int iLen) {
         int oDataLen = (iLen * 4 + 2) / 3; // output length without padding
         int oLen = ((iLen + 2) / 3) * 4; // output length including padding
@@ -173,10 +173,14 @@ public class LisaHash {
         return out;
     }
 
-    public String encodeResult(){
+    public String encodeResult() {
+        return encodeResult(0);
+    }
+    
+    public String encodeResult(int maxChars) {
         String output = null;
         byte[] hash = null;
-
+                        
         MessageDigest digest = null;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -219,15 +223,12 @@ public class LisaHash {
 
         // USING THE HASH LENGTH if available
         // TODO: Remove this after sprint 2
-        if (mLisaFlag > 0)
-            return base64String.substring(0, mLisaFlag);
-        
+        if (maxChars > 0) {
+            if (maxChars <= base64String.length()) {
+                return base64String.substring(0, maxChars);
+            }
+        }
+                
         return base64String;
-    }
-    
-    // Sets the hash length
-    // TODO: Remove this after sprint 2
-    public void hashLisa(int maxChars) {
-        mLisaFlag = maxChars;
-    }
+    } 
 }

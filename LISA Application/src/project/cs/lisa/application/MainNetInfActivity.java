@@ -187,8 +187,7 @@ public class MainNetInfActivity extends Activity {
             String hash = null;
             try {
                 lisaHash = new LisaHash(FileUtils.readFileToByteArray(file));
-                lisaHash.hashLisa(3);
-                hash = LisaHash.encodeLines(FileUtils.readFileToByteArray(file));
+                hash = lisaHash.encodeResult(3);
                 Log.d(TAG, "The generated hash is: " + hash);
             } catch (IOException e1) {
                 Log.e(TAG, "Error, could not open the file: " + file.getPath());
