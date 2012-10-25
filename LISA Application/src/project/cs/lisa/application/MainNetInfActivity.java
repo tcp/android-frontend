@@ -19,15 +19,14 @@ import project.cs.lisa.hash.LisaHash;
 import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.node.LisaStarterNodeThread;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -200,6 +199,15 @@ public class MainNetInfActivity extends Activity {
                 lisaHash = new LisaHash(FileUtils.readFileToByteArray(file));
                 hash = lisaHash.encodeResult(3);
                 Log.d(TAG, "The generated hash is: " + hash);
+                
+                final AlertDialog.Builder b = new AlertDialog.Builder(this);
+                b.setIcon(android.R.drawable.ic_dialog_alert);
+                b.setTitle("Hash");
+                b.setMessage("You have published this hash: " + hash);
+                b.setPositiveButton(android.R.string.yes, null);
+                b.setNegativeButton(android.R.string.no, null);
+                b.show();
+                
             } catch (IOException e1) {
                 Log.e(TAG, "Error, could not open the file: " + file.getPath());
             }
