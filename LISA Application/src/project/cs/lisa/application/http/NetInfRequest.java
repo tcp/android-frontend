@@ -60,7 +60,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     private static final String HTTP = "http://";
     // TODO add to properties file
     /** HTTP Timeout. **/
-    private static final int TIMEOUT = 2000;
+    private static final int TIMEOUT = 60000;
 
     /** Publish Message Type String Representation. **/
     private static final String PUBLISH = "PUT";

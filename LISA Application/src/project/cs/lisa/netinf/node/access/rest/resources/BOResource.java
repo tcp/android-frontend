@@ -113,47 +113,47 @@ public class BOResource extends LisaServerResource {
         InformationObject io = retrieveDO();
 
         // TODO NO THIS NOOOOO
-        LisaMetadata lisaMetadata = new LisaMetadata();
-        lisaMetadata.insert(CONTENT_TYPE, "k");
-        lisaMetadata.insert(FILEPATH, "o");
-
-        return lisaMetadata.convertToString();		
+//        LisaMetadata lisaMetadata = new LisaMetadata();
+//        lisaMetadata.insert(CONTENT_TYPE, "k");
+//        lisaMetadata.insert(FILEPATH, "o");
+//
+//        return lisaMetadata.convertToString();		
 
         /* Retrieve the data corresponding to the hash from another device. */
-//        if (io != null) {
-//
-//            /* Store the content type of the requested BO */
-//            contentType = io.getIdentifier().getIdentifierLabel(
-//                    SailDefinedLabelName.CONTENT_TYPE.getLabelName())
-//                    .getLabelValue();
-//
-//            /* Attempt to transfer the BO from a remote device */
-//            TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
-//            try {
-//                fileData = tsDispatcher.getByteArray(io);
-//            } catch (IOException e) {
-//                Log.e(TAG, "Couldn't retrieve the requested data.");
-//            }
-//
-//            /* Writes the received data to file */ 
-//            if (fileData != null) {
-//
-//                String hash = io.getIdentifier().getIdentifierLabel(
-//                        SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
-//
-//                filePath = Environment.getExternalStorageDirectory() + "/LISA/" + hash;
-//                writeByteStreamToFile(filePath, fileData);
-//
-//            } else {
-//                Log.e(TAG, "No file data to write.");
-//            }
-//        }
-//
-//        LisaMetadata lisaMetadata = new LisaMetadata();
-//        lisaMetadata.insert(CONTENT_TYPE, contentType);
-//        lisaMetadata.insert(FILEPATH, filePath);
-//
-//        return lisaMetadata.convertToString();
+        if (io != null) {
+
+            /* Store the content type of the requested BO */
+            contentType = io.getIdentifier().getIdentifierLabel(
+                    SailDefinedLabelName.CONTENT_TYPE.getLabelName())
+                    .getLabelValue();
+
+            /* Attempt to transfer the BO from a remote device */
+            TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
+            try {
+                fileData = tsDispatcher.getByteArray(io);
+            } catch (IOException e) {
+                Log.e(TAG, "Couldn't retrieve the requested data.");
+            }
+
+            /* Writes the received data to file */ 
+            if (fileData != null) {
+
+                String hash = io.getIdentifier().getIdentifierLabel(
+                        SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+
+                filePath = Environment.getExternalStorageDirectory() + "/LISA/" + hash;
+                writeByteStreamToFile(filePath, fileData);
+
+            } else {
+                Log.e(TAG, "No file data to write.");
+            }
+        }
+
+        LisaMetadata lisaMetadata = new LisaMetadata();
+        lisaMetadata.insert(CONTENT_TYPE, contentType);
+        lisaMetadata.insert(FILEPATH, filePath);
+
+        return lisaMetadata.convertToString();
     }
 
     /**
