@@ -48,7 +48,6 @@ public class LisaFileHandler {
     private static final int OK = 1;
     
     private static final String TAG = "DisplayFile";
-    
     @SuppressWarnings("unused")
     public static int displayContent(Context context, String path, String mimetype) {
         Intent mIntent;

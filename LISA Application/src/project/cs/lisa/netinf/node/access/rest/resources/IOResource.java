@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class IOResource extends LisaServerResource {
 	
-	public static final String TAG = "LisaResource";
+	public static final String TAG = "IOResource";
   
     private final static String GET    = "GET";
     private final static String PUT    = "PUT";

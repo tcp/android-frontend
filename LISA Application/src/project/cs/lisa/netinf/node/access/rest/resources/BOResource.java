@@ -43,10 +43,10 @@
 
 package project.cs.lisa.netinf.node.access.rest.resources;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
@@ -54,9 +54,11 @@ import netinf.common.exceptions.NetInfCheckedException;
 
 import org.restlet.resource.Get;
 
+import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
+import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.util.Log;
 
@@ -85,18 +87,26 @@ public class BOResource extends LisaServerResource {
     /** The hash value of the requested BO. */
     private String mHashValue;
 
-    /** The hash algorithm used to generate the hash value . */
-    private String mHashAlgorithm;
+    /** The hash algorithm used to generate the hash value. */
+	private String mHashAlgorithm;
 
-    /**
-     * Initializes the context of a BOResource.
-     */
-    @Override
-    protected void doInit() {
-        super.doInit();
-        mHashValue = getQuery().getFirstValue("HASH", true);
-        mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
-    }
+    /** The directory containing the published files. */
+    private String mSharedFolder = 
+    		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+
+
+	/**
+	 * Initializes the context of a BOResource.
+	 */
+	@Override
+	protected void doInit() {
+		super.doInit();
+		
+		mHashValue = getQuery().getFirstValue("HASH", true);
+		mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
+		
+		createSharedFolder();
+	}
 
     /**
      * Responds to an HTTP get request. Returns a Map describing the retrieved
@@ -107,19 +117,16 @@ public class BOResource extends LisaServerResource {
      */
     @Get
     public String retrieveBO() {
+	Log.d(TAG, "Trying to retrieve the BO.");
+	
+	
         byte[] fileData = null;
         String filePath = "";
         String contentType = "";
+        String returnString = null;
 
         /* Retrieve a data object from a node (could be an NRS) */
-        InformationObject io = retrieveDO();
-
-        // TODO NO THIS NOOOOO
-//        LisaMetadata lisaMetadata = new LisaMetadata();
-//        lisaMetadata.insert(CONTENT_TYPE, "k");
-//        lisaMetadata.insert(FILEPATH, "o");
-//
-//        return lisaMetadata.convertToString();		
+        InformationObject io = retrieveDO();	
 
         /* Retrieve the data corresponding to the hash from another device. */
         if (io != null) {
@@ -128,6 +135,8 @@ public class BOResource extends LisaServerResource {
             contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
+            
+            Log.d(TAG, "Trying to receive file with the following content type: " + contentType);
 
             /* Attempt to transfer the BO from a remote device */
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
@@ -140,26 +149,32 @@ public class BOResource extends LisaServerResource {
             /* Writes the received data to file */ 
             if (fileData != null) {
 
-                String hash = io.getIdentifier().getIdentifierLabel(
-                        SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 
-                filePath = Environment.getExternalStorageDirectory() + "/LISA/" + hash;
-                writeByteStreamToFile(filePath, fileData);
+				String hash = io.getIdentifier().getIdentifierLabel(
+						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+				
+				filePath = mSharedFolder + hash;
+				writeByteStreamToFile(filePath, fileData);
+				makeFileVisibleToPhone(filePath, contentType);
+				
+	            LisaMetadata lisaMetadata = new LisaMetadata();
+	            lisaMetadata.insert(CONTENT_TYPE, contentType);
+	            lisaMetadata.insert(FILEPATH, filePath);
+	            
+	            returnString = lisaMetadata.convertToString();
+
 
             } else {
                 Log.e(TAG, "No file data to write.");
             }
-            LisaMetadata lisaMetadata = new LisaMetadata();
-            lisaMetadata.insert(CONTENT_TYPE, contentType);
-            lisaMetadata.insert(FILEPATH, filePath);
 
-            return lisaMetadata.convertToString();
+            return returnString;
         }
         else {
             // TODO: Think about an exception to be thrown here. Maybe handle the return value
             // TODO: and throw an exception if that happens.
             Log.d(TAG, "InformationObject is null. Nothing was done here.");
-            return null;
+            return returnString;
         }
     }
 
@@ -184,6 +199,35 @@ public class BOResource extends LisaServerResource {
         return io;
     }
 
+	/**
+	 * Creates the folder that contains the files to be shared with other phones.
+	 */
+	private void createSharedFolder() {
+		File folder = new File(mSharedFolder);
+		
+		if (!folder.exists()) {
+			Log.d(TAG, "Creating shared folder " + mSharedFolder);
+			boolean created = folder.mkdir();
+			
+			if (!created) {
+				Log.e(TAG, "Failed creating the shared folder. Set shared folder to DCIM/");
+				mSharedFolder = Environment.getExternalStorageDirectory() + "/DCIM/";
+			}
+		}
+	}
+	
+	/**
+	 * Makes the file specified by file path visible to the user.
+	 * 
+	 * @param filePath		The file path pointing to the file.
+	 * @param contentType	The content type of the file.
+	 */
+	private void makeFileVisibleToPhone(String filePath, String contentType) {
+		String[] paths = {filePath};
+		String[] mediaType = {contentType};
+		MediaScannerConnection.scanFile(MainApplication.getAppContext(), paths, mediaType, null);
+	}
+    
     /**
      * Creates a new file containing the specified fileData at the specified
      * targetPath.
