@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 // TODO: Change variable names: 'response' to 'JSONString'
 
@@ -279,6 +280,8 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         }
         else {
             Log.d(TAG, "_JSONSTring null, probably TimeoutException happened... HAHAHAHA.");
+            Toast.makeText(mActivity, "We could not get the content. Check your internet "
+                    + "connection/Bluetooth connection", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -297,9 +300,14 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     private String readGetResponse(HttpResponse response) {
         Log.d(TAG, "readGetResponse()");
-        if (response == null)
+        
+        if (response == null) {
+            Log.d(TAG, "Response is null");
             return null;
+        }
+        
         String _JSONString = null;
+        // TODO: Fix the exception/return values. Make this less hacked.
         try {
             InputStream content = response.getEntity().getContent();
             _JSONString = streamToString(content);
@@ -308,6 +316,8 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
             //InformationObject io = (InformationObject) object.readObject();
         } catch (IOException e) {
             Log.e(TAG, e.toString(), e);
+        } catch (NullPointerException e) {
+            Log.d(TAG, "Content is null");
         }
         
         return _JSONString;

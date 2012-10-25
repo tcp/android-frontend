@@ -65,8 +65,10 @@ import android.util.Log;
  * 
  * @author Miguel Sosa
  * @author Hugo Negrette
- * @author Paolo Boshini
+ * @author Paolo Boschini
  * @author Kim-Anh Tran
+ * @author Linus Sunde
+ * @author Thiago Costa Porto
  * 
  */
 public class BOResource extends LisaServerResource {
@@ -147,13 +149,18 @@ public class BOResource extends LisaServerResource {
             } else {
                 Log.e(TAG, "No file data to write.");
             }
+            LisaMetadata lisaMetadata = new LisaMetadata();
+            lisaMetadata.insert(CONTENT_TYPE, contentType);
+            lisaMetadata.insert(FILEPATH, filePath);
+
+            return lisaMetadata.convertToString();
         }
-
-        LisaMetadata lisaMetadata = new LisaMetadata();
-        lisaMetadata.insert(CONTENT_TYPE, contentType);
-        lisaMetadata.insert(FILEPATH, filePath);
-
-        return lisaMetadata.convertToString();
+        else {
+            // TODO: Think about an exception to be thrown here. Maybe handle the return value
+            // TODO: and throw an exception if that happens.
+            Log.d(TAG, "InformationObject is null. Nothing was done here.");
+            return null;
+        }
     }
 
     /**
