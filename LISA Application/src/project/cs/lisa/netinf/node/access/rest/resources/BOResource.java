@@ -94,7 +94,7 @@ public class BOResource extends LisaServerResource {
     @Override
     protected void doInit() {
         super.doInit();
-        mHashValue = getQuery().getFirstValue("HASH_VALUE", true);
+        mHashValue = getQuery().getFirstValue("HASH", true);
         mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
     }
 
