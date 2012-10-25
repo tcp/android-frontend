@@ -25,6 +25,7 @@ import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
 import netinf.node.resolution.ResolutionService;
 
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -67,7 +68,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	/* Response code in case of only affiliated data*/
 	private static final int RESPONSE_CODE_203 = 203;
 	
-	/*Datamodel Factory*/
+	/* Datamodel Factory*/
 	private final DatamodelFactory mDatamodelFactory;
 	
 
@@ -117,10 +118,19 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	    	//Execute request
 			HttpResponse response = mClient.execute(post);
 			int responseCode = response.getStatusLine().getStatusCode();
-			Log.d(TAG,"get(): Response Code" + responseCode);
+			Log.d(TAG,"get(): Response Code is " + responseCode);
 			
 			if (responseCode == RESPONSE_CODE_203) {
-				String contentType = response.getEntity().getContentType().getValue();
+			    Log.d(TAG, "" + response.getAllHeaders());
+			    for (Header heather : response.getAllHeaders()) {
+			        Log.d(TAG, "" + heather.getName() + ": " + heather.getValue());
+			    }
+			    HttpEntity entity = response.getEntity();
+			    Log.d(TAG, "Entity: " + entity);
+			    Header hdr = entity.getContentType();
+			    Log.d(TAG, "Header: " + hdr);
+				String contentType = hdr.getValue();
+				Log.d(TAG, "String: " + contentType);
 				Log.d(TAG,"Enter in Response Code 203");
 				//Check if the response is a JSON
 				if ("application/json".equalsIgnoreCase(contentType)) {
@@ -133,6 +143,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 					JSONObject jsonObject = null;
 					try {
 						Object tempObject = JSONValue.parse(jsonString);
+						Log.d(TAG, "JSONObject is " + JSONValue.parse(jsonString));
 						jsonObject = (JSONObject) tempObject;
 					} catch (Exception e) {
 						Log.d(TAG,"Fan! " + e.toString());
@@ -272,7 +283,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	    HttpPost post = null;
 	    try {
 	        // TODO this should not be *index.php when calling the actual NRS
-	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish/");
+	        post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT + "/netinfproto/publish");
 	    }
 	    catch (Exception e) {
 	        Log.e(TAG, e.toString());

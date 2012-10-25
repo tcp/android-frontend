@@ -94,7 +94,8 @@ public class LisaMetadata {
         }
         
         try {
-            mJSONObject.accumulate(URLEncoder.encode(key, "UTF-8"), URLEncoder.encode(value, "UTF-8"));
+//            mJSONObject.accumulate(URLEncoder.encode(key, "UTF-8"), URLEncoder.encode(value, "UTF-8"));
+            mJSONObject.accumulate(key, value);
         }
         catch (JSONException e) {
             // TODO Auto-generated catch block
@@ -103,12 +104,12 @@ public class LisaMetadata {
             e.printStackTrace();
             return false;
         }
-        catch (UnsupportedEncodingException e) {
-            Log.d(TAG, "Failed to encode (" + value + ")");
-            Log.d(TAG, "Error: " + e.toString());
-            e.printStackTrace();
-            return false;
-        }
+//        catch (UnsupportedEncodingException e) {
+//            Log.d(TAG, "Failed to encode (" + value + ")");
+//            Log.d(TAG, "Error: " + e.toString());
+//            e.printStackTrace();
+//            return false;
+//        }
         
         return true;
     }
