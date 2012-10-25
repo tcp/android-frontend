@@ -1,9 +1,15 @@
 package project.cs.lisa.application;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfRequest;
@@ -20,6 +26,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -162,23 +169,27 @@ public class MainNetInfActivity extends Activity {
         }
 
         /* Get the file path of the selected image. */
-        Uri selectedImage = data.getData();
+        /*Uri selectedImage = data.getData();
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(
                 selectedImage, filePathColumn, null, null, null);
         cursor.moveToFirst();
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String filePath = cursor.getString(columnIndex);
-        cursor.close();
+        cursor.close();*/
 
+        String filePath = null;
+        Uri selectedImage = data.getData();
+        
         /* From File Manager */
         if (filePath == null) {
             filePath = selectedImage.getPath();            
         }
 
+        Log.d(TAG, filePath);
+        
         File file = new File(filePath);
-        if (file.exists()) {
-
+        if (file.exists()) {            
             /* Help class for files, extract content type */
             String contentType = LisaFileHandler.getFileContentType(filePath);
 
@@ -192,6 +203,38 @@ public class MainNetInfActivity extends Activity {
             } catch (IOException e1) {
                 Log.e(TAG, "Error, could not open the file: " + file.getPath());
             }
+            
+            File f1 = new File(filePath);
+            File f2 = new File(Environment.getExternalStorageDirectory() + "/DCIM/Shared/" + hash);
+
+            InputStream in = null;
+            try {
+                in = new FileInputStream(f1);
+            } catch (FileNotFoundException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            OutputStream out = null;
+            try {
+                out = new FileOutputStream(f2, true);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } // appending output stream
+
+            try {
+               try {
+                IOUtils.copy(in, out);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            }
+            finally {
+                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(out);
+            }
+
 
             /* Create meta data */
             LisaMetadata lisaMetaData = new LisaMetadata();
