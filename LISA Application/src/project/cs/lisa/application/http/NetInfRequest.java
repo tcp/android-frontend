@@ -19,6 +19,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import project.cs.lisa.file.LisaFileHandler;
 import project.cs.lisa.metadata.LisaMetadata;
 
 import android.app.Activity;
@@ -27,6 +28,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+
+// TODO: Change variable names: 'response' to 'JSONString'
 
 /**
  * Used to send requests to the OpenNetInf RESTful API.
@@ -141,6 +144,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         Log.d(TAG, "onPreExecute()");
     }
 
+    // TODO: Separate PUBLISH and GET processes from this function
     /**
      * Sends the HTTP GET request containing the netInf message to the target.
      * @param params   Either null or two strings with content type and meta data
@@ -255,16 +259,17 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * 
      * @param response  The response from this background thread. 
      */
-    private void handleGetResponse(String response) {
-        LisaMetadata lM = new LisaMetadata(response);
+    private void handleGetResponse(String _JSONString) {
+        LisaMetadata lM = new LisaMetadata(_JSONString);
         String filePath = lM.get("filePath");
         String contentType = lM.get("contentType");
 
         /* Display the file according to the file type. */
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        File file = new File(filePath);
-        intent.setDataAndType(Uri.fromFile(file), contentType);
-        mActivity.startActivity(intent);
+        LisaFileHandler.displayContent(mActivity, filePath, contentType);
+//        Intent intent = new Intent(Intent.ACTION_VIEW);
+//        File file = new File(filePath);
+//        intent.setDataAndType(Uri.fromFile(file), contentType);
+//        mActivity.startActivity(intent);
     }
 
     /**
@@ -282,26 +287,18 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     private String readGetResponse(HttpResponse response) {
         Log.d(TAG, "handleGetResponse()");
-        String responseMap = null;
+        String _JSONString = null;
         try {
             InputStream content = response.getEntity().getContent();
-            responseMap = streamToString(content);
-            Log.d(TAG, responseMap);
+            _JSONString = streamToString(content);
+            Log.d(TAG, _JSONString);
             //ObjectInputStream object = new ObjectInputStream(content);
             //InformationObject io = (InformationObject) object.readObject();
-            //Log.d(TAG, "handleGetResponse() Information Object " + io.toString());
-            // TODO change and use this commented code
-            //Log.d(TAG, "" + object.toString());
-            //responseMap = (String) object.readObject().toString();
-            //Log.d(TAG, "Read response map: " + responseMap);
-            //for (String key : responseMap.keySet()) {
-            //    Log.d(TAG, "\t" + key + " => " + responseMap.get(key));
-            //}
         } catch (IOException e) {
             Log.e(TAG, e.toString(), e);
         }
         
-        return responseMap;
+        return _JSONString;
     }
 
     /**

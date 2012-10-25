@@ -49,10 +49,11 @@ public class LisaFileHandler {
     
     private static final String TAG = "DisplayFile";
     
-    private Intent mIntent;
-    private File mFile;
-    
-    public int displayContent(Context context, String path, String mimetype) {
+    @SuppressWarnings("unused")
+    public static int displayContent(Context context, String path, String mimetype) {
+        Intent mIntent;
+        File mFile;
+        
         Log.d(TAG, "Received file " + path);
         Log.d(TAG, "File type: " + mimetype);
         
