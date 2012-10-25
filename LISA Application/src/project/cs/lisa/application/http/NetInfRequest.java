@@ -24,6 +24,7 @@ import project.cs.lisa.file.LisaFileHandler;
 import project.cs.lisa.metadata.LisaMetadata;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.net.Uri;
@@ -129,7 +130,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
             break;
         case GET:
             mQuery = "/bo/" + mQuery + "?METHOD=" + GET;
-//            mQuery += GET;
+            //            mQuery += GET;
             break;
         default:
             Log.d(TAG, "Unreachable code: Invalid message type");
@@ -243,7 +244,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     private void logGetResponse(String response) {
         Log.d(TAG, "handleGetResponse()");
-        
+
         Log.d(TAG, "string response " + response);/*
         if (response != null) {
             for (String key : response.keySet()) {
@@ -292,6 +293,13 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     private void logPublishResponse() {
         Log.d(TAG, "handlePublishResponse()");
+        final AlertDialog.Builder b = new AlertDialog.Builder(mActivity);
+        b.setIcon(android.R.drawable.ic_dialog_alert);
+        b.setTitle("Hash");
+        b.setMessage("You have published this hash: " + mHash);
+        b.setCancelable(false);
+        b.setPositiveButton("OK", null);
+        b.show();
     }
 
     /**
@@ -302,12 +310,12 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     private String readGetResponse(HttpResponse response) {
         Log.d(TAG, "readGetResponse()");
-        
+
         if (response == null) {
             Log.d(TAG, "Response is null");
             return null;
         }
-        
+
         String _JSONString = null;
         // TODO: Fix the exception/return values. Make this less hacked.
         try {
@@ -321,7 +329,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         } catch (NullPointerException e) {
             Log.d(TAG, "Content is null");
         }
-        
+
         return _JSONString;
     }
 
