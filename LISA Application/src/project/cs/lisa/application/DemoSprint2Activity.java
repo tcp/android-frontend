@@ -194,7 +194,7 @@ public class DemoSprint2Activity extends Activity {
             NetInfRequest publishRequest = new NetInfRequest(
                     this, HOST, PORT,
                     NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
-            publishRequest.execute(new String[] {contentType, metaData});
+            publishRequest.execute(new String[] {contentType, ""});// metaData});
 
         }                       
     }

@@ -202,7 +202,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
             Log.d(TAG, "NetInf Publish response, returning null");
             return null;
         case GET:
-            Log.d(TAG, "NetInf Get response, returning HashMap");
+            Log.d(TAG, "NetInf Get response, returning JSON String");
             return readGetResponse(response);
         default:
             Log.d(TAG, "Unreachable code: Invalid message type, returning null");
@@ -215,7 +215,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param response     The HTTP Response
      */
     @Override
-    protected void onPostExecute(String response) { 	
+    protected void onPostExecute(String _JSONString) { 	
         Log.d(TAG, "onPostExecute()");
 
         switch (mMessageType) {
@@ -223,8 +223,8 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
             logPublishResponse();
             break;
         case GET:
-            logGetResponse(response);
-            handleGetResponse(response);
+            logGetResponse(_JSONString);
+            handleGetResponse(_JSONString);
             break;
         default:
             Log.d(TAG, "Unreachable code: Invalid message type");
@@ -271,6 +271,8 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
             LisaMetadata lM = new LisaMetadata(_JSONString);
             String filePath = lM.get("filePath");
             String contentType = lM.get("contentType");
+            Log.d(TAG, "contentType = " + contentType);
+            Log.d(TAG, "filePath = " + filePath);
             /* Display the file according to the file type. */
             LisaFileHandler.displayContent(mActivity, filePath, contentType);
             //        Intent intent = new Intent(Intent.ACTION_VIEW);
