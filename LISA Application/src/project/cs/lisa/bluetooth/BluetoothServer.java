@@ -117,7 +117,7 @@ public class BluetoothServer extends Thread {
 			if (socket != null) {
 				setUpIoStreams(socket);
 				handleIncomingRequest(socket);
-				//cleanUp(socket);
+				cleanUp(socket);
 			}
 		}	
 	}
