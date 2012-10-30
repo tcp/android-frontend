@@ -163,7 +163,13 @@ public class BOResource extends LisaServerResource {
 				String hash = io.getIdentifier().getIdentifierLabel(
 						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 				
-				filePath = mSharedFolder + hash;
+				String metadzzz = io.getIdentifier().getIdentifierLabel(
+                        "metadata").getLabelValue();
+				//filePath = mSharedFolder + hash;
+				LisaMetadata metaLabel = new LisaMetadata(metadzzz);
+				filePath = mSharedFolder + metaLabel.get("filename");
+				Log.d(TAG, "Filepath is: " + filePath);
+				
 				writeByteStreamToFile(filePath, fileData);
 				makeFileVisibleToPhone(filePath, contentType);
 				

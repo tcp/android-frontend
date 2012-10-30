@@ -12,7 +12,7 @@ import android.widget.ToggleButton;
 /**
  * Class for handling general BT connection
  * TODO: Work in progress for Sprint 3, maybe? 
- * @author tcp
+ * @author Thiago Costa Porto
  */
 
 public class LisaBTHandler {
