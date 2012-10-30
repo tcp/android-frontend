@@ -21,11 +21,17 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
+import project.cs.lisa.R;
+import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.bluetooth.InsecureBluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ProgressBar;
 
 /**
  * The BluetoothProvider handles data transmission via Bluetooth.
@@ -162,7 +168,13 @@ public class BluetoothProvider implements ByteArrayProvider {
         inStream = new DataInputStream(socket.getInputStream());
         int fileSize = inStream.readInt();
         buffer = new byte[fileSize];
+        Log.d(TAG, "ive started");
         inStream.readFully(buffer);
+        Log.d(TAG, "im done");
+        LayoutInflater inflater = (LayoutInflater) MainApplication.getAppContext().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.activity_demo_sprint2, null);
+        ProgressBar pb = (ProgressBar) view.findViewById(R.id.progressBar1);
+        pb.setProgress(50);
         
         Log.d(TAG, "Downloaded!");
 

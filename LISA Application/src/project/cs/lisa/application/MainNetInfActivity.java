@@ -236,7 +236,6 @@ public class MainNetInfActivity extends Activity {
                 IOUtils.closeQuietly(out);
             }
 
-
             /* Create meta data */
             LisaMetadata lisaMetaData = new LisaMetadata();
             lisaMetaData.insert("filesize", String.valueOf(file.length()));

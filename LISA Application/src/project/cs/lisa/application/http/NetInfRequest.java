@@ -85,7 +85,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     private String mQuery;
     
     /** Toast **/
-    private Toast mToast;
+    //private Toast mToast;
 
     /**
      * Create a new asynchronous NetInf message sent using HTTP GET.
@@ -116,9 +116,9 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         switch (mMessageType) {
             case PUBLISH:
                 // Tell user you are publishing
-                mToast.cancel();
-                mToast = Toast.makeText(mActivity.getApplicationContext(), "Trying to publish content", Toast.LENGTH_LONG);
-                mToast.show();
+                //mToast.cancel();
+                //mToast = Toast.makeText(mActivity.getApplicationContext(), "Trying to publish content", Toast.LENGTH_LONG);
+                //mToast.show();
                 
                 // Publish query
                 mQuery = "/ni/" + mQuery + "?METHOD=" + PUBLISH;
@@ -136,34 +136,34 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
                         mQuery += "&BTMAC=" + btMac;
                     }
                     else {
-                        mToast.cancel();
-                        mToast = Toast.makeText(activity, "Please, turn on Bluetooth",
-                                Toast.LENGTH_LONG);
-                        mToast.show();
+                        //mToast.cancel();
+                        //mToast = Toast.makeText(activity, "Please, turn on Bluetooth",
+                                //Toast.LENGTH_LONG);
+                        //mToast.show();
                         Log.d(TAG, "Bluetooth not enabled");
                     }
                 }
                 else {
-                    mToast.cancel();
-                    mToast = Toast.makeText(activity, "Error connecting Bluetooth. Please, restart "
-                            + "Bluetooth.", Toast.LENGTH_LONG);
-                    mToast.show();
+                    //mToast.cancel();
+                    //mToast = Toast.makeText(activity, "Error connecting Bluetooth. Please, restart "
+                            //+ "Bluetooth.", Toast.LENGTH_LONG);
+                    //mToast.show();
                     Log.d(TAG, "Bluetooth adapter is null");		            
                 }
                 break;
 
             case GET:
-                mToast.cancel();
-                mToast = Toast.makeText(activity, "Requesting data", Toast.LENGTH_LONG);
-                mToast.show();
+                //mToast.cancel();
+                //mToast = Toast.makeText(activity, "Requesting data", Toast.LENGTH_LONG);
+                //mToast.show();
                 // Get query with BO request
                 mQuery = "/bo/" + mQuery + "?METHOD=" + GET;
                 break;
 
             default:
-                mToast.cancel();
-                mToast = Toast.makeText(activity, "Something nasty happened. Try again", Toast.LENGTH_LONG);
-                mToast.show();
+                //mToast.cancel();
+                //mToast = Toast.makeText(activity, "Something nasty happened. Try again", Toast.LENGTH_LONG);
+                //mToast.show();
                 Log.d(TAG, "Unreachable code: Invalid message type");
                 break;
         }
@@ -185,7 +185,6 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     @Override
     protected String doInBackground(String... params) {
-        Looper.prepare();
         Log.d(TAG, "doInBackground()");
 
         // If it is a publish, try to get the content type and meta data
@@ -326,11 +325,11 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         }
         else {
             Log.d(TAG, "_JSONSTring null, probably TimeoutException happened... HAHAHAHA.");
-            mToast.cancel();
-            mToast = Toast.makeText(mActivity.getApplicationContext(), "We could not get the " +
-            		"content. Check your Internet and your Bluetooth connection",
-            		Toast.LENGTH_LONG);
-            mToast.show();
+            //mToast.cancel();
+            //mToast = Toast.makeText(mActivity.getApplicationContext(), "We could not get the " +
+            		//"content. Check your Internet and your Bluetooth connection",
+            		//Toast.LENGTH_LONG);
+            //mToast.show();
         }
     }
 
@@ -365,9 +364,9 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         String _JSONString = null;
         // TODO: Fix the exception/return values. Make this less hacked.
         try {
-            mToast.cancel();
-            mToast = Toast.makeText(mActivity.getApplicationContext(), "Received response", Toast.LENGTH_LONG);
-            mToast.show();
+            //mToast.cancel();
+            //mToast = Toast.makeText(mActivity.getApplicationContext(), "Received response", Toast.LENGTH_LONG);
+            //mToast.show();
             InputStream content = response.getEntity().getContent();
             _JSONString = streamToString(content);
             Log.d(TAG, _JSONString);
