@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory 
+        android:title="Help"
+        android:key="pref_key_help" >
+        
+        <Preference 
+            android:key="pref_key_help_sharing"
+            android:title="Sharing Options"
+            android:summary="Sharing improves your browsing experience by utilizing bluetooth. Sharing therefore requires bluetooth to be enabled."
+            android:defaultValue="" />
+        <Preference 
+            android:key="pref_key_help_wifi"
+            android:title="Wi-Fi Connection"
+            android:summary="The application requires a Name Resolution Service (NRS) to work. For this to be available, you need to be connected to the Wi-Fi network providing it."
+            android:defaultValue="" />
+        
+    </PreferenceCategory>
+</PreferenceScreen>

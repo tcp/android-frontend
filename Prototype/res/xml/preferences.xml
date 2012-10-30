@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory 
+        android:title="Name Resolution Service"
+        android:key="pref_key_nrs" >
+        <EditTextPreference 
+            android:key="pref_key_nrs_ip"
+            android:summary="130.238.15.227"
+            android:title="Address"
+            android:defaultValue="130.238.15.227" />
+        <EditTextPreference 
+            android:key="pref_key_nrs_port"
+            android:summary="9999"
+            android:title="Port"
+            android:defaultValue="9999" />
+    </PreferenceCategory>
+</PreferenceScreen>
