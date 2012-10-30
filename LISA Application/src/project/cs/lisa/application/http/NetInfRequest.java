@@ -1,15 +1,10 @@
 package project.cs.lisa.application.http;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-
-import netinf.common.datamodel.InformationObject;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -26,9 +21,8 @@ import project.cs.lisa.metadata.LisaMetadata;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,51 +33,59 @@ import android.widget.Toast;
  * 
  * TODO: Split into two classes: one for get, one for publish.
  * 
- * @author Linus, Harold
+ * @author Linus Sunde
+ * @author Harold Martinez
+ * @author Thiago Csota Porto
  *
  */
-public class NetInfRequest extends AsyncTask<String, Void, String> {
 
-    /**
-     * Respresent different NetInf requests.
-     * @author Linus
-     *
-     */
+public class NetInfRequest extends AsyncTask<String, Void, String> {
     public static enum RequestType {
-        /** Represents a NetInf publish request. **/
+        /** Represents a NetInf PUBLISH request. **/
         PUBLISH,
-        /** Represents a NetInf get request. **/
+        /** Represents a NetInf GET request. **/
         GET;
     }
 
     /** Debug Log Tag. **/
     private static final String TAG = "NetInfRequest";
+
     /** HTTP Scheme. **/
     private static final String HTTP = "http://";
+
     // TODO add to properties file
     /** HTTP Timeout. **/
     private static final int TIMEOUT = 60000;
 
     /** Publish Message Type String Representation. **/
     private static final String PUBLISH = "PUT";
+
     /** Get Message Type String Representation. **/
     private static final String GET = "GET";
 
-
     /** Calling Activity. **/
     private Activity mActivity;
+
     /** Target Host. **/
     private String mHost;
+
     /** Target Port. **/
     private int mPort;
+
     /** Message Type. **/
     private RequestType mMessageType;
+
     /** Hash Algorithm. **/
     private String mHashAlg;
+
     /** Hash. **/
     private String mHash;
+
     /** The rest of the URI. **/
     private String mQuery;
+    
+    /** Toast **/
+    private Toast mToast;
 
     /**
      * Create a new asynchronous NetInf message sent using HTTP GET.
@@ -112,35 +114,64 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
 
         // Construct the query depending on message type
         switch (mMessageType) {
-        case PUBLISH:
-            mQuery = "/ni/" + mQuery + "?METHOD=" + PUBLISH;
-            // Add locators
-            // TODO Currently only publishes your own bluetooth mac address
-            BluetoothAdapter bluetoothDefaultAdapter = BluetoothAdapter.getDefaultAdapter();
-            if (bluetoothDefaultAdapter != null) {
-                if (bluetoothDefaultAdapter.isEnabled()) {
-                    String btMac = BluetoothAdapter.getDefaultAdapter().getAddress();
-                    mQuery += "&BTMAC=" + btMac;
-                } else {
-                    Log.d(TAG, "Bluetooth not enabled");
+            case PUBLISH:
+                // Tell user you are publishing
+                mToast.cancel();
+                mToast = Toast.makeText(mActivity.getApplicationContext(), "Trying to publish content", Toast.LENGTH_LONG);
+                mToast.show();
+                
+                // Publish query
+                mQuery = "/ni/" + mQuery + "?METHOD=" + PUBLISH;
+
+                // Add locators
+                // TODO: Currently only publishes your own bluetooth mac address
+                BluetoothAdapter bluetoothDefaultAdapter = BluetoothAdapter.getDefaultAdapter();
+
+                if (bluetoothDefaultAdapter != null) {
+                    if (bluetoothDefaultAdapter.isEnabled()) {
+                        // Get Bluetooth MAC Address
+                        String btMac = BluetoothAdapter.getDefaultAdapter().getAddress();
+
+                        // Add BT MAC Address to query
+                        mQuery += "&BTMAC=" + btMac;
+                    }
+                    else {
+                        mToast.cancel();
+                        mToast = Toast.makeText(activity, "Please, turn on Bluetooth",
+                                Toast.LENGTH_LONG);
+                        mToast.show();
+                        Log.d(TAG, "Bluetooth not enabled");
+                    }
                 }
-            } else {
-                Log.d(TAG, "Bluetooth adapter is null");		            
-            }
-            break;
-        case GET:
-            mQuery = "/bo/" + mQuery + "?METHOD=" + GET;
-            //            mQuery += GET;
-            break;
-        default:
-            Log.d(TAG, "Unreachable code: Invalid message type");
-            break;
+                else {
+                    mToast.cancel();
+                    mToast = Toast.makeText(activity, "Error connecting Bluetooth. Please, restart "
+                            + "Bluetooth.", Toast.LENGTH_LONG);
+                    mToast.show();
+                    Log.d(TAG, "Bluetooth adapter is null");		            
+                }
+                break;
+
+            case GET:
+                mToast.cancel();
+                mToast = Toast.makeText(activity, "Requesting data", Toast.LENGTH_LONG);
+                mToast.show();
+                // Get query with BO request
+                mQuery = "/bo/" + mQuery + "?METHOD=" + GET;
+                break;
+
+            default:
+                mToast.cancel();
+                mToast = Toast.makeText(activity, "Something nasty happened. Try again", Toast.LENGTH_LONG);
+                mToast.show();
+                Log.d(TAG, "Unreachable code: Invalid message type");
+                break;
         }
 
     }
 
     /**
-     * Does nothing.
+     * Pre-execute method.
      */
     @Override
     protected void onPreExecute() {
@@ -154,13 +185,15 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     @Override
     protected String doInBackground(String... params) {
+        Looper.prepare();
         Log.d(TAG, "doInBackground()");
 
         // If it is a publish, try to get the content type and meta data
         if (mMessageType == RequestType.PUBLISH && params.length == 2) {
             mQuery += "&CT=" + params[0];
             mQuery += "&META=" + params[1];
-        } else {
+        }
+        else {
             Log.d(TAG, "Content type and meta data not provided");
         }
 
@@ -169,12 +202,18 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
 
         // Create http client with a timeout
         HttpParams httpParams = new BasicHttpParams();
+
+        // Set Connection timeout
         HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT);
+
+        // Set SO timeout
         HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT);
         HttpClient client = new DefaultHttpClient(httpParams);
 
         // Create http get
         HttpGet get = new HttpGet(uri);
+
+        // Response obj
         HttpResponse response = null;
 
         Log.d(TAG, "doInBackground(), Executing Http Get: " + uri);
@@ -183,14 +222,18 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         // Try to execute the http get
         try {
             response = client.execute(get);
-        } catch (ClientProtocolException e) {
+        }
+        catch (ClientProtocolException e) {
             e.printStackTrace();
-        } catch (SocketTimeoutException e) {
+        }
+        catch (SocketTimeoutException e) {
             Log.d(TAG, "TimeoutException");
             response = null;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             //TODO REMOVE
             e.printStackTrace();
             Log.d(TAG, e.toString());
@@ -199,15 +242,15 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         Log.d(TAG, "doInBackground(), Extracting Http Get Response Content");
 
         switch (mMessageType) {
-        case PUBLISH:
-            Log.d(TAG, "NetInf Publish response, returning null");
-            return null;
-        case GET:
-            Log.d(TAG, "NetInf Get response, returning JSON String");
-            return readGetResponse(response);
-        default:
-            Log.d(TAG, "Unreachable code: Invalid message type, returning null");
-            return null;
+            case PUBLISH:
+                Log.d(TAG, "NetInf Publish response, returning null");
+                return null;
+            case GET:
+                Log.d(TAG, "NetInf Get response, returning JSON String");
+                return readGetResponse(response);
+            default:
+                Log.d(TAG, "Unreachable code: Invalid message type, returning null");
+                return null;
         }
     }
 
@@ -220,16 +263,16 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         Log.d(TAG, "onPostExecute()");
 
         switch (mMessageType) {
-        case PUBLISH:
-            logPublishResponse();
-            break;
-        case GET:
-            logGetResponse(_JSONString);
-            handleGetResponse(_JSONString);
-            break;
-        default:
-            Log.d(TAG, "Unreachable code: Invalid message type");
-            break;
+            case PUBLISH:
+                logPublishResponse();
+                break;
+            case GET:
+                logGetResponse(_JSONString);
+                handleGetResponse(_JSONString);
+                break;
+            default:
+                Log.d(TAG, "Unreachable code: Invalid message type");
+                break;
         }
 
         //    	EditText log = (EditText) mActivity.findViewById(R.id.editText1);
@@ -283,8 +326,11 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         }
         else {
             Log.d(TAG, "_JSONSTring null, probably TimeoutException happened... HAHAHAHA.");
-            Toast.makeText(mActivity, "We could not get the content. Check your internet "
-                    + "connection/Bluetooth connection", Toast.LENGTH_LONG).show();
+            mToast.cancel();
+            mToast = Toast.makeText(mActivity.getApplicationContext(), "We could not get the " +
+            		"content. Check your Internet and your Bluetooth connection",
+            		Toast.LENGTH_LONG);
+            mToast.show();
         }
     }
 
@@ -319,14 +365,19 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         String _JSONString = null;
         // TODO: Fix the exception/return values. Make this less hacked.
         try {
+            mToast.cancel();
+            mToast = Toast.makeText(mActivity.getApplicationContext(), "Received response", Toast.LENGTH_LONG);
+            mToast.show();
             InputStream content = response.getEntity().getContent();
             _JSONString = streamToString(content);
             Log.d(TAG, _JSONString);
             //ObjectInputStream object = new ObjectInputStream(content);
             //InformationObject io = (InformationObject) object.readObject();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Log.e(TAG, e.toString(), e);
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e) {
             Log.d(TAG, "Content is null");
         }
 
@@ -342,7 +393,8 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     private String streamToString(InputStream input) {
         try {
             return new Scanner(input).useDelimiter("\\A").next();
-        } catch (NoSuchElementException e) {
+        }
+        catch (NoSuchElementException e) {
             return "";
         }
     }

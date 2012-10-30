@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -237,15 +239,25 @@ public class MainNetInfActivity extends Activity {
 
             /* Create meta data */
             LisaMetadata lisaMetaData = new LisaMetadata();
-            lisaMetaData.insert("size", String.valueOf(file.length()));
+            lisaMetaData.insert("filesize", String.valueOf(file.length()));
+            lisaMetaData.insert("filename", file.getName());
+            lisaMetaData.insert("filetype", LisaFileHandler.getFileContentType(filePath));
             String metaData = lisaMetaData.convertToString();
+            metaData = lisaMetaData.remove_brackets(metaData);
+            Log.d(TAG, "MetaData is " + metaData);
 
             /* Publish! */
             Log.d(TAG, "Trying to publish a new file.");
             NetInfRequest publishRequest = new NetInfRequest(
                     this, HOST, PORT,
                     NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
-            publishRequest.execute(new String[] {contentType, ""}); //metaData});
+            try {
+                publishRequest.execute(new String[] {contentType, URLEncoder.encode(metaData, "UTF-8")});
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                Log.d(TAG, "Error encoding");
+                e.printStackTrace();
+            }
 
         }                       
     }

@@ -169,4 +169,12 @@ public class LisaMetadata {
             it.remove();
         }
     }
+
+    // TODO: Either keep this or fix the server code.
+    public String remove_brackets(String str) {
+        // TODO Auto-generated method stub
+        Log.d(TAG, "str " + str);
+        Log.d(TAG, "return: " + str.substring(str.indexOf("\"")+1, str.indexOf("\"", str.length()-6)));
+        return str.substring(str.indexOf("\"")+1, str.indexOf("\"", str.length()-6));
+    }
 }
