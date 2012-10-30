@@ -58,9 +58,12 @@ import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
+import android.app.Activity;
+import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Requests and Retrieves a BO.
@@ -94,7 +97,10 @@ public class BOResource extends LisaServerResource {
     private String mSharedFolder = 
     		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
 
-
+    private Toast mToast;
+    
+    private Activity mActivity;
+    
 	/**
 	 * Initializes the context of a BOResource.
 	 */
@@ -107,7 +113,7 @@ public class BOResource extends LisaServerResource {
 		
 		createSharedFolder();
 	}
-
+	
     /**
      * Responds to an HTTP get request. Returns a Map describing the retrieved
      * file.
@@ -117,9 +123,10 @@ public class BOResource extends LisaServerResource {
      */
     @Get
     public String retrieveBO() {
-	Log.d(TAG, "Trying to retrieve the BO.");
-	
-	
+//        mToast = Toast.makeText(context, "Retrieving data...", Toast.LENGTH_LONG);
+//        mToast.show();
+        Log.d(TAG, "Trying to retrieve the BO.");
+
         byte[] fileData = null;
         String filePath = "";
         String contentType = "";
@@ -130,7 +137,6 @@ public class BOResource extends LisaServerResource {
 
         /* Retrieve the data corresponding to the hash from another device. */
         if (io != null) {
-
             /* Store the content type of the requested BO */
             contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
@@ -140,20 +146,30 @@ public class BOResource extends LisaServerResource {
 
             /* Attempt to transfer the BO from a remote device */
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
+            
             try {
+//                mToast = Toast.makeText(context, "Downloading...", Toast.LENGTH_LONG);
+//                mToast.show();
                 fileData = tsDispatcher.getByteArray(io);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
+//                mToast = Toast.makeText(context, "Failed to download data", Toast.LENGTH_LONG);
+//                mToast.show();
                 Log.e(TAG, "Couldn't retrieve the requested data.");
             }
 
             /* Writes the received data to file */ 
             if (fileData != null) {
-
-
 				String hash = io.getIdentifier().getIdentifierLabel(
 						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 				
-				filePath = mSharedFolder + hash;
+				String metadzzz = io.getIdentifier().getIdentifierLabel(
+                        "metadata").getLabelValue();
+				//filePath = mSharedFolder + hash;
+				LisaMetadata metaLabel = new LisaMetadata(metadzzz);
+				filePath = mSharedFolder + metaLabel.get("filename");
+				Log.d(TAG, "Filepath is: " + filePath);
+				
 				writeByteStreamToFile(filePath, fileData);
 				makeFileVisibleToPhone(filePath, contentType);
 				
@@ -162,9 +178,10 @@ public class BOResource extends LisaServerResource {
 	            lisaMetadata.insert(FILEPATH, filePath);
 	            
 	            returnString = lisaMetadata.convertToString();
-
-
-            } else {
+            }
+            else {
+//                mToast = Toast.makeText(context, "No file to write", Toast.LENGTH_LONG);
+//                mToast.show();
                 Log.e(TAG, "No file data to write.");
             }
 
@@ -185,17 +202,19 @@ public class BOResource extends LisaServerResource {
      * @return The IO that contains the locator list.
      */
     private InformationObject retrieveDO() {
-        Log.d(TAG,
-                "Retrieve the IO containing the locators from a remote node.");
+        Log.d(TAG, "Retrieve the IO containing the locators from a remote node.");
 
         Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
         InformationObject io = null;
+        
         try {
             io = getNodeConnection().getIO(identifier);
-        } catch (NetInfCheckedException e) {
+        }
+        catch (NetInfCheckedException e) {
             Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: "
                     + mHashValue);
         }
+        
         return io;
     }
 

@@ -172,6 +172,12 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 					label.setLabelValue(ct);
 					identifier.addIdentifierLabel(label);
 					
+					// Creating a 'metadata' label to the identifier
+					IdentifierLabel metalabel = mDatamodelFactory.createIdentifierLabel();
+					metalabel.setLabelName("metadata");
+					metalabel.setLabelValue(metadata.toString());
+					identifier.addIdentifierLabel(metalabel);
+					
 					//Updating io
 					io.setIdentifier(identifier);
 					

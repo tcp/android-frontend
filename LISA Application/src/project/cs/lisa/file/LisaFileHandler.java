@@ -52,27 +52,40 @@ public class LisaFileHandler {
     public static int displayContent(Context context, String path, String mimetype) {
         Intent mIntent;
         File mFile;
+        Toast mToast = new Toast(context);
         
         Log.d(TAG, "Received file " + path);
         Log.d(TAG, "File type: " + mimetype);
         
         // Error handling
         if (path == null) {
+            mToast.cancel();
+            mToast = Toast.makeText(context, "Cannot open file with a null path", Toast.LENGTH_LONG);
+            mToast.show();
             Log.d(TAG, "Received a null file. Stop.");
             return ERR_NULL_PATH_RECEIVED;
         }
         
         if (path == "") {
+            mToast.cancel();
+            mToast = Toast.makeText(context, "Cannot open file without a path", Toast.LENGTH_LONG);
+            mToast.show();
             Log.d(TAG, "Empty path. Stop.");
             return ERR_EMPTY_PATH_RECEIVED;
         }
         
         if (mimetype == null) {
+            mToast.cancel();
+            mToast = Toast.makeText(context, "Cannot open file without knowing its type", Toast.LENGTH_LONG);
+            mToast.show();
             Log.d(TAG, "Received a null MIMEType. Stop.");
             return ERR_NULL_TYPE_RECEIVED;
         }
         
         if (mimetype == "") {
+            mToast.cancel();
+            mToast = Toast.makeText(context, "Cannot open file with a empty type", Toast.LENGTH_LONG);
+            mToast.show();
             Log.d(TAG, "Empty path. Stop.");
             return ERR_EMPTY_TYPE_RECEIVED;
         }
@@ -81,6 +94,9 @@ public class LisaFileHandler {
         mFile = new File(path);
         
         if (mFile == null) {
+            mToast.cancel();
+            mToast = Toast.makeText(context, "Failed to open the file", Toast.LENGTH_LONG);
+            mToast.show();
             Log.d(TAG, "Failed to open file. Stop.");
             return ERR_FAILED_TO_OPEN_FILE;
         }
@@ -110,9 +126,10 @@ public class LisaFileHandler {
         }
         else {
             Log.d(TAG, "Could not visualize content!");
+            mToast.cancel();
             Toast toast = Toast.makeText(context, "Failed to find an app to open " + path +
-                    ". We can not handle the type of the file (" + mimetype + "). Maybe you" +
-            		" should look at Google?" , Toast.LENGTH_LONG);
+                    ". We can not handle the type of the file (" + mimetype + ")." ,
+                    Toast.LENGTH_LONG);
             toast.show();
             return ERR_FAILED_TO_FIND_APP;
         }
