@@ -4,6 +4,8 @@ import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
+import android.webkit.WebView;
+import android.widget.EditText;
 
 public class PopUpActivity extends FragmentActivity {
 
@@ -11,6 +13,13 @@ public class PopUpActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        EditText editText = (EditText) findViewById(R.id.url);
+        editText.setText("http://www.google.se");
+        
+        WebView webView = (WebView) findViewById(R.id.webView);
+        webView.loadUrl("http://www.google.se");
+        
         showStartDialog(new WifiDialog());
         showStartDialog(new ShareDialog());
     }
