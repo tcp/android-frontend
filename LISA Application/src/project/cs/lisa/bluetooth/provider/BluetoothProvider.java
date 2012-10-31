@@ -21,22 +21,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-import project.cs.lisa.R;
-import project.cs.lisa.application.MainApplication;
-import project.cs.lisa.application.MainNetInfActivity;
-import project.cs.lisa.bluetooth.InsecureBluetooth;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * The BluetoothProvider handles data transmission via Bluetooth.
@@ -70,6 +58,7 @@ public class BluetoothProvider implements ByteArrayProvider {
     /**
      * Default constructor.
      */
+
     public BluetoothProvider() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
@@ -81,6 +70,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   hash        A hash identifying the BO
      * @return  The byte array referring to the requested BO
      */
+    
     @Override
     public byte[] getByteArray(String locator, String hash) {
 
@@ -120,6 +110,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @return  The Bluetooth socket for the communication.
      * @throws  IOException The exception for the socket.
      */
+    
     private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
 
         Log.d(TAG, "Start requesting a socket to a remote device: " + locator);
@@ -147,6 +138,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   hash    The identifier for requesting the BO
      * @throws  IOException Exception for the stream.
      */
+
     private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
         Log.d(TAG, "Write the hash request to the connected locator. ");
 
@@ -186,6 +178,8 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   locator     The locator from where to retrieve the BO
      * @return  A boolean that specifies if this provider can handle the locator or not.
      */
+
+    // TODO: Handle something?
     @Override
     public boolean canHandle(String locator) {
         return true;
@@ -195,6 +189,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Description of this provider.
      * @return A description of this provider? 
      */
+
     @Override
     public String describe() {
         return "A Bluetooth provider. This provider will attempt to retrieve a file"
