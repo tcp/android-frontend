@@ -1,7 +1,5 @@
 package project.cs.lisa.metadata;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Iterator;
 
 import org.json.JSONException;
@@ -24,6 +22,11 @@ public class LisaMetadata {
     public LisaMetadata() {
         mJSONObject = new JSONObject();
     }
+    
+    /**
+     * Constructor that takes in a already formatted JSON String
+     * @param _JSONString Formatted JSON String
+     */
     
     public LisaMetadata(String _JSONString) {
         mJSONObject = null;
