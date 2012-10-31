@@ -15,6 +15,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import project.cs.lisa.R;
 import project.cs.lisa.file.LisaFileHandler;
 import project.cs.lisa.metadata.LisaMetadata;
 
@@ -22,8 +23,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.os.AsyncTask;
-import android.os.Looper;
 import android.util.Log;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 // TODO: Change variable names: 'response' to 'JSONString'
@@ -85,7 +87,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     private String mQuery;
     
     /** Toast **/
-    //private Toast mToast;
+    private Toast mToast;
 
     /**
      * Create a new asynchronous NetInf message sent using HTTP GET.
@@ -96,6 +98,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param hashAlg      Hash algorithm used
      * @param hash         Hash
      */
+
     public NetInfRequest(Activity activity, String host, int port,
             RequestType messageType, String hashAlg, String hash) {
         mActivity = activity;
@@ -105,6 +108,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         mHashAlg = hashAlg;
         mHash = hash;
         mQuery = mHashAlg + ";" + mHash;
+        mToast = new Toast(activity);
 
         // Example of full uris
         // http://example.com:80/ni/
@@ -116,9 +120,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         switch (mMessageType) {
             case PUBLISH:
                 // Tell user you are publishing
-                //mToast.cancel();
-                //mToast = Toast.makeText(mActivity.getApplicationContext(), "Trying to publish content", Toast.LENGTH_LONG);
-                //mToast.show();
+                showToast("Trying to publish content");
                 
                 // Publish query
                 mQuery = "/ni/" + mQuery + "?METHOD=" + PUBLISH;
@@ -136,43 +138,38 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
                         mQuery += "&BTMAC=" + btMac;
                     }
                     else {
-                        //mToast.cancel();
-                        //mToast = Toast.makeText(activity, "Please, turn on Bluetooth",
-                                //Toast.LENGTH_LONG);
-                        //mToast.show();
+                        showToast("Please, turn on Bluetooth");
                         Log.d(TAG, "Bluetooth not enabled");
                     }
                 }
                 else {
-                    //mToast.cancel();
-                    //mToast = Toast.makeText(activity, "Error connecting Bluetooth. Please, restart "
-                            //+ "Bluetooth.", Toast.LENGTH_LONG);
-                    //mToast.show();
+                    showToast("Error connecting Bluetooth. Please, restart your Bluetooth");
                     Log.d(TAG, "Bluetooth adapter is null");		            
                 }
+
+                showProgressBar("Publishing file");
                 break;
 
             case GET:
-                //mToast.cancel();
-                //mToast = Toast.makeText(activity, "Requesting data", Toast.LENGTH_LONG);
-                //mToast.show();
+                showToast("Requesting data");
+
                 // Get query with BO request
                 mQuery = "/bo/" + mQuery + "?METHOD=" + GET;
+                
+                showProgressBar("Requesting file");                
                 break;
 
             default:
-                //mToast.cancel();
-                //mToast = Toast.makeText(activity, "Something nasty happened. Try again", Toast.LENGTH_LONG);
-                //mToast.show();
+                showToast("Something nasty happened. Try again");                
                 Log.d(TAG, "Unreachable code: Invalid message type");
                 break;
         }
-
     }
 
     /**
      * Pre-execute method.
      */
+
     @Override
     protected void onPreExecute() {
         Log.d(TAG, "onPreExecute()");
@@ -183,6 +180,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * Sends the HTTP GET request containing the netInf message to the target.
      * @param params   Either null or two strings with content type and meta data
      */
+    
     @Override
     protected String doInBackground(String... params) {
         Log.d(TAG, "doInBackground()");
@@ -232,11 +230,6 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         catch (IOException e) {
             e.printStackTrace();
         }
-        catch (Exception e) {
-            //TODO REMOVE
-            e.printStackTrace();
-            Log.d(TAG, e.toString());
-        }
 
         Log.d(TAG, "doInBackground(), Extracting Http Get Response Content");
 
@@ -257,6 +250,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * Handles the response to the sent NetInf message.
      * @param response     The HTTP Response
      */
+    
     @Override
     protected void onPostExecute(String _JSONString) { 	
         Log.d(TAG, "onPostExecute()");
@@ -273,29 +267,16 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
                 Log.d(TAG, "Unreachable code: Invalid message type");
                 break;
         }
-
-        //    	EditText log = (EditText) mActivity.findViewById(R.id.editText1);
-        //    	log.setText(response.toString());
-        //    	Log.d(TAG, response);
-
     }
 
     /**
      * Handles the response to a NetInf Get message.
      * @param response  HashMap containing filename and content type
      */
+    
     private void logGetResponse(String response) {
         Log.d(TAG, "handleGetResponse()");
-
-        Log.d(TAG, "string response " + response);/*
-        if (response != null) {
-            for (String key : response.keySet()) {
-                Log.d(TAG, "\t" + key + " => " + response.get(key));
-            }
-        } 
-        else {
-            Log.e(TAG, "Hash map is null");
-        }*/
+        Log.d(TAG, "string response " + response);
     }
 
     /**
@@ -308,36 +289,43 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * 
      * @param response  The response from this background thread. 
      */
+    
     private void handleGetResponse(String _JSONString) {
         Log.d(TAG, "handleGetResponse()");
+        
         if (_JSONString != null) {
             LisaMetadata lM = new LisaMetadata(_JSONString);
             String filePath = lM.get("filePath");
             String contentType = lM.get("contentType");
             Log.d(TAG, "contentType = " + contentType);
             Log.d(TAG, "filePath = " + filePath);
-            /* Display the file according to the file type. */
+            
+            // Display the file according to the file type.
             LisaFileHandler.displayContent(mActivity, filePath, contentType);
-            //        Intent intent = new Intent(Intent.ACTION_VIEW);
-            //        File file = new File(filePath);
-            //        intent.setDataAndType(Uri.fromFile(file), contentType);
-            //        mActivity.startActivity(intent);
+            
+            // Arrange View
+            hideProgressBar();
         }
         else {
-            Log.d(TAG, "_JSONSTring null, probably TimeoutException happened... HAHAHAHA.");
-            //mToast.cancel();
-            //mToast = Toast.makeText(mActivity.getApplicationContext(), "We could not get the " +
-            		//"content. Check your Internet and your Bluetooth connection",
-            		//Toast.LENGTH_LONG);
-            //mToast.show();
+            Log.d(TAG, "_JSONSTring null, probably TimeoutException happened somewhere");
+            
+            // Message the user
+            showToast("We could not get the content. Check your Internet " +
+            		"and your Bluetooth connection");
+            
+            // Modify View
+            hideProgressBar();
         }
     }
 
     /**
      * Handles the response to a NetInf Publish message.
      */
+    
     private void logPublishResponse() {
         Log.d(TAG, "handlePublishResponse()");
+        
+        // Dialog
         final AlertDialog.Builder b = new AlertDialog.Builder(mActivity);
         b.setIcon(android.R.drawable.ic_dialog_alert);
         b.setTitle("Hash");
@@ -345,6 +333,9 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         b.setCancelable(false);
         b.setPositiveButton("OK", null);
         b.show();
+        
+        // hide ProgressBar
+        hideProgressBar();
     }
 
     /**
@@ -353,6 +344,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * @return          a HashMap containing the keys "filePath" and "contentType"
      *                  with their respective values set appropriately
      */
+    
     private String readGetResponse(HttpResponse response) {
         Log.d(TAG, "readGetResponse()");
 
@@ -362,22 +354,20 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         }
 
         String _JSONString = null;
+        
         // TODO: Fix the exception/return values. Make this less hacked.
         try {
-            //mToast.cancel();
-            //mToast = Toast.makeText(mActivity.getApplicationContext(), "Received response", Toast.LENGTH_LONG);
-            //mToast.show();
+            // Get content
             InputStream content = response.getEntity().getContent();
             _JSONString = streamToString(content);
             Log.d(TAG, _JSONString);
-            //ObjectInputStream object = new ObjectInputStream(content);
-            //InformationObject io = (InformationObject) object.readObject();
         }
         catch (IOException e) {
             Log.e(TAG, e.toString(), e);
         }
         catch (NullPointerException e) {
             Log.d(TAG, "Content is null");
+            showToast("Error receiving file. Try again.");
         }
 
         return _JSONString;
@@ -389,6 +379,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param input A input stream
      * @return String representation of the input stream
      */
+    
     private String streamToString(InputStream input) {
         try {
             return new Scanner(input).useDelimiter("\\A").next();
@@ -397,5 +388,50 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
             return "";
         }
     }
+    
+    /**
+     * Function that hides the ProgressBar associated with the demo_sprint2 view
+     */
+    
+    private void hideProgressBar() {
+        ProgressBar pb = (ProgressBar) mActivity.findViewById(R.id.progressBar1);
+        pb.setVisibility(ProgressBar.INVISIBLE);
+        TextView tv = (TextView) mActivity.findViewById(R.id.ProgressBarText);
+        tv.setVisibility(TextView.INVISIBLE);
+        killToast(); // added here for ease
+    }
+    
+    /**
+     * Function that shows the ProgressBar associated with the demo_sprint2 view
+     * @param text String with the text to show to the user. Normally informs
+     *             if we are publishing, searching or requesting content.
+     */
+    
+    private void showProgressBar(String text) {
+        ProgressBar pb = (ProgressBar) mActivity.findViewById(R.id.progressBar1);
+        pb.setVisibility(ProgressBar.VISIBLE);
+        TextView tv = (TextView) mActivity.findViewById(R.id.ProgressBarText);
+        tv.setVisibility(TextView.VISIBLE);
+        tv.setText(text);
+    }
 
+    /**
+     * Function that shows a Toast to the user
+     * @param text String that will be shown in the toast
+     */
+    
+    private void showToast(String text) {
+        mToast.cancel();
+        mToast = Toast.makeText(mActivity.getApplicationContext(), text,
+                Toast.LENGTH_LONG);
+        mToast.show();
+    }
+
+    /**
+     * Kill any toast that is on display
+     */
+    
+    private void killToast() {
+        mToast.cancel();
+    }
 }
