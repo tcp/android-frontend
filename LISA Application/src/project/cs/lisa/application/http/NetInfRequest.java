@@ -336,6 +336,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         
         // hide ProgressBar
         hideProgressBar();
+        killToast();
     }
 
     /**
@@ -367,7 +368,6 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         }
         catch (NullPointerException e) {
             Log.d(TAG, "Content is null");
-            showToast("Error receiving file. Try again.");
         }
 
         return _JSONString;
@@ -398,7 +398,6 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         pb.setVisibility(ProgressBar.INVISIBLE);
         TextView tv = (TextView) mActivity.findViewById(R.id.ProgressBarText);
         tv.setVisibility(TextView.INVISIBLE);
-        killToast(); // added here for ease
     }
     
     /**
