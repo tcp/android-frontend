@@ -23,7 +23,9 @@ import java.util.UUID;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.MainApplication;
+import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.bluetooth.InsecureBluetooth;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -31,7 +33,10 @@ import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * The BluetoothProvider handles data transmission via Bluetooth.
@@ -117,14 +122,14 @@ public class BluetoothProvider implements ByteArrayProvider {
      */
     private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
 
-   	 	Log.d(TAG, "Start requesting a socket to a remote device: " + locator);
+        Log.d(TAG, "Start requesting a socket to a remote device: " + locator);
 
         BluetoothSocket socket = null;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
 
         /* Get a BluetoothSocket for a connection with the given BluetoothDevice. */
         socket   = device.createRfcommSocketToServiceRecord(MY_UUID);
-		
+
         /* This is a blocking call and will only return on a
          * successful connection or an exception.
          */
@@ -143,8 +148,8 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @throws  IOException Exception for the stream.
      */
     private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
-    	Log.d(TAG, "Write the hash request to the connected locator. ");
-    	
+        Log.d(TAG, "Write the hash request to the connected locator. ");
+
         DataOutputStream outStream = null;
 
         /* Get the output stream for sending the hash */
@@ -158,9 +163,10 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @return  The byte stream representing the retrieved BO
      * @throws  IOException Exception for the streams
      */
+
     private byte[] downloadFile(BluetoothSocket socket) throws IOException {
-    	Log.d(TAG, "Begining downloading the file");
-    	
+        Log.d(TAG, "Begining downloading the file");
+
         DataInputStream inStream = null;
         byte[] buffer = null;
 
@@ -168,15 +174,9 @@ public class BluetoothProvider implements ByteArrayProvider {
         inStream = new DataInputStream(socket.getInputStream());
         int fileSize = inStream.readInt();
         buffer = new byte[fileSize];
-        Log.d(TAG, "ive started");
+        Log.d(TAG, "Started downloading file");
         inStream.readFully(buffer);
-        Log.d(TAG, "im done");
-        LayoutInflater inflater = (LayoutInflater) MainApplication.getAppContext().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.activity_demo_sprint2, null);
-        ProgressBar pb = (ProgressBar) view.findViewById(R.id.progressBar1);
-        pb.setProgress(50);
-        
-        Log.d(TAG, "Downloaded!");
+        Log.d(TAG, "Finished downloading file");
 
         return buffer;
     }
