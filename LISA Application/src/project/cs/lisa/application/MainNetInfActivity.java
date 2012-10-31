@@ -63,6 +63,9 @@ public class MainNetInfActivity extends Activity {
      * The Server listening for incoming Bluetooth requests.
      */
     private BluetoothServer mBluetoothServer;
+    
+    /** Activity context **/
+    private static Context mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,12 +73,17 @@ public class MainNetInfActivity extends Activity {
         Log.d(TAG, "onCreate()");
 
         mApplication = (MainApplication) getApplication();
+        mContext = this;
 
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
 
         setContentView(R.layout.activity_demo_sprint2);
+    }
+    
+    public static Context getContext() {
+        return mContext;
     }
 
     @Override

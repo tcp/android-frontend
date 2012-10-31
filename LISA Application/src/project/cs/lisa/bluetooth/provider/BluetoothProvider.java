@@ -21,10 +21,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
+import project.cs.lisa.R;
+import project.cs.lisa.application.MainNetInfActivity;
+
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
+import android.widget.TextView;
 
 /**
  * The BluetoothProvider handles data transmission via Bluetooth.
@@ -91,6 +96,7 @@ public class BluetoothProvider implements ByteArrayProvider {
             Log.e(TAG, "Trying to close the socket due to a fail in the connection...");
             Log.e(TAG, e.toString());
             e.printStackTrace();
+            
             if (socket != null) {
                 try {
                     socket.close();
@@ -112,7 +118,6 @@ public class BluetoothProvider implements ByteArrayProvider {
      */
     
     private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
-
         Log.d(TAG, "Start requesting a socket to a remote device: " + locator);
 
         BluetoothSocket socket = null;
@@ -164,13 +169,38 @@ public class BluetoothProvider implements ByteArrayProvider {
 
         /* Get the input stream for receiving the file */
         inStream = new DataInputStream(socket.getInputStream());
-        int fileSize = inStream.readInt();
+        final int fileSize = inStream.readInt();
         buffer = new byte[fileSize];
-        Log.d(TAG, "Started downloading file");
-        inStream.readFully(buffer);
-        Log.d(TAG, "Finished downloading file");
+        
+        int offset = 0;  
+        
+        while (offset < fileSize) {  
+            offset += inStream.read(buffer, offset, (fileSize - offset));
+            onBufferRead(offset, fileSize);
+        }
+        
+        inStream.close();  
 
         return buffer;
+    }
+    
+    /**
+     * Function that updates the view with the bytes that have been received.
+     * @param offset how many bytes have been received
+     * @param fileSize total file size
+     */
+    
+    public void onBufferRead(final int offset, final int fileSize) {
+        // Get the activity from the main activity
+        final Activity activity = (Activity) MainNetInfActivity.getContext();
+
+        // Runnable that changes the view
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                TextView tv = (TextView) activity.findViewById(R.id.ProgressBarText);
+                tv.setText("Downloading " + offset + " of " + fileSize + "");
+            }
+        });
     }
 
     /**
