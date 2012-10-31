@@ -54,17 +54,13 @@ import netinf.common.exceptions.NetInfCheckedException;
 
 import org.restlet.resource.Get;
 
-import project.cs.lisa.R;
 import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
-import android.app.Activity;
-import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * Requests and Retrieves a BO.
