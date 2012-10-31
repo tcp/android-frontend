@@ -54,6 +54,7 @@ import netinf.common.exceptions.NetInfCheckedException;
 
 import org.restlet.resource.Get;
 
+import project.cs.lisa.R;
 import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
@@ -91,29 +92,26 @@ public class BOResource extends LisaServerResource {
     private String mHashValue;
 
     /** The hash algorithm used to generate the hash value. */
-	private String mHashAlgorithm;
+    private String mHashAlgorithm;
 
     /** The directory containing the published files. */
     private String mSharedFolder = 
-    		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+            Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
 
-    private Toast mToast;
-    
-    private Activity mActivity;
-    
-	/**
-	 * Initializes the context of a BOResource.
-	 */
-	@Override
-	protected void doInit() {
-		super.doInit();
-		
-		mHashValue = getQuery().getFirstValue("HASH", true);
-		mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
-		
-		createSharedFolder();
-	}
-	
+    /**
+     * Initializes the context of a BOResource.
+     */
+
+    @Override
+    protected void doInit() {
+        super.doInit();
+
+        mHashValue = getQuery().getFirstValue("HASH", true);
+        mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
+
+        createSharedFolder();
+    }
+
     /**
      * Responds to an HTTP get request. Returns a Map describing the retrieved
      * file.
@@ -121,10 +119,9 @@ public class BOResource extends LisaServerResource {
      * @return The Map that contains the information about the file: First key:
      *         the file path Second key: the content type of the file
      */
+
     @Get
     public String retrieveBO() {
-//        mToast = Toast.makeText(context, "Retrieving data...", Toast.LENGTH_LONG);
-//        mToast.show();
         Log.d(TAG, "Trying to retrieve the BO.");
 
         byte[] fileData = null;
@@ -141,47 +138,42 @@ public class BOResource extends LisaServerResource {
             contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
-            
+
             Log.d(TAG, "Trying to receive file with the following content type: " + contentType);
 
             /* Attempt to transfer the BO from a remote device */
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
-            
+
             try {
-//                mToast = Toast.makeText(context, "Downloading...", Toast.LENGTH_LONG);
-//                mToast.show();
                 fileData = tsDispatcher.getByteArray(io);
             }
             catch (IOException e) {
-//                mToast = Toast.makeText(context, "Failed to download data", Toast.LENGTH_LONG);
-//                mToast.show();
                 Log.e(TAG, "Couldn't retrieve the requested data.");
             }
 
             /* Writes the received data to file */ 
             if (fileData != null) {
-				String hash = io.getIdentifier().getIdentifierLabel(
-						SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
-				
-				String metadzzz = io.getIdentifier().getIdentifierLabel(
-                        "metadata").getLabelValue();
-				//filePath = mSharedFolder + hash;
-				LisaMetadata metaLabel = new LisaMetadata(metadzzz);
-				filePath = mSharedFolder + metaLabel.get("filename");
-				Log.d(TAG, "Filepath is: " + filePath);
-				
-				writeByteStreamToFile(filePath, fileData);
-				makeFileVisibleToPhone(filePath, contentType);
-				
-	            LisaMetadata lisaMetadata = new LisaMetadata();
-	            lisaMetadata.insert(CONTENT_TYPE, contentType);
-	            lisaMetadata.insert(FILEPATH, filePath);
-	            
-	            returnString = lisaMetadata.convertToString();
+                // Fetch metadata from IO
+                String metaData = 
+                        io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
+                LisaMetadata metaLabel = new LisaMetadata(metaData);
+
+                // Set saving filename to the same filename as in metadata
+                filePath = mSharedFolder + metaLabel.get("filename");
+                Log.d(TAG, "Filepath is: " + filePath);
+
+                // Write it to file
+                writeByteStreamToFile(filePath, fileData);
+                makeFileVisibleToPhone(filePath, contentType);
+
+                // Make a new metadata to pass along the content_type and filepath
+                LisaMetadata lisaMetadata = new LisaMetadata();
+                lisaMetadata.insert(CONTENT_TYPE, contentType);
+                lisaMetadata.insert(FILEPATH, filePath);
+
+                returnString = lisaMetadata.convertToString();
             }
             else {
-//                mToast = Toast.makeText(context, "No file to write", Toast.LENGTH_LONG);
-//                mToast.show();
                 Log.e(TAG, "No file data to write.");
             }
 
@@ -201,12 +193,13 @@ public class BOResource extends LisaServerResource {
      * 
      * @return The IO that contains the locator list.
      */
+
     private InformationObject retrieveDO() {
         Log.d(TAG, "Retrieve the IO containing the locators from a remote node.");
 
         Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
         InformationObject io = null;
-        
+
         try {
             io = getNodeConnection().getIO(identifier);
         }
@@ -214,39 +207,41 @@ public class BOResource extends LisaServerResource {
             Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: "
                     + mHashValue);
         }
-        
+
         return io;
     }
 
-	/**
-	 * Creates the folder that contains the files to be shared with other phones.
-	 */
-	private void createSharedFolder() {
-		File folder = new File(mSharedFolder);
-		
-		if (!folder.exists()) {
-			Log.d(TAG, "Creating shared folder " + mSharedFolder);
-			boolean created = folder.mkdir();
-			
-			if (!created) {
-				Log.e(TAG, "Failed creating the shared folder. Set shared folder to DCIM/");
-				mSharedFolder = Environment.getExternalStorageDirectory() + "/DCIM/";
-			}
-		}
-	}
-	
-	/**
-	 * Makes the file specified by file path visible to the user.
-	 * 
-	 * @param filePath		The file path pointing to the file.
-	 * @param contentType	The content type of the file.
-	 */
-	private void makeFileVisibleToPhone(String filePath, String contentType) {
-		String[] paths = {filePath};
-		String[] mediaType = {contentType};
-		MediaScannerConnection.scanFile(MainApplication.getAppContext(), paths, mediaType, null);
-	}
-    
+    /**
+     * Creates the folder that contains the files to be shared with other phones.
+     */
+
+    private void createSharedFolder() {
+        File folder = new File(mSharedFolder);
+
+        if (!folder.exists()) {
+            Log.d(TAG, "Creating shared folder " + mSharedFolder);
+            boolean created = folder.mkdir();
+
+            if (!created) {
+                Log.e(TAG, "Failed creating the shared folder. Set shared folder to DCIM/");
+                mSharedFolder = Environment.getExternalStorageDirectory() + "/DCIM/";
+            }
+        }
+    }
+
+    /**
+     * Makes the file specified by file path visible to the user.
+     * 
+     * @param filePath		The file path pointing to the file.
+     * @param contentType	The content type of the file.
+     */
+
+    private void makeFileVisibleToPhone(String filePath, String contentType) {
+        String[] paths = {filePath};
+        String[] mediaType = {contentType};
+        MediaScannerConnection.scanFile(MainApplication.getAppContext(), paths, mediaType, null);
+    }
+
     /**
      * Creates a new file containing the specified fileData at the specified
      * targetPath.
@@ -256,6 +251,7 @@ public class BOResource extends LisaServerResource {
      * @param fileData
      *            The data to write at the specified path
      */
+
     private void writeByteStreamToFile(String targetPath, byte[] fileData) {
         Log.d(TAG, "Writing received data to " + targetPath);
 
@@ -264,18 +260,20 @@ public class BOResource extends LisaServerResource {
         try {
             fos = new FileOutputStream(targetPath);
             fos.write(fileData);
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e) {
             Log.e(TAG, "Couldn't find file: " + targetPath);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Log.e(TAG, "Failed while writing data to " + targetPath);
-        } finally {
-
+        }
+        finally {
             if (fos != null) {
                 try {
                     fos.close();
-                } catch (IOException e) {
-                    Log.e(TAG,
-                            "Failed closing the stream after writing to file.");
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "Failed closing the stream after writing to file.");
                 }
             }
         }
