@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -39,13 +38,13 @@ import android.widget.Toast;
  */
 
 public class LisaFileHandler {
-    private static final int ERR_NULL_PATH_RECEIVED = -1;
-    private static final int ERR_NULL_TYPE_RECEIVED = -2;
-    private static final int ERR_EMPTY_PATH_RECEIVED = -3;
-    private static final int ERR_EMPTY_TYPE_RECEIVED = -4;
-    private static final int ERR_FAILED_TO_OPEN_FILE = -5;
-    private static final int ERR_FAILED_TO_FIND_APP = -6;
-    private static final int OK = 1;
+    public static final int ERR_NULL_PATH_RECEIVED = -1;
+    public static final int ERR_NULL_TYPE_RECEIVED = -2;
+    public static final int ERR_EMPTY_PATH_RECEIVED = -3;
+    public static final int ERR_EMPTY_TYPE_RECEIVED = -4;
+    public static final int ERR_FAILED_TO_OPEN_FILE = -5;
+    public static final int ERR_FAILED_TO_FIND_APP = -6;
+    public static final int OK = 1;
     
     private static final String TAG = "DisplayFile";
     @SuppressWarnings("unused")
@@ -59,9 +58,9 @@ public class LisaFileHandler {
         
         // Error handling
         if (path == null) {
-            mToast.cancel();
-            mToast = Toast.makeText(context, "Cannot open file with a null path", Toast.LENGTH_LONG);
-            mToast.show();
+//            mToast.cancel();
+//            mToast = Toast.makeText(context, "Cannot open file with a null path", Toast.LENGTH_LONG);
+//            mToast.show();
             Log.d(TAG, "Received a null file. Stop.");
             return ERR_NULL_PATH_RECEIVED;
         }

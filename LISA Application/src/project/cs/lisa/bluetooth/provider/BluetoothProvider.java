@@ -29,6 +29,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
@@ -199,6 +200,9 @@ public class BluetoothProvider implements ByteArrayProvider {
             public void run() {
                 TextView tv = (TextView) activity.findViewById(R.id.ProgressBarText);
                 tv.setText("Downloading " + offset + " of " + fileSize + "");
+                ProgressBar pb = (ProgressBar) activity.findViewById(R.id.progressbar_Horizontal);
+                pb.setVisibility(ProgressBar.VISIBLE);
+                pb.setProgress(100*offset/fileSize);
             }
         });
     }

@@ -37,6 +37,7 @@ public class LisaMetadata {
             Log.d(TAG, "Problems creating LisaMetadata with a previous valid JSON declaration");
             Log.d(TAG, "Got: " + _JSONString);
             Log.d(TAG, "Error was: " + e.toString());
+            mJSONObject = new JSONObject(); // Creates an empty JSON Object
             e.printStackTrace();
         }
     }
@@ -129,6 +130,9 @@ public class LisaMetadata {
             Log.d(TAG, "Tried to use a null key on get()");
             return null;
         }
+        
+        if (mJSONObject == null)
+            return null;
         
         try {
             return mJSONObject.get(key).toString();

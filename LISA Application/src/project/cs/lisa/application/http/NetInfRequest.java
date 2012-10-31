@@ -37,7 +37,7 @@ import android.widget.Toast;
  * 
  * @author Linus Sunde
  * @author Harold Martinez
- * @author Thiago Csota Porto
+ * @author Thiago Costa Porto
  *
  */
 
@@ -57,7 +57,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
 
     // TODO add to properties file
     /** HTTP Timeout. **/
-    private static final int TIMEOUT = 60000;
+    private static final int TIMEOUT = 6000000;
 
     /** Publish Message Type String Representation. **/
     private static final String PUBLISH = "PUT";
@@ -301,7 +301,15 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
             Log.d(TAG, "filePath = " + filePath);
             
             // Display the file according to the file type.
-            LisaFileHandler.displayContent(mActivity, filePath, contentType);
+            // TODO: Make this an exception!
+            // TODO: Clean this
+            int display = LisaFileHandler.displayContent(mActivity, filePath, contentType);
+            if (display == LisaFileHandler.ERR_NULL_PATH_RECEIVED) {
+                Toast toast = new Toast(mActivity);
+                toast.cancel();
+                toast = Toast.makeText(mActivity, "Could not find this file", Toast.LENGTH_LONG);
+                toast.show();
+            }
             
             // Arrange View
             hideProgressBar();
@@ -394,8 +402,11 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      */
     
     private void hideProgressBar() {
+        Log.d(TAG, "hideProgressBar()");
         ProgressBar pb = (ProgressBar) mActivity.findViewById(R.id.progressBar1);
         pb.setVisibility(ProgressBar.INVISIBLE);
+        ProgressBar pb1 = (ProgressBar) mActivity.findViewById(R.id.progressbar_Horizontal);
+        pb1.setVisibility(ProgressBar.INVISIBLE);
         TextView tv = (TextView) mActivity.findViewById(R.id.ProgressBarText);
         tv.setVisibility(TextView.INVISIBLE);
     }
