@@ -26,9 +26,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -57,23 +59,23 @@ public class MainNetInfActivity extends Activity {
 
     /** Please comment. */
     private LisaStarterNodeThread mStarterNodeThread;
-    
-	/**
-	 * The Server listening for incoming Bluetooth requests.
-	 */
-	private BluetoothServer mBluetoothServer;
+
+    /**
+     * The Server listening for incoming Bluetooth requests.
+     */
+    private BluetoothServer mBluetoothServer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
-        
+
         mApplication = (MainApplication) getApplication();
-        
+
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
-        
+
         setContentView(R.layout.activity_demo_sprint2);
     }
 
@@ -86,14 +88,15 @@ public class MainNetInfActivity extends Activity {
     /**
      * Please comment.
      */
+    
     private void setupBroadcastReceiver() {
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (getResultCode()) {
-                default:
-                    Log.d(TAG, intent.getAction());
-                    break;
+                    default:
+                        Log.d(TAG, intent.getAction());
+                        break;
                 }
             }
         }, new IntentFilter(NODE_STARTED));
@@ -102,6 +105,7 @@ public class MainNetInfActivity extends Activity {
     /**
      * Please comment.
      */
+    
     private void setupNode() {
         // Start NetInfNode
         mStarterNodeThread = new LisaStarterNodeThread(mApplication);
@@ -112,6 +116,7 @@ public class MainNetInfActivity extends Activity {
      * Gets a file from another node according to the input hash.
      * @param v The view that fired this event.
      */
+    
     public final void getButtonClicked(final View v) {
 
         /* Store the input string */
@@ -124,11 +129,14 @@ public class MainNetInfActivity extends Activity {
             return;
         }
 
-        /* Create a new get request with the current hash */
+        // Create a new get request with the current hash
         Log.d(TAG, "Requesting the following hash: " + hash.substring(0,3));
+        
         NetInfRequest getRequest = new NetInfRequest(
                 this, HOST, PORT,
                 NetInfRequest.RequestType.GET, HASH_ALG, hash.substring(0,3));
+
+        // Execute request
         getRequest.execute();
 
         //        For now open the received file in the asynch task.
@@ -151,6 +159,7 @@ public class MainNetInfActivity extends Activity {
      * Creates an intent to select an image from the gallery.
      * @param v The view that fired this event.
      */
+    // TODO: Deprecated? Although I think it is better opening image/* for now
     public final void publishButtonClicked(final View v) {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -162,6 +171,7 @@ public class MainNetInfActivity extends Activity {
      * Publish a file from the image gallery on the phone.
      * Creates the hash and extracts the content type. 
      */
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -169,27 +179,31 @@ public class MainNetInfActivity extends Activity {
             return;
         }
 
-        /* Get the file path of the selected image. */
-        /*Uri selectedImage = data.getData();
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(
-                selectedImage, filePathColumn, null, null, null);
-        cursor.moveToFirst();
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String filePath = cursor.getString(columnIndex);
-        cursor.close();*/
-
         String filePath = null;
-        Uri selectedImage = data.getData();
-        
-        /* From File Manager */
-        if (filePath == null) {
-            filePath = selectedImage.getPath();            
-        }
 
-        Log.d(TAG, filePath);
+        if (data.getScheme().equals("content")) {
+            if (data.getData().getPath().contains("/external/images")) {
+                /* Get the file path of the selected image. */
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContentResolver().query(
+                        selectedImage, filePathColumn, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                filePath = cursor.getString(columnIndex);
+                cursor.close();
+            }
+        }
+        else if (data.getScheme().equals("file")) {
+            Uri selectedImage = data.getData();
+            filePath = selectedImage.getPath();
+        }
         
+        Log.d(TAG, filePath);
+
+        // Open file
         File file = new File(filePath);
+
         if (file.exists()) {            
             /* Help class for files, extract content type */
             String contentType = LisaFileHandler.getFileContentType(filePath);
@@ -197,76 +211,95 @@ public class MainNetInfActivity extends Activity {
             /* Help class for files, generate the hash */
             LisaHash lisaHash = null;
             String hash = null;
+            
+            // Try to hash the file
             try {
                 lisaHash = new LisaHash(FileUtils.readFileToByteArray(file));
-                hash = lisaHash.encodeResult(3);
+                hash = lisaHash.encodeResult(3); // Use 0 for using the whole hash 
                 Log.d(TAG, "The generated hash is: " + hash);
-            } catch (IOException e1) {
+            }
+            catch (IOException e1) {
                 Log.e(TAG, "Error, could not open the file: " + file.getPath());
             }
-            
+
+            // f1 = file chosen for publishing
+            // f2 = file that will hold content in shared folder
             File f1 = new File(filePath);
             File f2 = new File(Environment.getExternalStorageDirectory() + "/DCIM/Shared/" + hash);
 
             InputStream in = null;
+            OutputStream out = null;
+
             try {
                 in = new FileInputStream(f1);
-            } catch (FileNotFoundException e1) {
+                out = new FileOutputStream(f2, true);
+            }
+            catch (FileNotFoundException e1) {
                 // TODO Auto-generated catch block
+                Log.d(TAG, "File not found! Check if something went wrong when choosing file");
                 e1.printStackTrace();
             }
-            OutputStream out = null;
-            try {
-                out = new FileOutputStream(f2, true);
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } // appending output stream
 
+            // Try copying file to shared folder
             try {
-               try {
-                IOUtils.copy(in, out);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+                try {
+                    IOUtils.copy(in, out);
+                }
+                catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    Log.d(TAG, "Failed to copy file to shared folder");
+                    e.printStackTrace();
+                }
             }
             finally {
+                Log.d(TAG, "Closing file streams for transfer");
                 IOUtils.closeQuietly(in);
                 IOUtils.closeQuietly(out);
+                Log.d(TAG, "File streams for transfer closed");
             }
 
-            /* Create meta data */
+            // Create meta data
             LisaMetadata lisaMetaData = new LisaMetadata();
+
+            // Metadata has 3 fields: filesize, filename and filetype
             lisaMetaData.insert("filesize", String.valueOf(file.length()));
             lisaMetaData.insert("filename", file.getName());
             lisaMetaData.insert("filetype", LisaFileHandler.getFileContentType(filePath));
-            String metaData = lisaMetaData.convertToString();
-            metaData = lisaMetaData.remove_brackets(metaData);
-            Log.d(TAG, "MetaData is " + metaData);
 
-            /* Publish! */
+            // Convert metadata into readable format
+            String metaData = lisaMetaData.convertToString();
+
+            // TODO: Remove this hack! Talk to other team about the metadata storage on their side
+            metaData = lisaMetaData.remove_brackets(metaData);
+
+            // Log the metadata
+            Log.d(TAG, "metadata: " + metaData);
+
+            // Publish!
             Log.d(TAG, "Trying to publish a new file.");
-            NetInfRequest publishRequest = new NetInfRequest(
-                    this, HOST, PORT,
-                    NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
+            NetInfRequest publishRequest = 
+                    new NetInfRequest(this, HOST, PORT,
+                            NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
+
+            // Execute the publish
             try {
-                publishRequest.execute(new String[] {contentType, URLEncoder.encode(metaData, "UTF-8")});
-            } catch (UnsupportedEncodingException e) {
+                publishRequest.execute(new String[] {contentType,
+                        URLEncoder.encode(metaData, "UTF-8")});
+            }
+            catch (UnsupportedEncodingException e) {
                 // TODO Auto-generated catch block
                 Log.d(TAG, "Error encoding");
                 e.printStackTrace();
             }
-
         }                       
     }
-    
+
     /**
      * Initiates and starts the Bluetooth Server.
      */
-    private void setupBluetoothServer() {
-    	mBluetoothServer = new BluetoothServer();
-    	mBluetoothServer.start();
-	}
 
+    private void setupBluetoothServer() {
+        mBluetoothServer = new BluetoothServer();
+        mBluetoothServer.start();
+    }
 }
