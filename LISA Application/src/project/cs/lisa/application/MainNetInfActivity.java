@@ -21,7 +21,6 @@ import project.cs.lisa.hash.LisaHash;
 import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.node.LisaStarterNodeThread;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
