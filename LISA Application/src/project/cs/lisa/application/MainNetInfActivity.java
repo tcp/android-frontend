@@ -282,15 +282,15 @@ public class MainNetInfActivity extends Activity {
                             NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
 
             // Execute the publish
-            try {
-                publishRequest.execute(new String[] {contentType,
-                        URLEncoder.encode(metaData, "UTF-8")});
-            }
-            catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                Log.d(TAG, "Error encoding");
-                e.printStackTrace();
-            }
+//            try {
+                publishRequest.execute(new String[] {contentType, ""});
+                        //URLEncoder.encode(metaData, "UTF-8")});
+//            }
+//            catch (UnsupportedEncodingException e) {
+//                // TODO Auto-generated catch block
+//                Log.d(TAG, "Error encoding");
+//                e.printStackTrace();
+//            }
         }                       
     }
 
