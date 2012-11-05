@@ -35,23 +35,41 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class LisaWifiHandler.
+ */
 public class LisaWifiHandler {
     //constants
+    /** The Constant WEP. */
     public static final int WEP = 1;
+    
+    /** The Constant WAP. */
     public static final int WAP = 2;
+    
+    /** The Constant OPEN_NETWORK. */
     public static final int OPEN_NETWORK = 3;
 
+    /** The Constant TAG. */
     public static final String TAG = "LISA_Network";
 
     // wifi network variables
+    /** The wifi conf. */
     WifiConfiguration wifiConf;				/* WifiConfiguration object */
+    
+    /** The wifi mgr. */
     WifiManager wifiMgr;							/* WifiManager object */
+    
+    /** The wifi info. */
     WifiInfo wifiInfo;								/* WifiInfo object */
+    
+    /** The wifi scan. */
     List<ScanResult> wifiScan;				/* List of ScanResult objects */
 
     /**
      * Constructor initializes WifiManager and WifiInfo.
-     * @param context
+     *
+     * @param context the context
      */
     public LisaWifiHandler(Context context) {
         wifiMgr  = getWifiManager(context);		// gets wifiMgr in the current context 
@@ -62,10 +80,10 @@ public class LisaWifiHandler {
 
     /**
      * Function checkWifiEnabled checks if the WiFi connection
-     * is enabled on the device. 
-     * @param wifiMgr
+     * is enabled on the device.
+     *
      * @return true  if the WiFi connection is enabled,
-     * 				 false if the WiFi connection is disabled
+     * false if the WiFi connection is disabled
      */
     public boolean checkWifiEnabled() {
         // checks if WiFi is enabled
@@ -74,9 +92,9 @@ public class LisaWifiHandler {
 
     /**
      * Function enableWifi enables WiFi connection on the device.
-     * @param wifiMgr
+     *
      * @return true  if the attempt to enable WiFi succeeded,
-     * 				 false if the attempt to enable WiFi failed. 
+     * false if the attempt to enable WiFi failed.
      */
     public boolean enableWifi() {
         // enables WiFi connection
@@ -85,9 +103,9 @@ public class LisaWifiHandler {
 
     /**
      * Function disableWifi disables WiFi connection on the device.
-     * @param wifiMgr
+     *
      * @return true  if WiFi connection was disabled,
-     * 				 false if attempt to disable WiFi failed.
+     * false if attempt to disable WiFi failed.
      */
     public boolean disableWifi() {
         // disables WiFi connection
@@ -96,9 +114,10 @@ public class LisaWifiHandler {
 
     /**
      * Function getWifiManager gets the WiFiManager object from the device.
-     * @param context
+     *
+     * @param context the context
      * @return WifiManager object. Also sets the class variable
-     * 				 wifiMgr as the WifiManager object returned.
+     * wifiMgr as the WifiManager object returned.
      */
     public WifiManager getWifiManager(Context context) {
         WifiManager wifiMgr = null;
@@ -116,9 +135,10 @@ public class LisaWifiHandler {
     /**
      * Function getWifiInfo gets the current WiFi connection information in a
      * WifiInfo object from the device.
-     * @param context
+     *
+     * @param context the context
      * @return wifiInfo created object or
-     * 				 null 		if wifi is not enabled.
+     * null 		if wifi is not enabled.
      */
     public WifiInfo getWifiInfo(Context context) {
         WifiInfo wifiInfo = null;
@@ -138,8 +158,9 @@ public class LisaWifiHandler {
     /**
      * Function that returns a WifiConfiguration object from the WifiInfo
      * object from the class. If wifiInfo exists, then we are able to retrieve
-     * information from the current connection 
-     * @param context
+     * information from the current connection
+     *
+     * @param context the context
      * @return WifiConfiguration object created.
      */
     public WifiConfiguration getWifiConf(Context context) {
@@ -167,9 +188,9 @@ public class LisaWifiHandler {
      * Function getWifiInRange returns all the WiFi networks that are
      * accessible through the access point (device AP) found during the
      * last scan.
-     * @param wifi
+     *
      * @return List of ScanResult containing information on all WiFi networks
-     * 				 discovered in the range.
+     * discovered in the range.
      */
     public List<ScanResult> getWifiInRange() {
         // gets ~last~ list of WiFi networks accessible through the access point.
@@ -204,13 +225,12 @@ public class LisaWifiHandler {
     }
 
     /**
-     * Function to connect to a selected network
+     * Function to connect to a selected network.
+     *
      * @param networkSSID         network SSID name
-     * @param	networkPassword     network password
-     * @param networkId           network ID from WifiManager
-     * @param SecurityProtocol    network security protocol
+     * @param networkPassword     network password
      * @return true  if connection to selected network succeeded
-     * 				 false if connection to selected network failed
+     * false if connection to selected network failed
      */
     public boolean connectToSelectedNetwork(String networkSSID, String networkPassword) {
         int networkId;

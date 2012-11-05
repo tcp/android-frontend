@@ -35,23 +35,42 @@ import android.content.IntentFilter;
 import android.util.Log;
 import android.widget.ToggleButton;
 
+// TODO: Auto-generated Javadoc
 /**
  * Class for handling general BT connection
- * TODO: Work in progress for Sprint 3, maybe? 
+ * TODO: Work in progress for Sprint 3, maybe?.
+ *
  * @author Thiago Costa Porto
  */
 
 public class LisaBTHandler {
+    
+    /** The tag. */
     private final String TAG = "LisaBTHandler";
+    
+    /** The m bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter;
+    
+    /** The m intent filter. */
     private IntentFilter mIntentFilter;
 
+    /**
+     * Checks if is enabled.
+     *
+     * @return true, if is enabled
+     */
     public boolean isEnabled() {
         if (mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON)
             return true;
         return false;
     }
 
+    /**
+     * Discover bt devices.
+     *
+     * @param context the context
+     * @return true, if successful
+     */
     public boolean discoverBTDevices(Context context) {
         if (!isEnabled()) {
             Log.d(TAG, "BT is disabled!");
@@ -63,6 +82,12 @@ public class LisaBTHandler {
         return true;
     }
 
+    /**
+     * Force enable.
+     *
+     * @param context the context
+     * @return true, if successful
+     */
     public boolean forceEnable(Context context) {
         if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE) {
             mBluetoothAdapter.enable();
@@ -79,6 +104,7 @@ public class LisaBTHandler {
         return true;
     }
     
+    /** The m receive. */
     private final BroadcastReceiver mReceive = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

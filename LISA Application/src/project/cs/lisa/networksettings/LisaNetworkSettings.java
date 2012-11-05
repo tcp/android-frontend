@@ -50,33 +50,49 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.AdapterView.OnItemClickListener;
 
+// TODO: Auto-generated Javadoc
 /**
- * Wifi connection settings activity
+ * Wifi connection settings activity.
+ *
  * @author Thiago Costa Porto
  */
 
 public class LisaNetworkSettings extends Activity {
     // Debug Tag
+    /** The Constant TAG. */
     private static final String TAG = "WiFiDeviceList";
 
     // Adapters and TextView
+    /** The m bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter;
+    
+    /** The m discovered wifi adapter. */
     private ArrayAdapter<String> mDiscoveredWifiAdapter;
+    
+    /** The m connected wifi text view. */
     private TextView mConnectedWifiTextView;
 
     // Intent Filter
+    /** The i filter. */
     private IntentFilter iFilter;
 
     // Wifi Handler
+    /** The wifi. */
     private LisaWifiHandler wifi;
 
     // vars
+    /** The scanning. */
     private boolean scanning = false;
+    
+    /** The listening. */
     private boolean listening = false;
 
     // note: mReceive is defined at the end of the class.
     // note: onItemClickListener is defined after this class.
 
+    /* (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +139,9 @@ public class LisaNetworkSettings extends Activity {
         Log.d(TAG, "Buttons set");
     }
 
+    /* (non-Javadoc)
+     * @see android.app.Activity#onDestroy()
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -135,6 +154,7 @@ public class LisaNetworkSettings extends Activity {
     }
 
     // The on-click listener for all devices in the ListViews
+    /** The m device click listener. */
     private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int position_of_view, long row_id) {
             // Using row_id, we can use wifiScan and get the BSSID that
@@ -175,7 +195,7 @@ public class LisaNetworkSettings extends Activity {
     }
 
     /**
-     * Function to check the initial state of the Toggle Button
+     * Function to check the initial state of the Toggle Button.
      */
     public void checkInitialWifiToggle() {
         // Toggle Button
@@ -192,6 +212,9 @@ public class LisaNetworkSettings extends Activity {
         }
     }
 
+    /**
+     * Check initial bt toggle.
+     */
     public void checkInitialBTToggle() {
         // Toggle Button
         ToggleButton toggleButton = (ToggleButton) findViewById(R.id.toggleButtonBT);
@@ -257,6 +280,11 @@ public class LisaNetworkSettings extends Activity {
         }
     }
 
+    /**
+     * On toggle bt clicked.
+     *
+     * @param view the view
+     */
     public void onToggleBTClicked(View view) {
         // Toggle Button
         boolean toggleOn = ((ToggleButton) view).isChecked();

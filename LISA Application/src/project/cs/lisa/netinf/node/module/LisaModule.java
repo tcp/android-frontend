@@ -57,17 +57,31 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class LisaModule.
+ */
 public class LisaModule extends AbstractModule  {
 
+	/** The Constant TAG. */
 	public static final String TAG = "Module";
 	
+	/** The m properties. */
 	private Properties mProperties;
 	
+	/**
+	 * Instantiates a new lisa module.
+	 *
+	 * @param properties the properties
+	 */
 	public LisaModule(Properties properties) {
 		Log.d(TAG, "Module()");
 		mProperties = properties;
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.google.inject.AbstractModule#configure()
+	 */
 	@Override
 	protected void configure() {
 		Log.d(TAG, "configure()");
@@ -96,6 +110,12 @@ public class LisaModule extends AbstractModule  {
 	      
 	}
 	
+	/**
+	 * Provide resolution services.
+	 *
+	 * @param nrs the nrs
+	 * @return the resolution service[]
+	 */
 	@Singleton
 	@Provides
 	ResolutionService[] provideResolutionServices(NameResolutionService nrs) {
