@@ -64,6 +64,7 @@ import android.widget.Toast;
  * Main activity that acts as a starting point for the application.
  * It provides functions for the user interaction and for setting up
  * the application.
+ * 
  * @author Paolo Boschini
  *
  */
