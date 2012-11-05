@@ -1,3 +1,19 @@
+/**
+
+ * Uppsala University
+ *
+ * Project CS course, Fall 2012
+ *
+ * Projekt DV/Project CS, is a course in which the students develop software for
+ * distributed systems. The aim of the course is to give insights into how a big
+ * project is run (from planning to realization), how to construct a complex
+ * distributed system and to give hands-on experience on modern construction
+ * principles and programming methods.
+ *
+ * All rights reserved.
+ *
+ * Copyright (C) 2012 LISA team
+ */
 package project.cs.lisa.application;
 
 import java.io.File;
@@ -7,8 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -36,10 +50,17 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Main activity that acts as a starting point for the application.
+ * It provides functions for the user interaction and for setting up
+ * the application.
+ * @author Paolo Boschini
+ *
+ */
 public class MainNetInfActivity extends Activity {
 
     /** Debugging tag. */
-    public static final String TAG = "DemoSpring2Activity";
+    public static final String TAG = "MainNetInfActivity";
 
     /** Hash algorithm constant. */
     public static final String HASH_ALG = "sha-256";
@@ -64,8 +85,8 @@ public class MainNetInfActivity extends Activity {
      */
     private BluetoothServer mBluetoothServer;
     
-    /** Activity context **/
-    private static Context mContext;
+    /** Activity context. */
+    private static Context sContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,7 +94,7 @@ public class MainNetInfActivity extends Activity {
         Log.d(TAG, "onCreate()");
 
         mApplication = (MainApplication) getApplication();
-        mContext = this;
+        sContext = this;
 
         setupBroadcastReceiver();
         setupNode();
@@ -82,10 +103,6 @@ public class MainNetInfActivity extends Activity {
         setContentView(R.layout.activity_demo_sprint2);
     }
     
-    public static Context getContext() {
-        return mContext;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_demo_sprint2, menu);
@@ -95,7 +112,6 @@ public class MainNetInfActivity extends Activity {
     /**
      * Please comment.
      */
-    
     private void setupBroadcastReceiver() {
         registerReceiver(new BroadcastReceiver() {
             @Override
@@ -304,9 +320,16 @@ public class MainNetInfActivity extends Activity {
     /**
      * Initiates and starts the Bluetooth Server.
      */
-
     private void setupBluetoothServer() {
         mBluetoothServer = new BluetoothServer();
         mBluetoothServer.start();
+    }
+    
+    /**
+     * Returns the context of this activity.
+     * @return  the context
+     */
+    public static Context getContext() {
+        return sContext;
     }
 }
