@@ -57,6 +57,10 @@ public class MainApplication extends Application {
         Log.d(TAG, "onCreate()");
         loadProperties(PROPERTIES);
         Log.d(TAG, "Creating injector...");
+        
+        /* Pass the property reference to the injector.
+         * Properties can be loaded by using @Named("name_of_the_property")
+         */
         mInjector = Guice.createInjector(new LisaModule(mProperties));
         
         /* Get the context of this application */
@@ -65,6 +69,7 @@ public class MainApplication extends Application {
 	
     /**
      * Returns the property reference for this project.
+     * Not used right now since we use injectors to load properties.
      * @return  the property reference
      */
     public Properties getProperties() {

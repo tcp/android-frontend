@@ -60,10 +60,10 @@ import android.widget.Toast;
 public class MainNetInfActivity extends Activity {
 
     /** Debugging tag. */
-    public static final String TAG = "MainNetInfActivity";
+    private static final String TAG = "MainNetInfActivity";
 
     /** Hash algorithm constant. */
-    public static final String HASH_ALG = "sha-256";
+    private static final String HASH_ALG = "sha-256";
 
     /** Please comment. */
     public static final String NODE_STARTED = "project.cs.list.node.started";
