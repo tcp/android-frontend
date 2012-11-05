@@ -72,7 +72,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     private String mHost;
 
     /** Target Port. **/
-    private int mPort;
+    private String mPort;
 
     /** Message Type. **/
     private RequestType mMessageType;
@@ -99,7 +99,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param hash         Hash
      */
 
-    public NetInfRequest(Activity activity, String host, int port,
+    public NetInfRequest(Activity activity, String host, String port,
             RequestType messageType, String hashAlg, String hash) {
         mActivity = activity;
         mHost = host;
@@ -195,7 +195,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
         }
 
         // Create uri
-        String uri = HTTP + mHost + ":" + Integer.toString(mPort) + mQuery;
+        String uri = HTTP + mHost + ":" + mPort + mQuery;
 
         // Create http client with a timeout
         HttpParams httpParams = new BasicHttpParams();

@@ -29,7 +29,7 @@ public class LisaStarterNodeThread extends Thread {
 //		startN2NAccess();	// Start Node2Node services
 		
 		Intent intent = new Intent();
-		intent.setAction(MainNetInfActivity.NODE_STARTED);
+		intent.setAction(MainNetInfActivity.NODE_STARTED_MESSAGE);
 		mApplication.sendBroadcast(intent);
 	}
 

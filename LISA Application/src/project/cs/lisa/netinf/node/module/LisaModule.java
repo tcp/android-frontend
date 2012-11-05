@@ -51,23 +51,28 @@ public class LisaModule extends AbstractModule  {
 		
 		Log.d(TAG, "Binding 1");
      	bind(MessageEncoder.class).to(MessageEncoderProtobuf.class).in(Singleton.class);
+     	
      	Log.d(TAG, "Binding 2");
 		bind(DatamodelFactory.class).to(DatamodelFactoryImpl.class);
+		
 		Log.d(TAG, "Binding 3");
 	    bind(NetInfNode.class).to(NetInfNodeImpl.class).in(Singleton.class);
+	    
 	    Log.d(TAG, "Binding 4");
 	    bind(AsyncReceiveHandler.class).to(NetInfNodeReceiveHandler.class);
+	    
 	    Log.d(TAG, "Binding 5");
-        bind(ResolutionController.class).to(ResolutionControllerImplWithoutSecurity.class).in(Singleton.class);
+        bind(ResolutionController.class).to(
+                ResolutionControllerImplWithoutSecurity.class).in(Singleton.class);
+        
         Log.d(TAG, "Binding 6");
         bind(ResolutionServiceSelector.class).to(SimpleResolutionServiceSelector.class);
+        
         Log.d(TAG, "Binding 7");
         bind(TransferController.class).to(TransferControllerImpl.class).in(Singleton.class);
+        
         Log.d(TAG, "Binding 8");
         bind(AccessServer.class).to(LisaRESTAccessServer.class).in(Singleton.class);
-		
-
-	      
 	}
 	
 	@Singleton

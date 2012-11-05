@@ -72,17 +72,26 @@ public class MainNetInfActivity extends Activity {
     /** Debugging tag. */
     private static final String TAG = "MainNetInfActivity";
 
-    /** Hash algorithm constant. */
-    private static final String HASH_ALG = "sha-256";
+    /** Hash algorithm property name. */
+    private static final String HASH_ALG_PROPERTY = "hash.alg";
 
-    /** Please comment. */
-    public static final String NODE_STARTED = "project.cs.list.node.started";
+    /** Hash algorithm constant. */
+    private String mHashAlgorithm;
+    
+    /** Local NetInf node property name. */
+    private static final String HOST_PROPERTY = "access.http.host";
 
     /** Local NetInf node that will redirect the request to an NRS. */
-    private static final String HOST = "localhost";
+    private String mHost;
+
+    /** Port property name. */
+    private static final String PORT_PROPERTY = "access.http.port";
 
     /** Port for connecting to the internal NetInf node. */
-    private static final int PORT = 8080;
+    private String mPort;
+
+    /** Please comment. */
+    public static final String NODE_STARTED_MESSAGE = "project.cs.list.node.started";
 
     /** Please comment. */
     private MainApplication mApplication;
@@ -94,7 +103,7 @@ public class MainNetInfActivity extends Activity {
      * The Server listening for incoming Bluetooth requests.
      */
     private BluetoothServer mBluetoothServer;
-    
+
     /** Activity context. */
     private static Context sContext;
 
@@ -106,11 +115,18 @@ public class MainNetInfActivity extends Activity {
         mApplication = (MainApplication) getApplication();
         sContext = this;
 
+        setUpProperties();
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
 
         setContentView(R.layout.activity_demo_sprint2);
+    }
+
+    private void setUpProperties() {
+        mHashAlgorithm = mApplication.getProperties().getProperty(HASH_ALG_PROPERTY);
+        mHost = mApplication.getProperties().getProperty(HOST_PROPERTY);
+        mPort = mApplication.getProperties().getProperty(PORT_PROPERTY);
     }
     
     @Override
@@ -127,18 +143,18 @@ public class MainNetInfActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (getResultCode()) {
-                    default:
-                        Log.d(TAG, intent.getAction());
-                        break;
+                default:
+                    Log.d(TAG, intent.getAction());
+                    break;
                 }
             }
-        }, new IntentFilter(NODE_STARTED));
+        }, new IntentFilter(NODE_STARTED_MESSAGE));
     }
 
     /**
      * Please comment.
      */
-    
+
     private void setupNode() {
         // Start NetInfNode
         mStarterNodeThread = new LisaStarterNodeThread(mApplication);
@@ -149,7 +165,7 @@ public class MainNetInfActivity extends Activity {
      * Gets a file from another node according to the input hash.
      * @param v The view that fired this event.
      */
-    
+
     public final void getButtonClicked(final View v) {
 
         /* Store the input string */
@@ -164,10 +180,10 @@ public class MainNetInfActivity extends Activity {
 
         // Create a new get request with the current hash
         Log.d(TAG, "Requesting the following hash: " + hash.substring(0,3));
-        
+
         NetInfRequest getRequest = new NetInfRequest(
-                this, HOST, PORT,
-                NetInfRequest.RequestType.GET, HASH_ALG, hash.substring(0,3));
+                this, mHost, mPort,
+                NetInfRequest.RequestType.GET, mHashAlgorithm, hash.substring(0,3));
 
         // Execute request
         getRequest.execute();
@@ -204,7 +220,7 @@ public class MainNetInfActivity extends Activity {
      * Publish a file from the image gallery on the phone.
      * Creates the hash and extracts the content type. 
      */
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -231,7 +247,7 @@ public class MainNetInfActivity extends Activity {
             Uri selectedImage = data.getData();
             filePath = selectedImage.getPath();
         }
-        
+
         Log.d(TAG, filePath);
 
         // Open file
@@ -244,7 +260,7 @@ public class MainNetInfActivity extends Activity {
             /* Help class for files, generate the hash */
             LisaHash lisaHash = null;
             String hash = null;
-            
+
             // Try to hash the file
             try {
                 lisaHash = new LisaHash(FileUtils.readFileToByteArray(file));
@@ -311,19 +327,19 @@ public class MainNetInfActivity extends Activity {
             // Publish!
             Log.d(TAG, "Trying to publish a new file.");
             NetInfRequest publishRequest = 
-                    new NetInfRequest(this, HOST, PORT,
-                            NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
+                    new NetInfRequest(this, mHost, mPort,
+                            NetInfRequest.RequestType.PUBLISH, mHashAlgorithm, hash.substring(0,3));
 
             // Execute the publish
-//            try {
-                publishRequest.execute(new String[] {contentType, ""});
-                        //URLEncoder.encode(metaData, "UTF-8")});
-//            }
-//            catch (UnsupportedEncodingException e) {
-//                // TODO Auto-generated catch block
-//                Log.d(TAG, "Error encoding");
-//                e.printStackTrace();
-//            }
+            //            try {
+            publishRequest.execute(new String[] {contentType, ""});
+            //URLEncoder.encode(metaData, "UTF-8")});
+            //            }
+            //            catch (UnsupportedEncodingException e) {
+            //                // TODO Auto-generated catch block
+            //                Log.d(TAG, "Error encoding");
+            //                e.printStackTrace();
+            //            }
         }                       
     }
 
@@ -334,7 +350,7 @@ public class MainNetInfActivity extends Activity {
         mBluetoothServer = new BluetoothServer();
         mBluetoothServer.start();
     }
-    
+
     /**
      * Returns the context of this activity.
      * @return  the context
