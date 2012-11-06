@@ -138,7 +138,8 @@ public class MainNetInfActivity extends Activity {
     }
 
     /**
-     * Please comment.
+     * Receives messages from the StarterNodeThread when the node is starter.
+     * Right now it does not do anything. Just log 
      */
     private void setupBroadcastReceiver() {
         registerReceiver(new BroadcastReceiver() {
@@ -154,9 +155,8 @@ public class MainNetInfActivity extends Activity {
     }
 
     /**
-     * Please comment.
+     * Initialize and run the StarterNodeThread
      */
-
     private void setupNode() {
         // Start NetInfNode
         mStarterNodeThread = new LisaStarterNodeThread(mApplication);
@@ -167,7 +167,6 @@ public class MainNetInfActivity extends Activity {
      * Gets a file from another node according to the input hash.
      * @param v The view that fired this event.
      */
-
     public final void getButtonClicked(final View v) {
 
         /* Store the input string */
@@ -221,8 +220,13 @@ public class MainNetInfActivity extends Activity {
     /**
      * Publish a file from the image gallery on the phone.
      * Creates the hash and extracts the content type. 
+     * @param requestCode The integer request code originally supplied
+     * to startActivityForResult(), allowing you to identify who this result came from.
+     * @param resultCode The integer result code returned 
+     * by the child activity through its setResult().
+     * @param data An Intent, which can return result 
+     * data to the caller (various data can be attached to Intent "extras").
      */
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
