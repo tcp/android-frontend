@@ -91,8 +91,6 @@ public class LisaModule extends AbstractModule  {
         bind(TransferController.class).to(TransferControllerImpl.class).in(Singleton.class);
         Log.d(TAG, "Binding 8");
         bind(AccessServer.class).to(LisaRESTAccessServer.class).in(Singleton.class);
-		
-
 	      
 	}
 	

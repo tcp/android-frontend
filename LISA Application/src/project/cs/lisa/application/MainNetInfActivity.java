@@ -38,7 +38,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import project.cs.lisa.R;
-import project.cs.lisa.application.http.NetInfRequest;
+import project.cs.lisa.application.http.NetInfGet;
+import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.file.LisaFileHandler;
 import project.cs.lisa.hash.LisaHash;
@@ -58,6 +59,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -82,7 +85,7 @@ public class MainNetInfActivity extends Activity {
     private static final String HOST = "localhost";
 
     /** Port for connecting to the internal NetInf node. */
-    private static final int PORT = 8080;
+    private static final String PORT = "8080";
 
     /** Please comment. */
     private MainApplication mApplication;
@@ -98,6 +101,9 @@ public class MainNetInfActivity extends Activity {
     /** Activity context. */
     private static Context sContext;
 
+    /** Toast. **/
+    private Toast mToast;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +111,8 @@ public class MainNetInfActivity extends Activity {
 
         mApplication = (MainApplication) getApplication();
         sContext = this;
-
+        mToast = new Toast(this);
+        
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
@@ -115,6 +122,7 @@ public class MainNetInfActivity extends Activity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.activity_demo_sprint2, menu);
         return true;
     }
@@ -123,6 +131,7 @@ public class MainNetInfActivity extends Activity {
      * Please comment.
      */
     private void setupBroadcastReceiver() {
+        Log.d(TAG, "setupBroadcastReceiver()");
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -140,6 +149,7 @@ public class MainNetInfActivity extends Activity {
      */
     
     private void setupNode() {
+        Log.d(TAG, "setupNode()");
         // Start NetInfNode
         mStarterNodeThread = new LisaStarterNodeThread(mApplication);
         mStarterNodeThread.start();
@@ -151,7 +161,8 @@ public class MainNetInfActivity extends Activity {
      */
     
     public final void getButtonClicked(final View v) {
-
+        Log.d(TAG, "getButtonClicked()");
+        
         /* Store the input string */
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
@@ -165,9 +176,7 @@ public class MainNetInfActivity extends Activity {
         // Create a new get request with the current hash
         Log.d(TAG, "Requesting the following hash: " + hash.substring(0,3));
         
-        NetInfRequest getRequest = new NetInfRequest(
-                this, HOST, PORT,
-                NetInfRequest.RequestType.GET, HASH_ALG, hash.substring(0,3));
+        NetInfGet getRequest = new NetInfGet(this, HOST, PORT, HASH_ALG, hash.substring(0,3));
 
         // Execute request
         getRequest.execute();
@@ -194,6 +203,8 @@ public class MainNetInfActivity extends Activity {
      */
     // TODO: Deprecated? Although I think it is better opening image/* for now
     public final void publishButtonClicked(final View v) {
+        Log.d(TAG, "publishButtonClicked()");
+        
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -207,6 +218,7 @@ public class MainNetInfActivity extends Activity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult()");
 
         if (resultCode != RESULT_OK) {
             return;
@@ -310,13 +322,15 @@ public class MainNetInfActivity extends Activity {
 
             // Publish!
             Log.d(TAG, "Trying to publish a new file.");
-            NetInfRequest publishRequest = 
-                    new NetInfRequest(this, HOST, PORT,
-                            NetInfRequest.RequestType.PUBLISH, HASH_ALG, hash.substring(0,3));
-
+            NetInfPublish publishRequest = 
+                    new NetInfPublish(this, HOST, PORT, HASH_ALG, hash.substring(0,3));
+            publishRequest.setContentType(contentType);
+//          publishRequest.setMetadata(lisaMetaData.convertToString());
+            publishRequest.execute();
+            
             // Execute the publish
 //            try {
-                publishRequest.execute(new String[] {contentType, ""});
+//                publishRequest.execute(new String[] {contentType, ""});
                         //URLEncoder.encode(metaData, "UTF-8")});
 //            }
 //            catch (UnsupportedEncodingException e) {
@@ -331,6 +345,7 @@ public class MainNetInfActivity extends Activity {
      * Initiates and starts the Bluetooth Server.
      */
     private void setupBluetoothServer() {
+        Log.d(TAG, "setupBluetoothServer()");
         mBluetoothServer = new BluetoothServer();
         mBluetoothServer.start();
     }
@@ -340,6 +355,54 @@ public class MainNetInfActivity extends Activity {
      * @return  the context
      */
     public static Context getContext() {
+        Log.d(TAG, "getContext()");
         return sContext;
     }
+    
+    /**
+     * Show a toast.
+     * @param text      The text to show in the toast.
+     */
+    public void showToast(String text) {
+        Log.d(TAG, "showToast()");
+        mToast.cancel();
+        mToast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+        mToast.show();
+    }
+    
+    /**
+     * Cancel current toast.
+     */
+    private void cancelToast() {
+        Log.d(TAG, "cancelToast()");
+        mToast.cancel();
+    }
+    
+    /**
+     * Hides the progress bar.
+     */
+    private void hideProgressBar() {
+        Log.d(TAG, "hideProgressBar()");
+        ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar1);
+        pb.setVisibility(ProgressBar.INVISIBLE);
+        ProgressBar pb1 = (ProgressBar) findViewById(R.id.progressbar_Horizontal);
+        pb1.setVisibility(ProgressBar.INVISIBLE);
+        TextView tv = (TextView) findViewById(R.id.ProgressBarText);
+        tv.setVisibility(TextView.INVISIBLE);
+    }
+    
+    /**
+     * Shows the progress bar.
+     * @param text String with the text to show to the user. Normally informs
+     *             if we are publishing, searching or requesting content.
+     */
+    private void showProgressBar(String text) {
+        Log.d(TAG, "showProgressBar()");
+        ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar1);
+        pb.setVisibility(ProgressBar.VISIBLE);
+        TextView tv = (TextView) findViewById(R.id.ProgressBarText);
+        tv.setVisibility(TextView.VISIBLE);
+        tv.setText(text);
+    }
+    
 }

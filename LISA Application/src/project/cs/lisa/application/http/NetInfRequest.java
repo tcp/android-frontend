@@ -26,11 +26,23 @@
  */
 package project.cs.lisa.application.http;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
 import project.cs.lisa.R;
+import project.cs.lisa.application.MainNetInfActivity;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -49,7 +61,7 @@ import android.widget.Toast;
  *
  */
 
-public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
+public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
 
     /** Debug Log Tag. **/
     private static final String TAG = "NetInfRequest";
@@ -63,7 +75,7 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
     private static final int TIMEOUT = 6000000;
 
     /** Calling Activity. **/
-    private Activity mActivity;
+    private MainNetInfActivity mActivity;
 
     // TODO inject from properties
     /** Target Host. **/
@@ -83,10 +95,7 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
     private String mHash;
 
     /** The rest of the URI. **/
-    private HashMap<String, String> mQueryVariables;
-    
-    /** Toast. **/
-    private Toast mToast;
+    private HashMap<String, String> mQueryVariables = new HashMap<String, String>();
 
     /**
      * Create a new asynchronous NetInf message sent using HTTP GET.
@@ -97,30 +106,59 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param hash         Hash
      */
 
-    public NetInfRequest(Activity activity, String host, String port, String hashAlg, String hash) {
+    public NetInfRequest(MainNetInfActivity activity, String host, String port, String hashAlg, String hash) {
+        Log.d(TAG, "NetInfRequest()");
         mActivity = activity;
         mHost = host;
         mPort = port;
         mPathPrefix = "";
         mHashAlg = hashAlg;
         mHash = hash;
-        // TODO move to activity
-        mToast = new Toast(activity);
     }
 
     /**
-     * Runs on the UI thread before doInBackground().
-     */
-    @Override
-    protected abstract void onPreExecute();
-
-    /**
      * Sends the NetInf request to the local node using HTTP.
-     * @param params    Content-type, Meta-data
-     * @return          JSON response to the NetInf request sent as HTTP.
+     * @param   voids   Nothing.
+     * @return          JSON response to the NetInf request sent as HTTP
+     *                  or null if the request failed.
      */
     @Override
-    protected abstract String doInBackground(String... params);
+    protected String doInBackground(Void... voids) {
+        Log.d(TAG, "doInBackground()");
+
+        // HTTP client with a timeout
+        HttpParams httpParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT);
+        HttpClient client = new DefaultHttpClient(httpParams);
+
+        // HTTP GET and response
+        HttpGet get = new HttpGet(getUri());
+
+        Log.d(TAG, "doInBackground(), Executing Http Get: " + getUri());
+
+        // Execute the HTTP GET
+        HttpResponse response = null;
+        try {
+            response = client.execute(get);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        String jsonResponse = null;
+        try {
+            HttpEntity entity = response.getEntity();
+            InputStream input = entity.getContent();
+            jsonResponse = streamToString(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Could not read json from HTTP response.");
+            e.printStackTrace();
+        }
+        
+        return jsonResponse;  
+    }
 
     /**
      * Handles the response to the sent NetInf message.
@@ -134,7 +172,8 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param input A input stream
      * @return      String representation of the input stream
      */
-    protected String streamToString(Readable input) {
+    protected String streamToString(InputStream input) {
+        Log.d(TAG, "streamToString()");
         try {
             // Read the stream from beginning to beginning.
             // That is everything into one token.
@@ -150,6 +189,9 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param value The value of the query key
      */
     protected void addQuery(String key, String value) {
+        Log.d(TAG, "addQuery()");
+        Log.d(TAG, "key = " + key);
+        Log.d(TAG, "value = " + value);
         mQueryVariables.put(key, value);
     }
     
@@ -158,11 +200,13 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
      * @return The query string
      */
     protected String getQueryString() {
+        Log.d(TAG, "getQueryString()");
         StringBuilder queryString = new StringBuilder();
         boolean first = true;
         for (String key : mQueryVariables.keySet()) {
             if (first) {
                 queryString.append("?");
+                first = false;
             } else {
                 queryString.append("&");
             }
@@ -178,6 +222,7 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
      * @return The HTTP URI
      */
     protected String getUri() {
+        Log.d(TAG, "getUri()");
         StringBuilder uri = new StringBuilder();
         uri.append(HTTP);
         uri.append(mHost);
@@ -193,55 +238,28 @@ public abstract class NetInfRequest extends AsyncTask<String, Void, String> {
         return uri.toString();
     }
     
+    /**
+     * Gets the creating activity.
+     * @return      The creating activity.
+     */
+    protected MainNetInfActivity getActivity() {
+        Log.d(TAG, "getActivity()");
+        return mActivity;
+    }
+    
+    /**
+     * Sets the HTTP path prefix for the HTTP GET request send to the local NetInf node.
+     * Should be set before do in background is called.
+     * At time of writing should be either "ni" or "bo".
+     * "ni" for a NetInf PUBLISH request
+     * "bo" for a NetInf GET request
+     *  // TODO straighten this interface out 
+     * @param pathPrefix    "ni" or "bo"
+     */
     protected void setPathPrefix(String pathPrefix) {
+        Log.d(TAG, "setPathPrefix()");
+        Log.d(TAG, "pathPrefix = " + pathPrefix);
         mPathPrefix = pathPrefix;
     }
-    
-    // TODO move to activity
-    /**
-     * Function that hides the ProgressBar associated with the demo_sprint2 view.
-     */
-    private void hideProgressBar() {
-        Log.d(TAG, "hideProgressBar()");
-        ProgressBar pb = (ProgressBar) mActivity.findViewById(R.id.progressBar1);
-        pb.setVisibility(ProgressBar.INVISIBLE);
-        ProgressBar pb1 = (ProgressBar) mActivity.findViewById(R.id.progressbar_Horizontal);
-        pb1.setVisibility(ProgressBar.INVISIBLE);
-        TextView tv = (TextView) mActivity.findViewById(R.id.ProgressBarText);
-        tv.setVisibility(TextView.INVISIBLE);
-    }
-    
-    // TODO move to activity
-    /**
-     * Function that shows the ProgressBar associated with the demo_sprint2 view.
-     * @param text String with the text to show to the user. Normally informs
-     *             if we are publishing, searching or requesting content.
-     */
-    private void showProgressBar(String text) {
-        ProgressBar pb = (ProgressBar) mActivity.findViewById(R.id.progressBar1);
-        pb.setVisibility(ProgressBar.VISIBLE);
-        TextView tv = (TextView) mActivity.findViewById(R.id.ProgressBarText);
-        tv.setVisibility(TextView.VISIBLE);
-        tv.setText(text);
-    }
 
-    // TODO move to activity
-    /**
-     * Function that shows a Toast to the user.
-     * @param text String that will be shown in the toast
-     */
-    private void showToast(String text) {
-        mToast.cancel();
-        mToast = Toast.makeText(mActivity.getApplicationContext(), text,
-                Toast.LENGTH_LONG);
-        mToast.show();
-    }
-
-    // TODO move to activity
-    /**
-     * Kill any toast that is on display.
-     */
-    private void killToast() {
-        mToast.cancel();
-    }
 }
