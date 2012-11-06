@@ -91,18 +91,16 @@ public class MainNetInfActivity extends Activity {
     /** Port for connecting to the internal NetInf node. */
     private String mPort;
 
-    /** Please comment. */
+    /** Message communicating if the node were started successfully. */
     public static final String NODE_STARTED_MESSAGE = "project.cs.list.node.started";
 
-    /** Please comment. */
+    /** Reference to the global application state. */
     private MainApplication mApplication;
 
     /** Please comment. */
     private LisaStarterNodeThread mStarterNodeThread;
 
-    /**
-     * The Server listening for incoming Bluetooth requests.
-     */
+    /** The Server listening for incoming Bluetooth requests. */
     private BluetoothServer mBluetoothServer;
 
     /** Activity context. */
@@ -124,6 +122,9 @@ public class MainNetInfActivity extends Activity {
         setContentView(R.layout.activity_demo_sprint2);
     }
 
+    /**
+     * Initiates fields with corresponding properties.
+     */
     private void setUpProperties() {
         mHashAlgorithm = mApplication.getProperties().getProperty(HASH_ALG_PROPERTY);
         mHost = mApplication.getProperties().getProperty(HOST_PROPERTY);
