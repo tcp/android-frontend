@@ -1,0 +1,16 @@
+1	MainApplication
+		load properties
+		create injector
+
+2	MainActivity
+		create NetInfStarterNodeThread
+		start NetInfStarterNodeThread
+
+3	NetInfStarterNodeThread
+		
+
+FreePastry-2.1.jar failed to convert
+	Conversion to Dalvik format failed: Unable to execute dex: Java heap space
+	LISA Application
+	Unknown	Android Packaging Problem
+
