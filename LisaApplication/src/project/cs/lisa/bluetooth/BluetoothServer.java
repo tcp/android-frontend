@@ -56,8 +56,10 @@ public class BluetoothServer extends Thread {
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
-    /** Sending/Done macros */
+    /** Sending macro. */
     private static final int SENDING = 0;
+    
+    /** Done macro. */
     private static final int DONE = 1;
     
     /** The buffer for reading in the hash out of a file request message. */

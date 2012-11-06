@@ -36,7 +36,6 @@ import android.widget.Toast;
  * We return a toast to the user stating that.
  * @author Thiago Costa Porto
  */
-
 public class LisaFileHandler {
     public static final int ERR_NULL_PATH_RECEIVED = -1;
     public static final int ERR_NULL_TYPE_RECEIVED = -2;
@@ -46,6 +45,7 @@ public class LisaFileHandler {
     public static final int ERR_FAILED_TO_FIND_APP = -6;
     public static final int OK = 1;
     
+    /** Debug flag. */
     private static final String TAG = "DisplayFile";
     
     /**
