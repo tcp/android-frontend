@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+    <item android:id="@+id/menu_share"
+        android:title="@string/menu_share"
+        android:checkable="true"
+        android:orderInCategory="1" />
+            
+    <item android:id="@+id/menu_server_settings"
+        android:title="@string/menu_server_settings"
+        android:orderInCategory="2" />
+    
+    <item android:id="@+id/menu_help"
+        android:title="@string/menu_help"
+        android:orderInCategory="3" />
+    
+</menu>
