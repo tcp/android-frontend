@@ -1,0 +1,28 @@
+<resources>
+
+    <string name="app_name">NetInfCS</string>
+    <string name="menu_settings">Settings</string>
+    <string name="activity_http_title">HTTP Activity</string>
+    <string name="text_host_hint">Host Address</string>
+    <string name="text_host_default">130.238.15.222</string>
+    <string name="text_message_hint">Message</string>
+    <string name="text_message_default">123</string>
+    <string name="text_port_hint">Port</string>
+    <string name="text_port_default">1055</string>
+    <string name="server_response">Server Response</string>
+    <string name="button_get">SEND</string>
+    <string name="button_clear">Clear Log</string>
+    <string name="text_wifi_state">WiFi connection</string>
+    <string name="text_wifi_connected">WiFi connection</string>
+    <string name="text_wifi_config">WiFi Settings</string>
+    <string name="text_available_networks">Available Networks</string>
+    <string name="text_scan_for_wifi">Scan for Wifi Networks</string>
+    <string name="text_BT_Connected">Bluetooth Connection</string>
+    <string name="text_BT_connection">Bluetooth Connection</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity">NetInfCS</string>
+    <string name="get_button">Fetch File</string>
+    <string name="publish_button">Publish File</string>
+    <string name="enter_hash">Enter the hash value</string>
+
+</resources>
