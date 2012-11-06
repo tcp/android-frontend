@@ -1,5 +1,18 @@
 /**
-
+ * Copyright 2012 Ericsson, Uppsala University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -10,9 +23,6 @@
  * distributed system and to give hands-on experience on modern construction
  * principles and programming methods.
  *
- * All rights reserved.
- *
- * Copyright (C) 2012 LISA team
  */
 package project.cs.lisa.bluetooth;
 
@@ -27,7 +37,6 @@ import java.util.UUID;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.MainNetInfActivity;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
@@ -52,14 +61,16 @@ public class BluetoothServer extends Thread {
 	/** Debug Tag. */
 	private static final String TAG = "BluetoothServer";
 	
-	/** Unique UUID. For more information see {@link project.cs.lisa.bluetooth.provider#MY_UUID} */
+	/** 
+	 * Unique UUID. For more information see 
+	 * {@link project.cs.lisa.bluetooth.provider#MY_UUID} */
     private static final UUID MY_UUID =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-
-    /** Sending macro. */
+    
+    /** User feedback: Flag indicating that application is transferring data. */
     private static final int SENDING = 0;
     
-    /** Done macro. */
+    /** User feedback: Flag indicating that application is done with the transfer. */
     private static final int DONE = 1;
     
     /** The buffer for reading in the hash out of a file request message. */
@@ -81,29 +92,23 @@ public class BluetoothServer extends Thread {
 	private DataOutputStream mOutStream;
 	
     /** The directory containing the published files. */
-    private String mSharedFolder = 
-    		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+    private String mSharedFolder;
 	
 	/**
 	 * Creates a new BluetoothServer that waits for incoming
 	 * bluetooth requests and handles file requests.
 	 */
-	
     public BluetoothServer() {
-	    // Creates shared folder
 	    createSharedFolder();
 
-	    // Get default adapter from Bluetooth
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
-		
-		/* Start listening for incoming pairing requests. No authorization from the user
-		 * is needed in order to pair with another device. */
-		BluetoothServerSocket tmp = null;
-		
+		BluetoothServerSocket tmp = null;		
 		try {
+			
+			// Start listening for incoming pairing requests. 
 			tmp = mBtAdapter.listenUsingRfcommWithServiceRecord(TAG, MY_UUID);
-		}
-		catch (IOException e) {
+			
+		} catch (IOException e) {
 			Log.e(TAG, "Bluetooth Server Socket couldn't be initialized.");
 		}
 		
@@ -118,14 +123,15 @@ public class BluetoothServer extends Thread {
 		
 		while (mServerListens) {
 			try {
-				/* Accept an incoming pairing request */
+				// Accept an incoming pairing request 
 				socket = mBtServerSocket.accept();
 				Log.d(TAG, "Accepted Request");
-			}
-			catch (IOException e) {
+				
+			} catch (IOException e) {
 				Log.e(TAG, "Error occured during wating for an incoming pairing request.");
-				e.printStackTrace();
-				break;
+				Log.d(TAG, "Starts listening again.");
+				
+				socket = null;
 			}
 			
 			if (socket != null) {
@@ -139,14 +145,14 @@ public class BluetoothServer extends Thread {
 	/**
 	 * Shuts down the current server client connection.
 	 */
-	
 	public void cancel() {
 		try {
 			Log.d(TAG, "Close BluetoothServerSocket. Stop listening.");
+			
 			mServerListens = false;
 			mBtServerSocket.close();
-		}
-		catch (IOException e) {
+			
+		} catch (IOException e) {
 			Log.e(TAG, "Error while closing Bluetooth socket");
 		}
 	}
@@ -154,7 +160,6 @@ public class BluetoothServer extends Thread {
 	/**
 	 * Creates the folder that contains the files to be shared with other phones.
 	 */
-	
 	private void createSharedFolder() {
 		File folder = new File(mSharedFolder);
 		
@@ -174,15 +179,14 @@ public class BluetoothServer extends Thread {
 	 * 
 	 * @param socket	The socket used for the communication to the remote device.
 	 */
-	
 	private void cleanUp(BluetoothSocket socket) {
 		try {
-			/* Clean up open streams and sockets. */
+			// Clean up open streams and sockets. 
 			mOutStream.close();
 			mInStream.close();
 			socket.close();
-		}
-		catch (IOException e) {
+			
+		} catch (IOException e) {
 			Log.e(TAG, "Closing the bluetooth socket failed.");
 		}
 	}
@@ -193,14 +197,15 @@ public class BluetoothServer extends Thread {
 	 * 
 	 * @param socket	The socket for reading and writing.
 	 */
-
 	private void setUpIoStreams(BluetoothSocket socket) {
+		Log.d(TAG, "Setting up streams for reading and writing files.");
+		
 		try {
 			mInStream = new DataInputStream(socket.getInputStream());
 			mOutStream = new DataOutputStream(socket.getOutputStream());
-		}
-		catch (IOException e) {
-			Log.d(TAG, "Failed creating the streams for communicating.");
+			
+		} catch (IOException e) {
+			Log.e(TAG, "Failed creating the streams for communicating.");
 		}
 	}
 
@@ -212,17 +217,18 @@ public class BluetoothServer extends Thread {
 	 */
 	
 	private void handleIncomingRequest(BluetoothSocket socket) {
-		/* Receive the hash */
-		String hash = readHash(socket);
-		Log.d(TAG, "Received hash: " + hash);
+		Log.d(TAG, "Handle the incoming file request..");
 		
-		/* Find the file on the device */
+		// Receive the hash
+		String hash = readHash(socket);
+
+		// Find the file on the device 
 		File file = getFileByHash(hash);
 		
-		/* Create a byte array representation of the file */
+		// Create a byte array representation of the file 
 		byte[] fileData = toByteArray(file);
 		
-		/* Send the data to the remote device */
+		// Send the data to the remote device 
 		writeFile(fileData);
 	}
 
@@ -236,24 +242,26 @@ public class BluetoothServer extends Thread {
 		Log.d(TAG, "Sending file of size: " + buffer.length); 
 
 		try {
+			// Send data and inform UI about sending process. 
+			onBufferSend(SENDING); 
 			mOutStream.writeInt(buffer.length);
-			onBufferSend(SENDING); // updates UI to inform that file is being sent
 			mOutStream.write(buffer, 0, buffer.length);
 			mOutStream.flush();
-			onBufferSend(DONE); // updates UI to hide the sending file box
+			
 			Log.d(TAG, "Done writing file to remote device.");
-		}
-		catch (IOException e) {
+			onBufferSend(DONE); // updates UI to hide the sending file box
+			
+		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
 		}		
 	}
 
 	/**
-	 * Function that updates view to display that phone is sending file
+	 * Function that updates view to display that phone is sending file.
+	 * 
 	 * @param done 0 for Sending
 	 *             1 for Sent
 	 */
-	
 	public void onBufferSend(final int done) {
 	    final Activity activity = (Activity) MainNetInfActivity.getContext();
 	    
@@ -268,8 +276,7 @@ public class BluetoothServer extends Thread {
 	               tv.setText("Sending file");
 	               tv.setVisibility(TextView.VISIBLE);
 	               pb.setVisibility(ProgressBar.VISIBLE);
-	           }
-	           else {
+	           } else {
 	               tv.setVisibility(TextView.INVISIBLE);
 	               pb.setVisibility(ProgressBar.INVISIBLE);
 	           }
@@ -283,9 +290,9 @@ public class BluetoothServer extends Thread {
 	 * @param file	The file we want to convert.
 	 * @return		The byte array that corresponds to the file.
 	 */
-
-
 	private byte[] toByteArray(File file) {
+		Log.d(TAG, "Converting requested file to a byte array.");
+		
 		byte[] fileByteArray = new byte[(int) file.length()];
 		FileInputStream fis;
 		
@@ -314,7 +321,6 @@ public class BluetoothServer extends Thread {
 	 * @param hash	The identfier of the file we request.
 	 * @return		The file that is identified with the specified hash
 	 */
-
 	private File getFileByHash(String hash) {
 		
 		String filepath = mSharedFolder + hash;
@@ -322,28 +328,23 @@ public class BluetoothServer extends Thread {
 	
 		return requestedFile;
 	}
-
 	/**
 	 * Reads and returns the hash that is received through the current socket.
 	 * 
 	 * @param socket	The bluetooth socket used for communicating with the remote device
 	 * @return			The hash that is read from the socket.
 	 */
-
 	private String readHash(BluetoothSocket socket) {
 		
 		byte[] buffer = new byte[BUFFER_SIZE];
 		int length;
 		
 		String readHash = "";
-		
 		try {
-	
 			length = mInStream.read(buffer);
 			readHash = new String(buffer, 0, length);
 			
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			Log.e(TAG, "Couldn't extract streams for Bluetooth transmission.");
 		}
 		
