@@ -92,7 +92,8 @@ public class BluetoothServer extends Thread {
 	private DataOutputStream mOutStream;
 	
     /** The directory containing the published files. */
-    private String mSharedFolder;
+    private String mSharedFolder = 
+    		Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
 	
 	/**
 	 * Creates a new BluetoothServer that waits for incoming
