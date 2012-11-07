@@ -41,7 +41,7 @@ import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfGet;
 import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.bluetooth.BluetoothServer;
-import project.cs.lisa.file.LisaFileHandler;
+import project.cs.lisa.file.FileHandler;
 import project.cs.lisa.hash.LisaHash;
 import project.cs.lisa.metadata.LisaMetadata;
 import project.cs.lisa.netinf.node.LisaStarterNodeThread;
@@ -269,7 +269,7 @@ public class MainNetInfActivity extends Activity {
 
         if (file.exists()) {            
             /* Help class for files, extract content type */
-            String contentType = LisaFileHandler.getFileContentType(filePath);
+            String contentType = FileHandler.getFileContentType(filePath);
 
             /* Help class for files, generate the hash */
             LisaHash lisaHash = null;
@@ -327,7 +327,7 @@ public class MainNetInfActivity extends Activity {
             // Metadata has 3 fields: filesize, filename and filetype
             lisaMetaData.insert("filesize", String.valueOf(file.length()));
             lisaMetaData.insert("filename", file.getName());
-            lisaMetaData.insert("filetype", LisaFileHandler.getFileContentType(filePath));
+            lisaMetaData.insert("filetype", FileHandler.getFileContentType(filePath));
 
             // Convert metadata into readable format
             String metaData = lisaMetaData.convertToString();

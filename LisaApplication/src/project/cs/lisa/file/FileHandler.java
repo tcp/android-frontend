@@ -37,7 +37,7 @@ import android.widget.Toast;
  * @author Thiago Costa Porto
  */
 
-public class LisaFileHandler {
+public class FileHandler {
     public static final int ERR_NULL_PATH_RECEIVED = -1;
     public static final int ERR_NULL_TYPE_RECEIVED = -2;
     public static final int ERR_EMPTY_PATH_RECEIVED = -3;
