@@ -123,7 +123,6 @@ public enum TransferDispatcher {
         String hash = io.getIdentifier().getIdentifierLabel(
         		SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 
-
         // Tries to retrieve the BO from the first possible locator. 
         for (String currentLocator : availableFilteredBluetoothLocators) {
 
