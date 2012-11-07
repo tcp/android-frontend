@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
  * (Full list of owners see http://www.netinf.org/about-2/license)
  * 

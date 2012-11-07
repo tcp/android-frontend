@@ -119,7 +119,8 @@ public class MainNetInfActivity extends Activity {
     }
 
     /**
-     * Please comment.
+     * Receives messages from the StarterNodeThread when the node is starter.
+     * Right now it does not do anything. Just log 
      */
     private void setupBroadcastReceiver() {
         Log.d(TAG, "setupBroadcastReceiver()");
@@ -136,7 +137,7 @@ public class MainNetInfActivity extends Activity {
     }
 
     /**
-     * Please comment.
+     * Initialize and run the StarterNodeThread
      */
 
     private void setupNode() {
@@ -209,8 +210,13 @@ public class MainNetInfActivity extends Activity {
     /**
      * Publish a file from the image gallery on the phone.
      * Creates the hash and extracts the content type. 
+     * @param requestCode The integer request code originally supplied
+     * to startActivityForResult(), allowing you to identify who this result came from.
+     * @param resultCode The integer result code returned 
+     * by the child activity through its setResult().
+     * @param data An Intent, which can return result 
+     * data to the caller (various data can be attached to Intent "extras").
      */
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult()");
