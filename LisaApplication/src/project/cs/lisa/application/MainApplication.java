@@ -94,7 +94,7 @@ public class MainApplication extends Application {
     public Injector getInjector() {
     	Log.d(TAG, "getInjector()");
     	return mInjector;
-    }
+    }    
     
     /**
      * Loads properties from the passed property file.
