@@ -46,6 +46,7 @@ public class FileHandler {
     public static final int ERR_FAILED_TO_FIND_APP = -6;
     public static final int OK = 1;
     
+    /** Debug flag. */
     private static final String TAG = "DisplayFile";
     
     /**
