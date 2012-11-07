@@ -75,6 +75,10 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 	private static final Random randomGenerator = new Random();
 	private HttpClient mClient; 
 	
+	/**
+	 * Creates a new Name Resolution Service
+	 * @param datamodelFactory creates different objects necessary in the NetInf model
+	 */
 	@Inject
 	public NameResolutionService(DatamodelFactory datamodelFactory) {
 	    // Setup HTTP client
@@ -96,6 +100,7 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 		return "backend NRS";
 	}
 
+	
 	@Override
 	public InformationObject get(Identifier identifier) {
 		Log.d(TAG,"get()");
@@ -283,6 +288,15 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 		
 	}
 	
+	/**
+	 * Creates an HTTP Post request to publish an IO in the NRS
+	 * @param hashAlg the used hash algorithm 
+	 * @param hash the resulting hash
+	 * @param contentType the MIME content type of the file
+	 * @param bluetoothMac the Bluetooth MAC Address of the device where the node is running
+	 * @param meta A string with JSON formatted meta-data related to the file
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
     private HttpPost createPublish(String hashAlg, String hash, String contentType, String bluetoothMac, String meta) {
 	    HttpPost post = null;
@@ -334,6 +348,11 @@ public class NameResolutionService extends LisaAbstractResolutionServiceWithoutI
 		return post;
 	}
 
+	/**
+	 * reates an HTTP Post request to get an IO from the NRS
+	 * @param uri the NetInf format URI for getting IOs
+	 * @return The HTTP Post request
+	 */
 	private static HttpPost createGet(String uri)  {
 		
 		HttpPost post = new HttpPost(NRS_SERVER + ":" + NRS_SERVER_PORT +"/netinfproto/get"); 

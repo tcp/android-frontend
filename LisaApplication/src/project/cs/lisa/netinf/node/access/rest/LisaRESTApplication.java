@@ -22,6 +22,11 @@ public class LisaRESTApplication extends Application {
 		/** Implementation of a DatamodelFacotry */
 		private DatamodelFactory datamodelFactory;
 
+		/**
+		 * Contructs a new RESTful Application
+		 * @param connection Connection with the NetInf node
+		 * @param factory creates different objects necessary in the NetInf model
+		 */
 		public LisaRESTApplication(NetInfNodeConnection connection, DatamodelFactory factory) {
 			// Disable Restlet Logging
 			java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");

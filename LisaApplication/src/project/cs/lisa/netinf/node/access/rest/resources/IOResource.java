@@ -56,6 +56,11 @@ public class IOResource extends LisaServerResource {
         
 	}
 
+	/**
+	 * Handle the get request from the RESTful server and routes it according to the method
+	 * @return an Information Object if it is a GET request
+	 * 		   null if it is a PUT request
+	 */
 	@Get
 	public InformationObject handleGet() {
 		Log.d(TAG, "handleGet()");
@@ -74,11 +79,18 @@ public class IOResource extends LisaServerResource {
 		}
 	}
 	
+	/**
+	 * Not use yet
+	 */
 	@Post
 	public void handlePost() {
 		Log.d(TAG, "handlePost()");
 	}
 	
+	/**
+	 * Gets an IO given its name
+	 * @return the IO that the NetInf node got.
+	 */
     private InformationObject getIO(){
         
         InformationObject io = null;
@@ -96,6 +108,9 @@ public class IOResource extends LisaServerResource {
         return io;      
     }
     
+    /**
+     * Publish an IO
+     */
     private void putIO(){
         
         //Create dummy IO
