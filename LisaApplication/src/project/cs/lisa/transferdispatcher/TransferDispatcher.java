@@ -4,13 +4,16 @@
  * 
  * All rights reserved.
  * 
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
  * 
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright notice,
- *       this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- *     * Neither the name of the University of Paderborn nor the names of its contributors may be used to endorse
+ *       this list of conditions and the following disclaimer in the documentation
+ *       and/or other materials provided with the distribution.
+ *     * Neither the name of the University of Paderborn nor the names of its contributors
+ *       may be used to endorse
  *       or promote products derived from this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
@@ -23,8 +26,22 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/**
 
+/**
+ * Copyright 2012 Ericsson, Uppsala University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -35,9 +52,6 @@
  * distributed system and to give hands-on experience on modern construction
  * principles and programming methods.
  *
- * All rights reserved.
- *
- * Copyright (C) 2012 LISA team
  */
 package project.cs.lisa.transferdispatcher;
 
@@ -65,31 +79,21 @@ import android.util.Log;
  */
 public enum TransferDispatcher {
 
-    /**
-     * The Transfer Dispatcher instance.
-     */
+    /** The Transfer Dispatcher instance. */
     INSTANCE;
 
-    /**
-     * The debug tag.
-     */
+    /** The debug tag. */
     private static final String TAG = "TransferDispatcher";
 
-    /**
-     * The list of available byte array providers.
-     */
+    /** The list of available byte array providers. */
     private List<ByteArrayProvider> mByteArrayProviders;
 
-    /**
-     * Initializes the Transfer Dispatcher.
-     */
+    /** Initializes the Transfer Dispatcher. */
     TransferDispatcher() {
         addByteArrayProviders();
     }
 
-    /**
-     * Adds available ByteArrayProviders to the TransferDispatcher.
-     */   
+    /** Adds available ByteArrayProviders to the TransferDispatcher. */   
     private void addByteArrayProviders() {
         mByteArrayProviders = new ArrayList<ByteArrayProvider>();
         mByteArrayProviders.add(new BluetoothProvider());
@@ -116,7 +120,7 @@ public enum TransferDispatcher {
         String hash = io.getIdentifier().getIdentifierLabel(
         		SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 
-        /* Tries to retrieve the BO from the first possible locator. */
+        // Tries to retrieve the BO from the first possible locator.
         for (String currentLocator : availableFilteredBluetoothLocators) {
 
         	resultArray = getByteArray(currentLocator, hash);         
@@ -153,7 +157,7 @@ public enum TransferDispatcher {
         	stringLocators.add(locator.getValue(String.class));
         }
         
-        /* Keep only those locators that are available right now */
+        // Keep only those locators that are available right now
         stringLocators.retainAll(availableLocators);
         
         Log.d(TAG, "Filtered locator list: " + stringLocators.toString());

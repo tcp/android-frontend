@@ -1,5 +1,18 @@
 /**
-
+ * Copyright 2012 Ericsson, Uppsala University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -10,10 +23,8 @@
  * distributed system and to give hands-on experience on modern construction
  * principles and programming methods.
  *
- * All rights reserved.
- *
- * Copyright (C) 2012 LISA team
  */
+
 package project.cs.lisa.bluetooth.provider;
 
 import java.io.DataInputStream;
@@ -44,17 +55,7 @@ public class BluetoothProvider implements ByteArrayProvider {
     /** Debug Tag. */
     private static final String TAG = "BluetoothProvider";
 
-    /**
-     * Universally unique identifier so that two or more devices
-     * can establish a connection through the same service (in this case Bluetooth).
-     * At design time rather than agreeing upon a port number the server and client
-     * applications agree upon a unique identifier. Specifically, a developer chooses
-     * this UUID at design time and when the program is run, it registers its Service ID
-     * with the SDP server for that device. A client application trying to find a
-     * specific service would query the SDP server on each device it finds to see
-     * if the device offers any services with that same UUID.
-     * The following UUID was generated using http://www.famkruithof.net/uuid/uuidgen.
-     */
+    /** The Constant MY_UUID. */
     private static final UUID MY_UUID = UUID
             .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 

@@ -27,7 +27,6 @@
 package project.cs.lisa.application;
 
 import project.cs.lisa.netinf.node.module.Module;
-import project.cs.lisa.util.UProperties;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
