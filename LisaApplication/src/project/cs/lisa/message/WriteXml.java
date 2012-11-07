@@ -8,7 +8,7 @@ import org.xmlpull.v1.XmlSerializer;
 import android.util.Log;
 import android.util.Xml;
 
-public class LisaWriteXml {
+public class WriteXml {
 	/**
 	 * This function creates a new XML element based on the string that was set
 	 * previously.

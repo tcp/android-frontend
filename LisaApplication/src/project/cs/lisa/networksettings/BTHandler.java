@@ -15,7 +15,7 @@ import android.widget.ToggleButton;
  * @author Thiago Costa Porto
  */
 
-public class LisaBTHandler {
+public class BTHandler {
     private final String TAG = "LisaBTHandler";
     private BluetoothAdapter mBluetoothAdapter;
     private IntentFilter mIntentFilter;

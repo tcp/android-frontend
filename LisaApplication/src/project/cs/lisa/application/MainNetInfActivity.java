@@ -42,9 +42,9 @@ import project.cs.lisa.application.http.NetInfGet;
 import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.file.FileHandler;
-import project.cs.lisa.hash.LisaHash;
-import project.cs.lisa.metadata.LisaMetadata;
-import project.cs.lisa.netinf.node.LisaStarterNodeThread;
+import project.cs.lisa.hash.Hash;
+import project.cs.lisa.metadata.Metadata;
+import project.cs.lisa.netinf.node.StarterNodeThread;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -101,7 +101,7 @@ public class MainNetInfActivity extends Activity {
     private MainApplication mApplication;
 
     /** Please comment. */
-    private LisaStarterNodeThread mStarterNodeThread;
+    private StarterNodeThread mStarterNodeThread;
 
     /** The Server listening for incoming Bluetooth requests. */
     private BluetoothServer mBluetoothServer;
@@ -169,7 +169,7 @@ public class MainNetInfActivity extends Activity {
     private void setupNode() {
         Log.d(TAG, "setupNode()");
         // Start NetInfNode
-        mStarterNodeThread = new LisaStarterNodeThread(mApplication);
+        mStarterNodeThread = new StarterNodeThread(mApplication);
         mStarterNodeThread.start();
     }
 
@@ -272,12 +272,12 @@ public class MainNetInfActivity extends Activity {
             String contentType = FileHandler.getFileContentType(filePath);
 
             /* Help class for files, generate the hash */
-            LisaHash lisaHash = null;
+            Hash lisaHash = null;
             String hash = null;
 
             // Try to hash the file
             try {
-                lisaHash = new LisaHash(FileUtils.readFileToByteArray(file));
+                lisaHash = new Hash(FileUtils.readFileToByteArray(file));
                 hash = lisaHash.encodeResult(3); // Use 0 for using the whole hash 
                 Log.d(TAG, "The generated hash is: " + hash);
             }
@@ -322,7 +322,7 @@ public class MainNetInfActivity extends Activity {
             }
 
             // Create meta data
-            LisaMetadata lisaMetaData = new LisaMetadata();
+            Metadata lisaMetaData = new Metadata();
 
             // Metadata has 3 fields: filesize, filename and filetype
             lisaMetaData.insert("filesize", String.valueOf(file.length()));

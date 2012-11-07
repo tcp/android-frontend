@@ -21,7 +21,7 @@ import netinf.node.transfer.impl.TransferControllerImpl;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import project.cs.lisa.netinf.node.access.rest.LisaRESTAccessServer;
+import project.cs.lisa.netinf.node.access.rest.RESTAccessServer;
 import project.cs.lisa.netinf.node.resolution.NameResolutionService;
 
 import android.util.Log;
@@ -31,13 +31,13 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
-public class LisaModule extends AbstractModule  {
+public class Module extends AbstractModule  {
 
 	public static final String TAG = "Module";
 	
 	private Properties mProperties;
 	
-	public LisaModule(Properties properties) {
+	public Module(Properties properties) {
 		Log.d(TAG, "Module()");
 		mProperties = properties;
 	}
@@ -72,7 +72,7 @@ public class LisaModule extends AbstractModule  {
         bind(TransferController.class).to(TransferControllerImpl.class).in(Singleton.class);
         
         Log.d(TAG, "Binding 8");
-        bind(AccessServer.class).to(LisaRESTAccessServer.class).in(Singleton.class);
+        bind(AccessServer.class).to(RESTAccessServer.class).in(Singleton.class);
 	}
 	
 	@Singleton

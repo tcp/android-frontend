@@ -55,7 +55,7 @@ import netinf.common.exceptions.NetInfCheckedException;
 import org.restlet.resource.Get;
 
 import project.cs.lisa.application.MainApplication;
-import project.cs.lisa.metadata.LisaMetadata;
+import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
 import android.media.MediaScannerConnection;
@@ -152,7 +152,7 @@ public class BOResource extends LisaServerResource {
                 // Fetch metadata from IO
                 String metaData = 
                         io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
-                LisaMetadata metaLabel = new LisaMetadata(metaData);
+                Metadata metaLabel = new Metadata(metaData);
 
                 // Set saving filename to the same filename as in metadata
                 filePath = mSharedFolder + metaLabel.get("filename");
@@ -163,7 +163,7 @@ public class BOResource extends LisaServerResource {
                 makeFileVisibleToPhone(filePath, contentType);
 
                 // Make a new metadata to pass along the content_type and filepath
-                LisaMetadata lisaMetadata = new LisaMetadata();
+                Metadata lisaMetadata = new Metadata();
                 lisaMetadata.insert(CONTENT_TYPE, contentType);
                 lisaMetadata.insert(FILEPATH, filePath);
 

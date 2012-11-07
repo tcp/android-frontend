@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-public class LisaMetadata {
+public class Metadata {
 
     // Class TAG
     private final String TAG = "MetadataClass";
@@ -19,7 +19,7 @@ public class LisaMetadata {
      * Constructor
      */
     
-    public LisaMetadata() {
+    public Metadata() {
         mJSONObject = new JSONObject();
     }
     
@@ -28,7 +28,7 @@ public class LisaMetadata {
      * @param _JSONString Formatted JSON String
      */
     
-    public LisaMetadata(String _JSONString) {
+    public Metadata(String _JSONString) {
         mJSONObject = null;
         try {
             mJSONObject = new JSONObject(_JSONString);
@@ -48,7 +48,7 @@ public class LisaMetadata {
      * @param value String with the value
      */
     
-    public LisaMetadata(String key, String value) {
+    public Metadata(String key, String value) {
         mJSONObject = new JSONObject();
         insert(key, value);
     }
@@ -62,7 +62,7 @@ public class LisaMetadata {
      * @param value Array of values
      */
     
-    public LisaMetadata(String[] key, String[] value) {
+    public Metadata(String[] key, String[] value) {
         mJSONObject = new JSONObject();
         
         if (key.length != value.length) {

@@ -15,7 +15,7 @@ import org.restlet.routing.Router;
 import project.cs.lisa.netinf.node.access.rest.resources.BOResource;
 import project.cs.lisa.netinf.node.access.rest.resources.IOResource;
 
-public class LisaRESTApplication extends Application {
+public class RESTApplication extends Application {
 	
 		/** Connection to a NetInfNode */
 		private NetInfNodeConnection nodeConnection;
@@ -27,7 +27,7 @@ public class LisaRESTApplication extends Application {
 		 * @param connection Connection with the NetInf node
 		 * @param factory creates different objects necessary in the NetInf model
 		 */
-		public LisaRESTApplication(NetInfNodeConnection connection, DatamodelFactory factory) {
+		public RESTApplication(NetInfNodeConnection connection, DatamodelFactory factory) {
 			// Disable Restlet Logging
 			java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
 			Handler[] handlers = rootLogger.getHandlers();

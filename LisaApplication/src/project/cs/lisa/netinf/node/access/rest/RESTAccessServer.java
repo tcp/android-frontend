@@ -13,7 +13,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 
-public class LisaRESTAccessServer implements AccessServer {
+public class RESTAccessServer implements AccessServer {
 
 	   private Component component;
 
@@ -24,10 +24,10 @@ public class LisaRESTAccessServer implements AccessServer {
 	    * @param factory creates different objects necessary in the NetInf model
 	    */
 	   @Inject
-	   public LisaRESTAccessServer(@Named("access.http.port") int port, LocalNodeConnection connection, DatamodelFactory factory) {
+	   public RESTAccessServer(@Named("access.http.port") int port, LocalNodeConnection connection, DatamodelFactory factory) {
 	      component = new Component();
 	      component.getServers().add(Protocol.HTTP, port);
-	      Application application = new LisaRESTApplication(connection, factory);
+	      Application application = new RESTApplication(connection, factory);
 	      component.getDefaultHost().attach(application);
 	   }
 	   

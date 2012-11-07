@@ -44,7 +44,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * @author Thiago Costa Porto
  */
 
-public class LisaNetworkSettings extends Activity {
+public class NetworkSettings extends Activity {
     // Debug Tag
     private static final String TAG = "WiFiDeviceList";
 
@@ -57,7 +57,7 @@ public class LisaNetworkSettings extends Activity {
     private IntentFilter iFilter;
 
     // Wifi Handler
-    private LisaWifiHandler wifi;
+    private WifiHandler wifi;
 
     // vars
     private boolean scanning = false;
@@ -74,7 +74,7 @@ public class LisaNetworkSettings extends Activity {
         setContentView(R.layout.show_networks);
 
         // init wifi
-        wifi = new LisaWifiHandler(this);
+        wifi = new WifiHandler(this);
 
         // Activity result
         setResult(Activity.RESULT_CANCELED);
@@ -297,7 +297,7 @@ public class LisaNetworkSettings extends Activity {
 
                 // Refresh settings
                 // TODO: Create refresh configs method in WifiHandler
-                wifi = new LisaWifiHandler(context);
+                wifi = new WifiHandler(context);
                 Log.d(TAG, "wifi.wifiInfo is " + wifi.wifiInfo);
 
                 // Check if its connected

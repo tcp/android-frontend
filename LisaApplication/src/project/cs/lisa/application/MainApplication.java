@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import project.cs.lisa.netinf.node.module.LisaModule;
+import project.cs.lisa.netinf.node.module.Module;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -71,7 +71,7 @@ public class MainApplication extends Application {
         /* Pass the property reference to the injector.
          * Properties can be loaded by using @Named("name_of_the_property")
          */
-        mInjector = Guice.createInjector(new LisaModule(mProperties));
+        mInjector = Guice.createInjector(new Module(mProperties));
         
         /* Get the context of this application */
         sContext = getApplicationContext();

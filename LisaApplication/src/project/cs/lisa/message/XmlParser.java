@@ -10,7 +10,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.util.Log;
 import android.util.Xml;
 
-public class LisaXmlParser extends DefaultHandler {
+public class XmlParser extends DefaultHandler {
 	private static final String namespace = null; /* we dont use namespace */
 	
 	XmlPullParser parser;

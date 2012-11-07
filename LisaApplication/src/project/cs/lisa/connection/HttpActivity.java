@@ -17,7 +17,7 @@
 package project.cs.lisa.connection;
 
 import project.cs.lisa.R;
-import project.cs.lisa.networksettings.LisaNetworkSettings;
+import project.cs.lisa.networksettings.NetworkSettings;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

@@ -33,7 +33,7 @@ import netinf.common.datamodel.IdentifierLabel;
 import org.restlet.resource.ServerResource;
 
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
-import project.cs.lisa.netinf.node.access.rest.LisaRESTApplication;
+import project.cs.lisa.netinf.node.access.rest.RESTApplication;
 
 /**
  * Abstract resource that provides a NetInfNodeConnection and a DatamodelFactory.
@@ -49,7 +49,7 @@ public abstract class LisaServerResource extends ServerResource {
      */
 
     protected NetInfNodeConnection getNodeConnection() {
-        return ((LisaRESTApplication) getApplication()).getNodeConnection();
+        return ((RESTApplication) getApplication()).getNodeConnection();
     }
 
     /**
@@ -58,7 +58,7 @@ public abstract class LisaServerResource extends ServerResource {
      * @return A concrete DatamodelFactory
      */
     protected DatamodelFactory getDatamodelFactory() {
-        return ((LisaRESTApplication) getApplication()).getDatamodelFactory();
+        return ((RESTApplication) getApplication()).getDatamodelFactory();
     }
 
     /**

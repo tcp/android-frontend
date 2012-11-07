@@ -46,13 +46,13 @@ import org.apache.log4j.Logger;
  * 
  * @author PG Augnet 2, University of Paderborn
  */
-public abstract class LisaAbstractResolutionServiceWithoutId implements ResolutionService {
+public abstract class AbstractResolutionServiceWithoutId implements ResolutionService {
 
-   private static final Logger LOG = Logger.getLogger(LisaAbstractResolutionServiceWithoutId.class);
+   private static final Logger LOG = Logger.getLogger(AbstractResolutionServiceWithoutId.class);
    private final List<EventPublisher> eventPublishers;
    private ResolutionServiceIdentityObject identityObject;
 
-   public LisaAbstractResolutionServiceWithoutId() {
+   public AbstractResolutionServiceWithoutId() {
       eventPublishers = new ArrayList<EventPublisher>();
    }
 

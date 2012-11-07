@@ -51,7 +51,7 @@ import android.util.Log;
 
 import com.google.inject.Inject;
 
-public class NameResolutionService extends LisaAbstractResolutionServiceWithoutId implements ResolutionService {
+public class NameResolutionService extends AbstractResolutionServiceWithoutId implements ResolutionService {
 
 	
 	private static final String TAG = "NameResolutionService";

@@ -9,14 +9,14 @@ import project.cs.lisa.application.MainNetInfActivity;
 import android.content.Intent;
 import android.util.Log;
 
-public class LisaStarterNodeThread extends Thread {
+public class StarterNodeThread extends Thread {
 	
 	public static final String TAG = "StarterNodeThread";
 	
 	private NetInfNode mNode;
 	private MainApplication mApplication;
 	
-	public LisaStarterNodeThread(MainApplication application) {
+	public StarterNodeThread(MainApplication application) {
 		mApplication = application;
 	}
 	

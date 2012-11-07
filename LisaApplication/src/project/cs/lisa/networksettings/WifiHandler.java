@@ -24,7 +24,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
-public class LisaWifiHandler {
+public class WifiHandler {
     //constants
     public static final int WEP = 1;
     public static final int WAP = 2;
@@ -42,7 +42,7 @@ public class LisaWifiHandler {
      * Constructor initializes WifiManager and WifiInfo.
      * @param context
      */
-    public LisaWifiHandler(Context context) {
+    public WifiHandler(Context context) {
         wifiMgr  = getWifiManager(context);		// gets wifiMgr in the current context 
         wifiInfo = getWifiInfo(context);			// gets wifiInfo in the current context
         wifiConf = getWifiConf(context);			// gets wifiConf in the current context

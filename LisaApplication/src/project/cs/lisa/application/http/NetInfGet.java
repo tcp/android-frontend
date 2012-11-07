@@ -28,7 +28,7 @@ package project.cs.lisa.application.http;
 
 import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.file.FileHandler;
-import project.cs.lisa.metadata.LisaMetadata;
+import project.cs.lisa.metadata.Metadata;
 import android.util.Log;
 
 /**
@@ -70,7 +70,7 @@ public class NetInfGet extends NetInfRequest {
         
         try {
             // Parse the JSON
-            LisaMetadata json = new LisaMetadata(jsonResponse);
+            Metadata json = new Metadata(jsonResponse);
             String filePath = json.get("filePath");
             String contentType = json.get("contentType");
             Log.d(TAG, "contentType = " + contentType);

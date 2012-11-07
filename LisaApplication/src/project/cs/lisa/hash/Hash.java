@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class LisaHash {
+public class Hash {
     /**
      * LISA uses this hash code from Anders. Read below for more info. We changed the name of the
      * class from HashingSHA256_EncodingBase64URL to LisaHash because its easier to our
@@ -79,7 +79,7 @@ public class LisaHash {
         map1[i++] = '_'; // base64url
     }
 
-    public LisaHash (byte[] byteArray){          
+    public Hash (byte[] byteArray){          
         mByteArray = byteArray;
     }
 
