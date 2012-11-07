@@ -58,11 +58,17 @@ public class BluetoothProvider implements ByteArrayProvider {
     /** The Constant MY_UUID. */
     private static final UUID MY_UUID = UUID
             .fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+    
+    /** All bluetooth locators have the following indicator in their address. */
+    private static final String BLUETOOTH_LOCATOR_INDICATOR = "nimacbt";
 
     /** The Bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter = null;
 
-    /** Default constructor. */
+    /** 
+     * Creates a BluetoothProvider that will handle data transmission
+     * via Bluetooth. 
+     */
     public BluetoothProvider() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
@@ -70,13 +76,13 @@ public class BluetoothProvider implements ByteArrayProvider {
     /**
      * Returns a byte array after a successful connection and transmission
      * of a BO.
+     * 
      * @param   locator     The source from where to fetch the BO
      * @param   hash        A hash identifying the BO
      * @return  The byte array referring to the requested BO
      */
     @Override
     public byte[] getByteArray(String locator, String hash) {
-
         byte[] fileArray = null;
         BluetoothSocket socket = null;
 
@@ -89,10 +95,9 @@ public class BluetoothProvider implements ByteArrayProvider {
 
             // Download file
             fileArray = downloadFile(socket);
+            
         } catch (IOException e) {
             Log.e(TAG, "Trying to close the socket due to a fail in the connection...");
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
             
             if (socket != null) {
                 try {
@@ -160,6 +165,7 @@ public class BluetoothProvider implements ByteArrayProvider {
         DataInputStream inStream = null;
         byte[] buffer = null;
 
+
         // Get the input stream for receiving the file
         inStream = new DataInputStream(socket.getInputStream());
         final int fileSize = inStream.readInt();
@@ -181,7 +187,7 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Function that updates the view with the bytes that have been received.
      * @param offset how many bytes have been received
      * @param fileSize total file size
-     */
+     */    
     public void onBufferRead(final int offset, final int fileSize) {
 
         // Get the activity from the main activity
@@ -201,17 +207,18 @@ public class BluetoothProvider implements ByteArrayProvider {
 
     /**
      * Checks if this provider can handle the locator from where to retrieve a BO.
+     * 
      * @param   locator     The locator from where to retrieve the BO
      * @return  A boolean that specifies if this provider can handle the locator or not.
      */
-    // TODO: Handle something?
     @Override
     public boolean canHandle(String locator) {
-        return true;
+    	return locator.contains(BLUETOOTH_LOCATOR_INDICATOR);
     }
 
     /**
      * Description of this provider.
+     *
      * @return A description of this provider? 
      */
     @Override
