@@ -47,6 +47,14 @@ public class FileHandler {
     public static final int OK = 1;
     
     private static final String TAG = "DisplayFile";
+    
+    /**
+     * 
+     * @param context Pass the context of the application
+     * @param path Path of the file to be display
+     * @param mimetype Content type of the file to be display
+     * @return
+     */
     @SuppressWarnings("unused")
     public static int displayContent(Context context, String path, String mimetype) {
         Intent mIntent;

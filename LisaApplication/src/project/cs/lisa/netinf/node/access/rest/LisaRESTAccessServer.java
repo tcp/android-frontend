@@ -17,6 +17,12 @@ public class LisaRESTAccessServer implements AccessServer {
 
 	   private Component component;
 
+	   /**
+	    * Constructor that creates a new RESTful server
+	    * @param port the connection port (is injected)
+	    * @param connection the connection to the node 
+	    * @param factory creates different objects necessary in the NetInf model
+	    */
 	   @Inject
 	   public LisaRESTAccessServer(@Named("access.http.port") int port, LocalNodeConnection connection, DatamodelFactory factory) {
 	      component = new Component();
