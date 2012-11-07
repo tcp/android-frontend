@@ -204,22 +204,24 @@ public enum TransferDispatcher {
          */
 
         Log.d(TAG, "Connecting to the following locator: " + locator);
-
+        
         ByteArrayProvider provider = getByteArrayProvider(locator);
         if (provider != null) {
-        	return provider.getByteArray(locator, hash);
+        	String locatorAddress = extractLocatorAddress(locator);
+        	return provider.getByteArray(locatorAddress, hash);
+        	
         } else {
         	return null;
         }
     }   
 
-    /**
+	/**
      * Provides the appropriate ByteArrayProvider.
      * 
      * @param locator	The locator from where the file will be fetched
      * @return The specific ByteArrayProvider.
      */
-    ByteArrayProvider getByteArrayProvider(String locator) {
+    private ByteArrayProvider getByteArrayProvider(String locator) {
         for (ByteArrayProvider provider : mByteArrayProviders) {
             if (provider.canHandle(locator)) {
                 Log.d(TAG, "Choosing the following provider: " + provider.describe());
@@ -228,4 +230,18 @@ public enum TransferDispatcher {
         }
         return null;
     }    
+    
+    /**
+     * Extracts and returns the mac address of the locator from
+     * the ni address.
+     *
+     * @param locator	The locator's ni address.
+     * @return			The mac address
+     */
+    private String extractLocatorAddress(String locator) {
+		String macAddress = locator.split("://")[1];
+		Log.d(TAG, "The locator's mac address: " + macAddress);
+		
+		return macAddress;
+	}
 }
