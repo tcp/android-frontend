@@ -86,7 +86,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     /** The rest of the URI. **/
     private String mQuery;
     
-    /** Toast **/
+    /** Toast. **/
     private Toast mToast;
 
     /**
@@ -180,7 +180,6 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * Sends the HTTP GET request containing the netInf message to the target.
      * @param params   Either null or two strings with content type and meta data
      */
-    
     @Override
     protected String doInBackground(String... params) {
         Log.d(TAG, "doInBackground()");
@@ -248,9 +247,8 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
 
     /**
      * Handles the response to the sent NetInf message.
-     * @param response     The HTTP Response
+     * @param _JSONString The JSON response. 
      */
-    
     @Override
     protected void onPostExecute(String _JSONString) { 	
         Log.d(TAG, "onPostExecute()");
@@ -287,7 +285,7 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * 
      * The contentType came from the NRS bounded with the name of the file.
      * 
-     * @param response  The response from this background thread. 
+     * @param _JSONString  The response from this background thread. 
      */
     
     private void handleGetResponse(String _JSONString) {
@@ -350,10 +348,8 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
     /**
      * Extracts the HashMap from a NetInf Get response.
      * @param response  the HTTP response
-     * @return          a HashMap containing the keys "filePath" and "contentType"
-     *                  with their respective values set appropriately
+     * @return          a String with JSON format that contents the response
      */
-    
     private String readGetResponse(HttpResponse response) {
         Log.d(TAG, "readGetResponse()");
 
@@ -387,7 +383,6 @@ public class NetInfRequest extends AsyncTask<String, Void, String> {
      * @param input A input stream
      * @return String representation of the input stream
      */
-    
     private String streamToString(InputStream input) {
         try {
             return new Scanner(input).useDelimiter("\\A").next();

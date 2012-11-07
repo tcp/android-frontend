@@ -33,6 +33,9 @@ public class LisaStarterNodeThread extends Thread {
 		mApplication.sendBroadcast(intent);
 	}
 
+	/**
+	 * Begin all the resolution services
+	 */
 	private void startResolution() {
 		Log.d(TAG, "startResolution()");
 		Log.d(TAG, "getting resolution controller...");
@@ -56,6 +59,9 @@ public class LisaStarterNodeThread extends Thread {
 		}
 	}
 	
+	/**
+	 * Enable access to the RESTful services
+	 */
 	private void startAPIAccess() {
 		Log.d(TAG, "startAPIAccess()");
 		AccessServer accessServer = mApplication.getInjector().getInstance(AccessServer.class);

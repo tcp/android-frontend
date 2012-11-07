@@ -10,27 +10,27 @@ public class LisaHash {
      * class from HashingSHA256_EncodingBase64URL to LisaHash because its easier to our
      * eyes.
 
-    // Creates a sha-256 hash of an input file, and makes a base64url encoding of the hash. 
-    // Finally, a NetInf name prefix is added. 
-    // The base64 code below is borrowed from Christian d'Heureuse, see the license terms below.
-    // I have modified this code to base64url
-    // Anders E
+     * Creates a sha-256 hash of an input file, and makes a base64url encoding of the hash. 
+     * Finally, a NetInf name prefix is added. 
+     * The base64 code below is borrowed from Christian d'Heureuse, see the license terms below.
+     * I have modified this code to base64url
+     * Anders E
 
-    // Copyright 2003-2010 Christian d'Heureuse, Inventec Informatik AG, Zurich, Switzerland
-    // www.source-code.biz, www.inventec.ch/chdh
-    //
-    // This module is multi-licensed and may be used under the terms
-    // of any of the following licenses:
-    //
-    //  EPL, Eclipse Public License, V1.0 or later, http://www.eclipse.org/legal
-    //  LGPL, GNU Lesser General Public License, V2.1 or later, http://www.gnu.org/licenses/lgpl.html
-    //  GPL, GNU General Public License, V2 or later, http://www.gnu.org/licenses/gpl.html
-    //  AL, Apache License, V2.0 or later, http://www.apache.org/licenses
-    //  BSD, BSD License, http://www.opensource.org/licenses/bsd-license.php
-    //  MIT, MIT License, http://www.opensource.org/licenses/MIT
-    //
-    // Please contact the author if you need another license.
-    // This module is provided "as is", without warranties of any kind.
+     * Copyright 2003-2010 Christian d'Heureuse, Inventec Informatik AG, Zurich, Switzerland
+     * www.source-code.biz, www.inventec.ch/chdh
+     *
+     * This module is multi-licensed and may be used under the terms
+     * of any of the following licenses:
+     *
+     *  EPL, Eclipse Public License, V1.0 or later, http://www.eclipse.org/legal
+     *  LGPL, GNU Lesser General Public License, V2.1 or later, http://www.gnu.org/licenses/lgpl.html
+     *  GPL, GNU General Public License, V2 or later, http://www.gnu.org/licenses/gpl.html
+     *  AL, Apache License, V2.0 or later, http://www.apache.org/licenses
+     *  BSD, BSD License, http://www.opensource.org/licenses/bsd-license.php
+     *  MIT, MIT License, http://www.opensource.org/licenses/MIT
+     *
+     * Please contact the author if you need another license.
+     * This module is provided "as is", without warranties of any kind.
      *
      **/
 

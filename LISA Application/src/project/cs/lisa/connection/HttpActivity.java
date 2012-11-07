@@ -43,6 +43,7 @@ public class HttpActivity extends Activity {
 //	/** Receiver. **/
 //	private BroadcastReceiver mReceiver;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,15 +123,5 @@ public class HttpActivity extends Activity {
 //    	log.setText(text);
 //    }
     
-    public void onClickWifi(View view) {
-    	Button wifi_button = (Button) findViewById(R.id.button1);
-    	wifi_button.setOnClickListener(new OnClickListener() {
-    		public void onClick(View v) {
-    			//setContentView(R.layout.activity_wifi);
-    		}
-    	});
-    	Intent intent = new Intent(this, LisaNetworkSettings.class);
-    	startActivity(intent);
-    }
     
 }
