@@ -26,15 +26,10 @@
  */
 package project.cs.lisa.application;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import project.cs.lisa.netinf.node.module.Module;
+import util.UProperties;
 import android.app.Application;
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.util.Log;
 
 import com.google.inject.Guice;
@@ -46,73 +41,36 @@ import com.google.inject.Injector;
  */
 public class MainApplication extends Application {
 
-	/** Property files that contains the properties for this project. */
-    public static final String PROPERTIES = "config.properties";
-    
     /** Debugging tag. */
-	public static final String TAG = "MainApplication";
-	
-	/** Reference to properties loaded in the project. */
-	private Properties mProperties;
-	
-	/** Injector for injecting classes. */	
-	private Injector mInjector;
-	
-	/** The context for this application. */
-	private static Context sContext;
-	
+    public static final String TAG = "MainApplication";
+
+    /** Injector for injecting classes. */	
+    private Injector mInjector;
+
+    /** The context for this application. */
+    private static Context sContext;
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate()");
-        loadProperties(PROPERTIES);
         Log.d(TAG, "Creating injector...");
-        
-        /* Pass the property reference to the injector.
-         * Properties can be loaded by using @Named("name_of_the_property")
-         */
-        mInjector = Guice.createInjector(new Module(mProperties));
-        
-        /* Get the context of this application */
+
+        // Get the context of this application
         sContext = getApplicationContext();
+
+        mInjector = Guice.createInjector(new Module());
     }
-	
-    /**
-     * Returns the property reference for this project.
-     * Not used right now since we use injectors to load properties.
-     * @return  the property reference
-     */
-    public Properties getProperties() {
-    	Log.d(TAG, "getProperties()");
-    	return mProperties;
-    }
-    
+
     /**
      * Returns the injector for injecting classes.
      * @return  the injector
      */
     public Injector getInjector() {
-    	Log.d(TAG, "getInjector()");
-    	return mInjector;
+        Log.d(TAG, "getInjector()");
+        return mInjector;
     }
-    
-    /**
-     * Loads properties from the passed property file.
-     * @param property the property file to be loaded
-     */
-    private void loadProperties(String property) {
-    	Log.d(TAG, "loadProperties()");
-    	mProperties = new Properties();
-    	try {
-	    	Resources resources = getResources();
-	    	AssetManager assets = resources.getAssets();
-	    	InputStream is = assets.open(property);
-	    	mProperties.load(is);
-    	} catch (IOException e) {
-    		Log.e(TAG, e.toString(), e);
-    	}
-    }
-    
+
     /**
      * Returns the current application context.
      * This is useful i.e. for registering broadcast receivers.

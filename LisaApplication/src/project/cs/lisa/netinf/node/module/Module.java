@@ -23,7 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import project.cs.lisa.netinf.node.access.rest.RESTAccessServer;
 import project.cs.lisa.netinf.node.resolution.NameResolutionService;
-
+import util.UProperties;
 import android.util.Log;
 
 import com.google.inject.AbstractModule;
@@ -35,11 +35,8 @@ public class Module extends AbstractModule  {
 
 	public static final String TAG = "Module";
 	
-	private Properties mProperties;
-	
-	public Module(Properties properties) {
+	public Module() {
 		Log.d(TAG, "Module()");
-		mProperties = properties;
 	}
 	
 	@Override
@@ -47,7 +44,7 @@ public class Module extends AbstractModule  {
 		Log.d(TAG, "configure()");
 		
 		Log.d(TAG, "bindProperties()");
-		Names.bindProperties(binder(), mProperties);
+		Names.bindProperties(binder(), UProperties.INSTANCE.getProperty());
 		
 		Log.d(TAG, "Binding 1");
      	bind(MessageEncoder.class).to(MessageEncoderProtobuf.class).in(Singleton.class);

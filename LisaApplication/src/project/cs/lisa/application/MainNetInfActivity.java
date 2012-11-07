@@ -45,6 +45,7 @@ import project.cs.lisa.file.FileHandler;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.node.StarterNodeThread;
+import util.UProperties;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -76,24 +77,6 @@ public class MainNetInfActivity extends Activity {
     /** Debugging tag. */
     private static final String TAG = "MainNetInfActivity";
 
-    /** Hash algorithm property name. */
-    private static final String HASH_ALG_PROPERTY = "hash.alg";
-
-    /** Hash algorithm constant. */
-    private String mHashAlgorithm;
-    
-    /** Local NetInf node property name. */
-    private static final String HOST_PROPERTY = "access.http.host";
-
-    /** Local NetInf node that will redirect the request to an NRS. */
-    private String mHost;
-
-    /** Port property name. */
-    private static final String PORT_PROPERTY = "access.http.port";
-
-    /** Port for connecting to the internal NetInf node. */
-    private String mPort;
-
     /** Message communicating if the node were started successfully. */
     public static final String NODE_STARTED_MESSAGE = "project.cs.list.node.started";
 
@@ -121,7 +104,6 @@ public class MainNetInfActivity extends Activity {
         sContext = this; 
         mToast = new Toast(this);
         
-        setUpProperties();
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
@@ -129,15 +111,6 @@ public class MainNetInfActivity extends Activity {
         setContentView(R.layout.activity_main);
     }
 
-    /**
-     * Initiates fields with corresponding properties.
-     */
-    private void setUpProperties() {
-        mHashAlgorithm = mApplication.getProperties().getProperty(HASH_ALG_PROPERTY);
-        mHost = mApplication.getProperties().getProperty(HOST_PROPERTY);
-        mPort = mApplication.getProperties().getProperty(PORT_PROPERTY);
-    }
-    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu()");
@@ -194,7 +167,11 @@ public class MainNetInfActivity extends Activity {
         // Create a new get request with the current hash
         Log.d(TAG, "Requesting the following hash: " + hash.substring(0,3));
 
-        NetInfGet getRequest = new NetInfGet(this, mHost, mPort, mHashAlgorithm, hash.substring(0,3));
+        NetInfGet getRequest = new NetInfGet(this,
+                UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+                UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+                UProperties.INSTANCE.getPropertyWithName("hash.alg"),
+                hash.substring(0,3));
 
         // Execute request
         getRequest.execute();
@@ -341,8 +318,11 @@ public class MainNetInfActivity extends Activity {
             // Publish!
             Log.d(TAG, "Trying to publish a new file.");
 
-            NetInfPublish publishRequest = 
-                    new NetInfPublish(this, mHost, mPort, mHashAlgorithm, hash.substring(0,3));
+            NetInfPublish publishRequest = new NetInfPublish(this,
+                    UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+                    UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+                    UProperties.INSTANCE.getPropertyWithName("hash.alg"),
+                    hash.substring(0,3));
             publishRequest.setContentType(contentType);
 //          publishRequest.setMetadata(lisaMetaData.convertToString());
             publishRequest.execute();
