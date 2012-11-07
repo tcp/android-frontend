@@ -24,7 +24,7 @@
  * principles and programming methods.
  *
  */
-package util;
+package project.cs.lisa.util;
 
 import java.io.IOException;
 import java.io.InputStream;

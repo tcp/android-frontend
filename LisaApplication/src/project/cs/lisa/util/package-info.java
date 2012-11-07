@@ -1,4 +1,4 @@
 /**
  * Provides general utility classes.
  */
-package util;
+package project.cs.lisa.util;

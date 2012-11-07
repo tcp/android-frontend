@@ -23,7 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import project.cs.lisa.netinf.node.access.rest.RESTAccessServer;
 import project.cs.lisa.netinf.node.resolution.NameResolutionService;
-import util.UProperties;
+import project.cs.lisa.util.UProperties;
 import android.util.Log;
 
 import com.google.inject.AbstractModule;

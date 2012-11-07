@@ -45,7 +45,7 @@ import project.cs.lisa.file.FileHandler;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.node.StarterNodeThread;
-import util.UProperties;
+import project.cs.lisa.util.UProperties;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
