@@ -56,7 +56,7 @@ public enum BluetoothDiscovery {
     private static final String TAG = "BluetoothDiscovery";
 
     /** The Bluetooth adapter. */
-    private BluetoothAdapter mBluetoothAdapter = null;
+    private BluetoothAdapter mBluetoothAdapter;
 
     /** A broadcast receiver for intercepting broadcast messages i.e. Bluetooth activity. */
     private BroadcastReceiver mBroadcastReceiver;
@@ -72,7 +72,7 @@ public enum BluetoothDiscovery {
      */
     private BluetoothDiscovery() {
 
-        // Setup a broadcast receiver for being notified when a new device was found.
+        // Setup a broadcast receiver for being notified when a new device was found
         setUpBroadcastReceiver();
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -104,7 +104,7 @@ public enum BluetoothDiscovery {
             Log.e(TAG, "Timeout sleep was interrupted.");
         }
 
-        // Discovery done, cancel it.
+        // Discovery done, cancel it
         mBluetoothAdapter.cancelDiscovery();
         
         Log.d(TAG, "Bluetooth discovery is finished.");
@@ -126,15 +126,16 @@ public enum BluetoothDiscovery {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
+                // A new Bluetooth device was found during the Bluetooth discovery
                 if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                     BluetoothDevice device = intent
                             .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                    // This checks the Bluetooth signal strength of the surrounding devices.
+                    // This checks the Bluetooth signal strength of the surrounding devices
                     short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
                     Log.d(TAG, device.getName() + ", " + device.getAddress() + ", " + rssi + " dB");
                     
-                    // Updates the list of available devices. 
+                    // Updates the list of available devices
                     mAvailableDevices.add(device.getAddress());            
                 }
             }

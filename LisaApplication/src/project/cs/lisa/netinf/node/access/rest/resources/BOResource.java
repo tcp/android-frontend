@@ -25,7 +25,20 @@
  */
 
 /**
-
+ * Copyright 2012 Ericsson, Uppsala University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -36,9 +49,6 @@
  * distributed system and to give hands-on experience on modern construction
  * principles and programming methods.
  *
- * All rights reserved.
- *
- * Copyright (C) 2012 LISA team
  */
 
 package project.cs.lisa.netinf.node.access.rest.resources;
@@ -97,7 +107,6 @@ public class BOResource extends LisaServerResource {
     /**
      * Initializes the context of a BOResource.
      */
-
     @Override
     protected void doInit() {
         super.doInit();
@@ -115,7 +124,6 @@ public class BOResource extends LisaServerResource {
      * @return The Map that contains the information about the file: First key:
      *         the file path Second key: the content type of the file
      */
-
     @Get
     public String retrieveBO() {
         Log.d(TAG, "Trying to retrieve the BO.");
@@ -125,19 +133,19 @@ public class BOResource extends LisaServerResource {
         String contentType = "";
         String returnString = null;
 
-        /* Retrieve a data object from a node (could be an NRS) */
+        // Retrieve a data object from a node (could be an NRS)
         InformationObject io = retrieveDO();	
 
-        /* Retrieve the data corresponding to the hash from another device. */
+        // Retrieve the data corresponding to the hash from another device.
         if (io != null) {
-            /* Store the content type of the requested BO */
+            // Store the content type of the requested BO 
             contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
 
             Log.d(TAG, "Trying to receive file with the following content type: " + contentType);
 
-            /* Attempt to transfer the BO from a remote device */
+            // Attempt to transfer the BO from a remote device 
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
 
             try {
@@ -147,8 +155,9 @@ public class BOResource extends LisaServerResource {
                 Log.e(TAG, "Couldn't retrieve the requested data.");
             }
 
-            /* Writes the received data to file */ 
+            // Writes the received data to file  
             if (fileData != null) {
+            	
                 // Fetch metadata from IO
                 String metaData = 
                         io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
@@ -189,7 +198,6 @@ public class BOResource extends LisaServerResource {
      * 
      * @return The IO that contains the locator list.
      */
-
     private InformationObject retrieveDO() {
         Log.d(TAG, "Retrieve the IO containing the locators from a remote node.");
 
@@ -210,7 +218,6 @@ public class BOResource extends LisaServerResource {
     /**
      * Creates the folder that contains the files to be shared with other phones.
      */
-
     private void createSharedFolder() {
         File folder = new File(mSharedFolder);
 
@@ -231,7 +238,6 @@ public class BOResource extends LisaServerResource {
      * @param filePath		The file path pointing to the file.
      * @param contentType	The content type of the file.
      */
-
     private void makeFileVisibleToPhone(String filePath, String contentType) {
         String[] paths = {filePath};
         String[] mediaType = {contentType};
@@ -247,7 +253,6 @@ public class BOResource extends LisaServerResource {
      * @param fileData
      *            The data to write at the specified path
      */
-
     private void writeByteStreamToFile(String targetPath, byte[] fileData) {
         Log.d(TAG, "Writing received data to " + targetPath);
 
@@ -256,14 +261,16 @@ public class BOResource extends LisaServerResource {
         try {
             fos = new FileOutputStream(targetPath);
             fos.write(fileData);
-        }
-        catch (FileNotFoundException e) {
+            
+        } catch (FileNotFoundException e) {
             Log.e(TAG, "Couldn't find file: " + targetPath);
-        }
-        catch (IOException e) {
+            
+        } catch (IOException e) {
             Log.e(TAG, "Failed while writing data to " + targetPath);
-        }
-        finally {
+            
+        } finally {
+        	
+        	// Clean up the output stream
             if (fos != null) {
                 try {
                     fos.close();
