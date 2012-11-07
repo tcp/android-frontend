@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import project.cs.lisa.application.MainNetInfActivity;
-import android.R;
+import project.cs.lisa.R;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;

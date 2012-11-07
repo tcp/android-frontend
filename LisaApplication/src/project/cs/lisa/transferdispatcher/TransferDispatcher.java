@@ -24,7 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
-
+ * Copyright 2012 Ericsson, Uppsala University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -35,9 +48,6 @@
  * distributed system and to give hands-on experience on modern construction
  * principles and programming methods.
  *
- * All rights reserved.
- *
- * Copyright (C) 2012 LISA team
  */
 package project.cs.lisa.transferdispatcher;
 
@@ -60,6 +70,7 @@ import android.util.Log;
  * @author PG NetInf 3, University of Paderborn.
  * @author Paolo Boshini
  * @author Kim-Anh Tran
+ * 
  * @pat.name Singleton.
  * @pat.task Forces that only one instance of this class exists.
  */
@@ -81,9 +92,10 @@ public enum TransferDispatcher {
     private List<ByteArrayProvider> mByteArrayProviders;
 
     /**
-     * Initializes the Transfer Dispatcher.
+     * Initializes the Transfer Dispatcher with
+     * existing providers.
      */
-    TransferDispatcher() {
+    private TransferDispatcher() {
         addByteArrayProviders();
     }
 
@@ -98,8 +110,7 @@ public enum TransferDispatcher {
     /**
      * Provides the stream by a given DO.
      * 
-     * @param io The information object...
-     * 
+     * @param io The information object
      * @return Stream to the underlying BO.
      * @throws IOException	Thrown if no locator could be found
      */
@@ -116,7 +127,7 @@ public enum TransferDispatcher {
         String hash = io.getIdentifier().getIdentifierLabel(
         		SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 
-        /* Tries to retrieve the BO from the first possible locator. */
+        // Tries to retrieve the BO from the first possible locator. 
         for (String currentLocator : availableFilteredBluetoothLocators) {
 
         	resultArray = getByteArray(currentLocator, hash);         
@@ -153,7 +164,7 @@ public enum TransferDispatcher {
         	stringLocators.add(locator.getValue(String.class));
         }
         
-        /* Keep only those locators that are available right now */
+        // Keep only those locators that are available right now 
         stringLocators.retainAll(availableLocators);
         
         Log.d(TAG, "Filtered locator list: " + stringLocators.toString());
