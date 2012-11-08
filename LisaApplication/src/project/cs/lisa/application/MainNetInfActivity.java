@@ -229,6 +229,7 @@ public class MainNetInfActivity extends Activity {
 
         if (data.getScheme().equals("content")) {
             if (data.getData().getPath().contains("/external/images")) {
+            	
                 /* Get the file path of the selected image. */
                 Uri selectedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
