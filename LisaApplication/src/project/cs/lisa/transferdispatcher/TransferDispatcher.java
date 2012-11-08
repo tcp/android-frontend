@@ -153,11 +153,16 @@ public enum TransferDispatcher {
     	
     	BluetoothDiscovery btDiscovery = BluetoothDiscovery.INSTANCE;
         List<String> availableLocators = btDiscovery.startBluetoothDiscovery();
-       
+               
         // Configure locator identifiers to have the bluetooth locator node prefix. 
-        for (String btLocator : availableLocators) {
-        	btLocator = BLUETOOTH_PREFIX + btLocator;
+        int numberOfLocators = availableLocators.size();
+        for (int i = 0; i < numberOfLocators; ++i) {    
+        	String locator = availableLocators.get(i);
+        	locator = BLUETOOTH_PREFIX + locator;
+        	availableLocators.set(i, locator);
         }
+        
+        Log.d(TAG, "The first locator: " + availableLocators.get(0));
         
         /* 
          * Converts the Attribute locators to String locators that represent
@@ -165,7 +170,7 @@ public enum TransferDispatcher {
          */
         List<String> stringLocators = new ArrayList<String>(locators.size());
         for (Attribute locator : locators) {
-        	stringLocators.add(extractLocatorAddress(locator.getValue(String.class)));
+        	stringLocators.add(locator.getValue(String.class));
         }
         
         // Keep only those locators that are available right now 
