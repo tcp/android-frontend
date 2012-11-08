@@ -116,13 +116,19 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
             response = client.execute(get);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }        
         
         String jsonResponse = null;
         try {
             HttpEntity entity = response.getEntity();
             InputStream input = entity.getContent();
             jsonResponse = streamToString(input);
+            
+            // If we couldn't download the file, the filepath will be set to null
+            if (jsonResponse.equals("null")) {
+            	jsonResponse = null;
+            }
+           
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {

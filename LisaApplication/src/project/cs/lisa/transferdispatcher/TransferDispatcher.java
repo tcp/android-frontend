@@ -157,7 +157,8 @@ public enum TransferDispatcher {
          */
         List<String> stringLocators = new ArrayList<String>(locators.size());
         for (Attribute locator : locators) {
-        	stringLocators.add(locator.getValue(String.class));
+        	String locatorAddress = locator.getValue(String.class);
+        	stringLocators.add(extractLocatorAddress(locatorAddress));
         }
         
         // Keep only those locators that are available right now 
@@ -206,8 +207,7 @@ public enum TransferDispatcher {
         
         ByteArrayProvider provider = getByteArrayProvider(locator);
         if (provider != null) {
-        	String locatorAddress = extractLocatorAddress(locator);
-        	return provider.getByteArray(locatorAddress, hash);
+        	return provider.getByteArray(locator, hash);
         	
         } else {
         	return null;
