@@ -31,5 +31,5 @@ package project.cs.lisa.exceptions;
  * @author Thiago Costa Porto
  */
 public class LisaExceptions extends Exception {
-
+    // Exceptions
 }
