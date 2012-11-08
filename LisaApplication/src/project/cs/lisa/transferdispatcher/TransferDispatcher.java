@@ -86,6 +86,9 @@ public enum TransferDispatcher {
     /** The debug tag. */
     private static final String TAG = "TransferDispatcher";
 
+    /** The prefix for identifying bluetooth locator nodes. */
+    private static final String BLUETOOTH_PREFIX = "nimacbt://";
+    
     /** The list of available byte array providers. */
     private List<ByteArrayProvider> mByteArrayProviders;
 
@@ -150,6 +153,11 @@ public enum TransferDispatcher {
     	
     	BluetoothDiscovery btDiscovery = BluetoothDiscovery.INSTANCE;
         List<String> availableLocators = btDiscovery.startBluetoothDiscovery();
+       
+        // Configure locator identifiers to have the bluetooth locator node prefix. 
+        for (String btLocator : availableLocators) {
+        	btLocator = BLUETOOTH_PREFIX + btLocator;
+        }
         
         /* 
          * Converts the Attribute locators to String locators that represent
@@ -157,8 +165,7 @@ public enum TransferDispatcher {
          */
         List<String> stringLocators = new ArrayList<String>(locators.size());
         for (Attribute locator : locators) {
-        	String locatorAddress = locator.getValue(String.class);
-        	stringLocators.add(extractLocatorAddress(locatorAddress));
+        	stringLocators.add(extractLocatorAddress(locator.getValue(String.class)));
         }
         
         // Keep only those locators that are available right now 
@@ -207,9 +214,11 @@ public enum TransferDispatcher {
         
         ByteArrayProvider provider = getByteArrayProvider(locator);
         if (provider != null) {
-        	return provider.getByteArray(locator, hash);
+        	String locatorMacAddress = extractLocatorAddress(locator);
+        	return provider.getByteArray(locatorMacAddress, hash);
         	
         } else {
+        	Log.e(TAG, "No provider could be found.");
         	return null;
         }
     }   
