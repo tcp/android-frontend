@@ -72,6 +72,7 @@ public class NetInfGet extends NetInfRequest {
 		 * If the get request couldn't download the file
 		 * it will notify the user and stop processing.
 		 */
+		Log.d(TAG, "jsonResponse: " + jsonResponse);
 		if (jsonResponse == null) {
 			getActivity().showToast(
 					"Getting file failed. Check your Internet and Bluetooth connections");
