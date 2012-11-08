@@ -35,4 +35,8 @@ public class LisaFileException extends Exception {
     public LisaFileException(String message) {
         super(message);
     }
+    
+    public LisaFileException() {
+        super("Please open a proper file");
+    }
 }
