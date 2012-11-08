@@ -121,7 +121,8 @@ public class BOResource extends LisaServerResource {
      * file.
      * 
      * @return The Map that contains the information about the file: First key:
-     *         the file path Second key: the content type of the file
+     *         the file path Second key: the content type of the file.
+     *         If the object couldn't be retrieved the function returns null.
      */
     @Get
     public String retrieveBO() {
@@ -150,7 +151,8 @@ public class BOResource extends LisaServerResource {
             try {
                 fileData = tsDispatcher.getByteArray(io);
             } catch (IOException e) {
-                Log.e(TAG, "Couldn't retrieve the requested data.");
+                Log.e(TAG, "Couldn't retrieve the requested data.");          
+                return null;
             }
 
             // Writes the received data to file  
@@ -178,6 +180,7 @@ public class BOResource extends LisaServerResource {
             
             } else {
                 Log.e(TAG, "No file data to write.");
+                return null;
             }
 
             return returnString;
@@ -186,7 +189,7 @@ public class BOResource extends LisaServerResource {
             /* TODO: Think about an exception to be thrown here. Maybe handle the return value
                TODO: and throw an exception if that happens. */
             Log.d(TAG, "InformationObject is null. Nothing was done here.");
-            return returnString;
+            return null;
         }
     }
 
