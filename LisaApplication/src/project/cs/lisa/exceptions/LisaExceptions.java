@@ -26,6 +26,10 @@
  */
 package project.cs.lisa.exceptions;
 
+/**
+ * Class for setting the relevant exceptions associated with out project.
+ * @author Thiago Costa Porto
+ */
 public class LisaExceptions extends Exception {
 
 }
