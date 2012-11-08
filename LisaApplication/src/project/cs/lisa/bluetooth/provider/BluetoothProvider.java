@@ -62,7 +62,7 @@ public class BluetoothProvider implements ByteArrayProvider {
     /** All bluetooth locators have the following indicator in their address. */
     private static final String BLUETOOTH_LOCATOR_INDICATOR = "nimacbt";
    
-    /** Represents the full loaded progress bar */
+    /** Represents the full loaded progress bar. */
     private static final int FULL_PROGRESS = 100;
     
     /** Represents the number of attempts to connect to a remote device. */
