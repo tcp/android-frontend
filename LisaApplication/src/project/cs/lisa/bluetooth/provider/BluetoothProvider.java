@@ -62,10 +62,7 @@ public class BluetoothProvider implements ByteArrayProvider {
     /** The Bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter = null;
 
-    /**
-     * Default constructor.
-     */
-
+    /** Default constructor. */
     public BluetoothProvider() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
@@ -77,7 +74,6 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   hash        A hash identifying the BO
      * @return  The byte array referring to the requested BO
      */
-    
     @Override
     public byte[] getByteArray(String locator, String hash) {
 
@@ -85,15 +81,14 @@ public class BluetoothProvider implements ByteArrayProvider {
         BluetoothSocket socket = null;
 
         try {
-            /* Connect */
+            // Connect
             socket = connectToRemoteDevice(locator);
 
-            /* Send request */
+            // Send request
             sendRequest(socket, hash);
 
-            /* Download file */
+            // Download file
             fileArray = downloadFile(socket);
-
         } catch (IOException e) {
             Log.e(TAG, "Trying to close the socket due to a fail in the connection...");
             Log.e(TAG, e.toString());
@@ -107,7 +102,6 @@ public class BluetoothProvider implements ByteArrayProvider {
                 }
             }
         }
-
         return fileArray;
     }
 
@@ -118,14 +112,13 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @return  The Bluetooth socket for the communication.
      * @throws  IOException The exception for the socket.
      */
-    
     private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
         Log.d(TAG, "Start requesting a socket to a remote device: " + locator);
 
         BluetoothSocket socket = null;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
 
-        /* Get a BluetoothSocket for a connection with the given BluetoothDevice. */
+        // Get a BluetoothSocket for a connection with the given BluetoothDevice.
         socket   = device.createRfcommSocketToServiceRecord(MY_UUID);
 
         /* This is a blocking call and will only return on a
@@ -145,13 +138,12 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   hash    The identifier for requesting the BO
      * @throws  IOException Exception for the stream.
      */
-
     private void sendRequest(BluetoothSocket socket, String hash) throws IOException {
         Log.d(TAG, "Write the hash request to the connected locator. ");
 
         DataOutputStream outStream = null;
 
-        /* Get the output stream for sending the hash */
+        // Get the output stream for sending the hash
         outStream = new DataOutputStream(socket.getOutputStream());
         outStream.write(hash.getBytes());
     }
@@ -162,14 +154,13 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @return  The byte stream representing the retrieved BO
      * @throws  IOException Exception for the streams
      */
-
     private byte[] downloadFile(BluetoothSocket socket) throws IOException {
         Log.d(TAG, "Begining downloading the file");
 
         DataInputStream inStream = null;
         byte[] buffer = null;
 
-        /* Get the input stream for receiving the file */
+        // Get the input stream for receiving the file
         inStream = new DataInputStream(socket.getInputStream());
         final int fileSize = inStream.readInt();
         buffer = new byte[fileSize];
@@ -191,8 +182,8 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param offset how many bytes have been received
      * @param fileSize total file size
      */
-    
     public void onBufferRead(final int offset, final int fileSize) {
+
         // Get the activity from the main activity
         final Activity activity = (Activity) MainNetInfActivity.getContext();
 
@@ -203,7 +194,7 @@ public class BluetoothProvider implements ByteArrayProvider {
                 tv.setText("Downloading " + offset + " of " + fileSize + "");
                 ProgressBar pb = (ProgressBar) activity.findViewById(R.id.progressbar_Horizontal);
                 pb.setVisibility(ProgressBar.VISIBLE);
-                pb.setProgress(100*offset/fileSize);
+                pb.setProgress(100 * offset / fileSize);
             }
         });
     }
@@ -213,7 +204,6 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @param   locator     The locator from where to retrieve the BO
      * @return  A boolean that specifies if this provider can handle the locator or not.
      */
-
     // TODO: Handle something?
     @Override
     public boolean canHandle(String locator) {
@@ -224,7 +214,6 @@ public class BluetoothProvider implements ByteArrayProvider {
      * Description of this provider.
      * @return A description of this provider? 
      */
-
     @Override
     public String describe() {
         return "A Bluetooth provider. This provider will attempt to retrieve a file"

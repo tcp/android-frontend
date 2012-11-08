@@ -82,7 +82,7 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 	
 	private static final String TAG = "NameResolutionService";
 	//TODO Extract NRS_SERVER IP address and port from a properties file or any other kind of config file 
-	private static final String NRS_SERVER = "http://130.238.15.227";
+	private static final String NRS_SERVER = "http://130.238.15.226";
 	// TODO add to properties file
 	private static final String NRS_SERVER_PORT = "9999";
 	private static final int TIMEOUT = 5000;
