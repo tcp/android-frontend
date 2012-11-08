@@ -31,16 +31,19 @@ package project.cs.lisa.exceptions;
  * @author Thiago Costa Porto
  */
 public class LisaFileException extends Exception {
-    // Exceptions
-    public LisaFileException(String message) {
-        super(message);
-    }
-    
     /**
      * Generic constructor for LisaFileException. To be raised when a 'bad' file
      * is given to the program.
      */
     public LisaFileException() {
         super("Please open a proper file");
+    }
+    
+    /**
+     * Constructor for throwing exception with a message field.
+     * @param message Message received from throwing call
+     */
+    public LisaFileException(String message) {
+        super(message);
     }
 }
