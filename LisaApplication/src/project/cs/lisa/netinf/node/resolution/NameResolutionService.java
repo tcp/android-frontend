@@ -214,12 +214,11 @@ public class NameResolutionService extends AbstractResolutionServiceWithoutId im
 					for (Object locator: locators) {
 						String loc = locator.toString();
 						Log.d(TAG,"Locator: " + loc);
-						String cutLocator = loc.split("://")[1];
-						Log.d(TAG,"Cut locator: " + cutLocator);
+
 						Attribute newLocator = mDatamodelFactory.createAttribute();
 						newLocator.setAttributePurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
 						newLocator.setIdentification(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
-						newLocator.setValue(cutLocator);
+						newLocator.setValue(loc);
 						
 						
 						//TODO LocatorPriority??????????
