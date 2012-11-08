@@ -120,7 +120,7 @@ public enum TransferDispatcher {
         /* Try to discover available devices and only keep those
          * locators that are right now available via bluetooth.
          */
-        List<String> availableFilteredBluetoothLocators = filterLocators(locators);
+        List<String> availableFilteredBluetoothLocators = filterBluetoothLocators(locators);
         
         byte[] resultArray;
         String hash = io.getIdentifier().getIdentifierLabel(
@@ -148,7 +148,7 @@ public enum TransferDispatcher {
      * @return			The sublist of locators that are available
      * 					via bluetooth.
      */
-    private List<String> filterLocators(List<Attribute> locators) {
+    private List<String> filterBluetoothLocators(List<Attribute> locators) {
     	Log.d(TAG, "Filter locators.");
     	
     	BluetoothDiscovery btDiscovery = BluetoothDiscovery.INSTANCE;
