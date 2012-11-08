@@ -26,6 +26,6 @@
  */
 package project.cs.lisa.exceptions;
 
-public class LisaExceptions {
+public class LisaExceptions extends Exception {
 
 }
