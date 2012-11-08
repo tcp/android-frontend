@@ -37,61 +37,66 @@ import android.util.Log;
  */
 public class NetInfGet extends NetInfRequest {
 
-    /** Debug tag. **/
-    public static final String TAG = "NetInfGet";
-    
-    /**
-     * Creates a new asynchronous NetInf GET.
-     * @param activity     Activity creating this object
-     * @param host         Target host of the message
-     * @param port         Target port
-     * @param hashAlg      Hash algorithm used
-     * @param hash         Hash
-     */
-    public NetInfGet(MainNetInfActivity activity, String host, String port,
-            String hashAlg, String hash) {
-        
-        super(activity, host, port, hashAlg, hash);
-        
-        // TODO make this beautiful
-        setPathPrefix("bo");
-        addQuery("METHOD", "GET");
-        
-    }
+	/** Debug tag. **/
+	public static final String TAG = "NetInfGet";
 
-    /**
-     * Handles the response to the sent NetInf GET message.
-     * @param jsonResponse     The JSON response.
-     */
-    @Override
-    protected void onPostExecute(String jsonResponse) { 	
-        Log.d(TAG, "onPostExecute()");
-        Log.d(TAG, "jsonString = " + jsonResponse);
-        
-        try {
-            // Parse the JSON
-            Metadata json = new Metadata(jsonResponse);
-            String filePath = json.get("filePath");
-            String contentType = json.get("contentType");
-            Log.d(TAG, "contentType = " + contentType);
-            Log.d(TAG, "filePath = " + filePath);
-            
-            // Try to display the file
-            int code = FileHandler.displayContent(getActivity(), filePath, contentType);
-            Log.d(TAG, "code = " + code);
-            switch (code) {
-                case FileHandler.OK:
-                    break;
-                default:
-                    getActivity().showToast("Opening file failed.");
-                    break;
-            }
-            
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            getActivity().showToast(
-                    "Getting file failed. Check your Internet and Bluetooth connections");
-        }
-    }
+	/**
+	 * Creates a new asynchronous NetInf GET.
+	 * @param activity     Activity creating this object
+	 * @param host         Target host of the message
+	 * @param port         Target port
+	 * @param hashAlg      Hash algorithm used
+	 * @param hash         Hash
+	 */
+	public NetInfGet(MainNetInfActivity activity, String host, String port,
+			String hashAlg, String hash) {
+
+		super(activity, host, port, hashAlg, hash);
+
+		// TODO make this beautiful
+		setPathPrefix("bo");
+		addQuery("METHOD", "GET");
+
+	}
+
+	/**
+	 * Handles the response to the sent NetInf GET message.
+	 * @param jsonResponse     The JSON response.
+	 */
+	@Override
+	protected void onPostExecute(String jsonResponse) { 	
+		Log.d(TAG, "onPostExecute()");
+		Log.d(TAG, "jsonString = " + jsonResponse);
+
+		/* 
+		 * If the get request couldn't download the file
+		 * it will notify the user and stop processing.
+		 */
+		if (jsonResponse == null) {
+			getActivity().showToast(
+					"Getting file failed. Check your Internet and Bluetooth connections");
+			return;
+		}
+
+		// Parse the JSON
+		Metadata json = new Metadata(jsonResponse);
+		String filePath = json.get("filePath");
+		String contentType = json.get("contentType");
+		Log.d(TAG, "contentType = " + contentType);
+		Log.d(TAG, "filePath = " + filePath);
+
+		// Try to display the file
+		int code = FileHandler.displayContent(getActivity(), filePath, contentType);
+		Log.d(TAG, "code = " + code);
+		switch (code) {
+		case FileHandler.OK:
+			break;
+		default:
+			getActivity().showToast("Opening file failed.");
+			break;
+		}
+
+
+	}
 
 }

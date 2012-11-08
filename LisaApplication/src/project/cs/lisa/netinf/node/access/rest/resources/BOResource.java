@@ -150,7 +150,7 @@ public class BOResource extends LisaServerResource {
             try {
                 fileData = tsDispatcher.getByteArray(io);
             } catch (IOException e) {
-                Log.e(TAG, "Couldn't retrieve the requested data.");
+                Log.e(TAG, "Couldn't retrieve the requested data.");           
             }
 
             // Writes the received data to file  
