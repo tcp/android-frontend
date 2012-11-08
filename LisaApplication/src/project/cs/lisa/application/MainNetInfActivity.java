@@ -344,7 +344,6 @@ public class MainNetInfActivity extends Activity {
 //                Log.d(TAG, "Error encoding");
 //                e.printStackTrace();
 //            }
-            // GIT IS HUB
         }                       
     }
 
