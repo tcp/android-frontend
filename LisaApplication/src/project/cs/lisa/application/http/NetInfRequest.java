@@ -16,17 +16,11 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import project.cs.lisa.application.MainNetInfActivity;
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Used to send requests to the OpenNetInf RESTful API.
- * 
- * TODO: Split into two classes: one for get, one for publish.
  * 
  * @author Linus Sunde
  * @author Harold Martinez
@@ -79,7 +73,8 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
      * @param hash         Hash
      */
 
-    public NetInfRequest(MainNetInfActivity activity, String host, String port, String hashAlg, String hash) {
+    public NetInfRequest(MainNetInfActivity activity, String host, String port,
+            String hashAlg, String hash) {
         Log.d(TAG, "NetInfRequest()");
         mActivity = activity;
         mHost = host;

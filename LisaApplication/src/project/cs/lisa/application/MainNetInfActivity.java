@@ -70,7 +70,8 @@ import android.widget.Toast;
  * the application.
  * 
  * @author Paolo Boschini
- *
+ * @author Linus Sunde
+ * 
  */
 public class MainNetInfActivity extends Activity {
 
@@ -80,6 +81,9 @@ public class MainNetInfActivity extends Activity {
     /** Message communicating if the node were started successfully. */
     public static final String NODE_STARTED_MESSAGE = "project.cs.list.node.started";
 
+    /** Number of characters of the hash to use. **/
+    public static final int HASH_LENGTH = 3;
+    
     /** Reference to the global application state. */
     private MainApplication mApplication;
 
@@ -137,7 +141,7 @@ public class MainNetInfActivity extends Activity {
     }
 
     /**
-     * Initialize and run the StarterNodeThread
+     * Initialize and run the StarterNodeThread.
      */
 
     private void setupNode() {
@@ -159,20 +163,20 @@ public class MainNetInfActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
 
-        if (hash.length() != 3) {
+        if (hash.length() != HASH_LENGTH) {
             Toast.makeText(getApplicationContext(),
                     "Only three characters are allowed!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Create a new get request with the current hash
-        Log.d(TAG, "Requesting the following hash: " + hash.substring(0,3));
+        Log.d(TAG, "Requesting the following hash: " + hash.substring(0, HASH_LENGTH));
 
         NetInfGet getRequest = new NetInfGet(this,
                 UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                 UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                 UProperties.INSTANCE.getPropertyWithName("hash.alg"),
-                hash.substring(0,3));
+                hash.substring(0, HASH_LENGTH));
 
         // Execute request
         getRequest.execute();
@@ -239,8 +243,7 @@ public class MainNetInfActivity extends Activity {
                 filePath = cursor.getString(columnIndex);
                 cursor.close();
             }
-        }
-        else if (data.getScheme().equals("file")) {
+        } else if (data.getScheme().equals("file")) {
             Uri selectedImage = data.getData();
             filePath = selectedImage.getPath();
         }
@@ -261,10 +264,9 @@ public class MainNetInfActivity extends Activity {
             // Try to hash the file
             try {
                 lisaHash = new Hash(FileUtils.readFileToByteArray(file));
-                hash = lisaHash.encodeResult(3); // Use 0 for using the whole hash 
+                hash = lisaHash.encodeResult(HASH_LENGTH); // Use 0 for using the whole hash 
                 Log.d(TAG, "The generated hash is: " + hash);
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
                 Log.e(TAG, "Error, could not open the file: " + file.getPath());
             }
 
@@ -279,8 +281,7 @@ public class MainNetInfActivity extends Activity {
             try {
                 in = new FileInputStream(f1);
                 out = new FileOutputStream(f2, true);
-            }
-            catch (FileNotFoundException e1) {
+            } catch (FileNotFoundException e1) {
                 // TODO Auto-generated catch block
                 Log.d(TAG, "File not found! Check if something went wrong when choosing file");
                 e1.printStackTrace();
@@ -290,14 +291,12 @@ public class MainNetInfActivity extends Activity {
             try {
                 try {
                     IOUtils.copy(in, out);
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     // TODO Auto-generated catch block
                     Log.d(TAG, "Failed to copy file to shared folder");
                     e.printStackTrace();
                 }
-            }
-            finally {
+            } finally {
                 Log.d(TAG, "Closing file streams for transfer");
                 IOUtils.closeQuietly(in);
                 IOUtils.closeQuietly(out);
@@ -328,7 +327,7 @@ public class MainNetInfActivity extends Activity {
                     UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                     UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
-                    hash.substring(0,3));
+                    hash.substring(0, HASH_LENGTH));
             publishRequest.setContentType(contentType);
 //          publishRequest.setMetadata(lisaMetaData.convertToString());
             publishRequest.execute();
@@ -378,7 +377,7 @@ public class MainNetInfActivity extends Activity {
     /**
      * Cancel current toast.
      */
-    private void cancelToast() {
+    public void cancelToast() {
         Log.d(TAG, "cancelToast()");
         mToast.cancel();
     }
@@ -386,7 +385,7 @@ public class MainNetInfActivity extends Activity {
     /**
      * Hides the progress bar.
      */
-    private void hideProgressBar() {
+    public void hideProgressBar() {
         Log.d(TAG, "hideProgressBar()");
         ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar1);
         pb.setVisibility(ProgressBar.INVISIBLE);
@@ -401,7 +400,7 @@ public class MainNetInfActivity extends Activity {
      * @param text String with the text to show to the user. Normally informs
      *             if we are publishing, searching or requesting content.
      */
-    private void showProgressBar(String text) {
+    public void showProgressBar(String text) {
         Log.d(TAG, "showProgressBar()");
         ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar1);
         pb.setVisibility(ProgressBar.VISIBLE);
