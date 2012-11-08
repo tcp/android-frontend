@@ -36,6 +36,10 @@ public class LisaFileException extends Exception {
         super(message);
     }
     
+    /**
+     * Generic constructor for LisaFileException. To be raised when a 'bad' file
+     * is given to the program.
+     */
     public LisaFileException() {
         super("Please open a proper file");
     }
