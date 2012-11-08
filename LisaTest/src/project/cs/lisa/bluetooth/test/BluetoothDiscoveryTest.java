@@ -18,4 +18,5 @@ public class BluetoothDiscoveryTest extends AndroidTestCase {
     
     // What to test here?
     // Read up on Application life cycle
+    
 }
