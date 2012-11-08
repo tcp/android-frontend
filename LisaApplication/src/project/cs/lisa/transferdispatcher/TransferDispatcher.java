@@ -74,6 +74,7 @@ import android.util.Log;
  * @author PG NetInf 3, University of Paderborn.
  * @author Paolo Boshini
  * @author Kim-Anh Tran
+ * 
  * @pat.name Singleton.
  * @pat.task Forces that only one instance of this class exists.
  */
@@ -88,8 +89,11 @@ public enum TransferDispatcher {
     /** The list of available byte array providers. */
     private List<ByteArrayProvider> mByteArrayProviders;
 
-    /** Initializes the Transfer Dispatcher. */
-    TransferDispatcher() {
+    /**
+     * Initializes the Transfer Dispatcher with
+     * existing providers.
+     */
+    private TransferDispatcher() {
         addByteArrayProviders();
     }
 
@@ -102,8 +106,7 @@ public enum TransferDispatcher {
     /**
      * Provides the stream by a given DO.
      * 
-     * @param io The information object...
-     * 
+     * @param io The information object
      * @return Stream to the underlying BO.
      * @throws IOException	Thrown if no locator could be found
      */
@@ -120,7 +123,8 @@ public enum TransferDispatcher {
         String hash = io.getIdentifier().getIdentifierLabel(
         		SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 
-        // Tries to retrieve the BO from the first possible locator.
+
+        // Tries to retrieve the BO from the first possible locator. 
         for (String currentLocator : availableFilteredBluetoothLocators) {
 
         	resultArray = getByteArray(currentLocator, hash);         
@@ -157,7 +161,7 @@ public enum TransferDispatcher {
         	stringLocators.add(locator.getValue(String.class));
         }
         
-        // Keep only those locators that are available right now
+        // Keep only those locators that are available right now 
         stringLocators.retainAll(availableLocators);
         
         Log.d(TAG, "Filtered locator list: " + stringLocators.toString());

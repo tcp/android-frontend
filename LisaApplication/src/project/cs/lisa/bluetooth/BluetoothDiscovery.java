@@ -46,17 +46,17 @@ import android.util.Log;
  */
 public enum BluetoothDiscovery {
 
-    /** The unique reference for this singleton. */
+    /** The unique reference for this singleton. */ 
     INSTANCE;
 
-    /** The constant timeout for the bluetooth discovery task. */
+    /** The constant timeout for the Bluetooth discovery task. */
     private static final int TIMEOUT = 10000;
 
-    /** The TAG for this Activity. */
+    /** The Debug TAG for this Activity. */
     private static final String TAG = "BluetoothDiscovery";
 
     /** The Bluetooth adapter. */
-    private BluetoothAdapter mBluetoothAdapter = null;
+    private BluetoothAdapter mBluetoothAdapter;
 
     /** A broadcast receiver for intercepting broadcast messages i.e. Bluetooth activity. */
     private BroadcastReceiver mBroadcastReceiver;
@@ -72,7 +72,7 @@ public enum BluetoothDiscovery {
      */
     private BluetoothDiscovery() {
 
-        /* Setup a broadcast receiver for being notified when a new device was found. */
+        // Setup a broadcast receiver for being notified when a new device was found
         setUpBroadcastReceiver();
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -83,8 +83,8 @@ public enum BluetoothDiscovery {
 
     /**
      * Returns a list of available Bluetooth devices.
-     * It performs a discovery within a fixed timeout of 10 seconds.
-     * Why 10 seconds? Well, because there is no sense
+     * It performs a discovery within a fixed timeout of TIMEOUT seconds.
+     * Why? Well, because there is no sense
      * trying to discover Bluetooth devices for a longer time.
      * 
      * @return  The list of available devices represented by MAC:addresses.
@@ -92,19 +92,19 @@ public enum BluetoothDiscovery {
     public synchronized List<String> startBluetoothDiscovery() {
     	Log.d(TAG, "Start bluetooth discovery.");
     	
-        /* Initiate a new list every time we start a discovery */
+        // Initiate a new list every time we start a discovery 
         mAvailableDevices = new ArrayList<String>();
 
         mBluetoothAdapter.startDiscovery();
 
-        /* Wait for the discover to finish within n seconds */
+        // Wait for the discover to finish within n seconds 
         try {
             Thread.sleep(TIMEOUT);
         } catch (InterruptedException e) {
             Log.e(TAG, "Timeout sleep was interrupted.");
         }
 
-        /* Discovery done */
+        // Discovery done, cancel it
         mBluetoothAdapter.cancelDiscovery();
         
         Log.d(TAG, "Bluetooth discovery is finished.");
@@ -126,15 +126,16 @@ public enum BluetoothDiscovery {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
+                // A new Bluetooth device was found during the Bluetooth discovery
                 if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                     BluetoothDevice device = intent
                             .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                    /* This checks the Bluetooth signal strength of the surrounding devices. */
+                    // This checks the Bluetooth signal strength of the surrounding devices
                     short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
                     Log.d(TAG, device.getName() + ", " + device.getAddress() + ", " + rssi + " dB");
                     
-                    /* Updates the list of available devices. */
+                    // Updates the list of available devices
                     mAvailableDevices.add(device.getAddress());            
                 }
             }
