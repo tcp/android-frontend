@@ -24,6 +24,7 @@
  * principles and programming methods.
  *
  */
+
 /**
  * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
  * (Full list of owners see http://www.netinf.org/about-2/license)
@@ -120,7 +121,8 @@ public class BOResource extends LisaServerResource {
      * file.
      * 
      * @return The Map that contains the information about the file: First key:
-     *         the file path Second key: the content type of the file
+     *         the file path Second key: the content type of the file.
+     *         If the object couldn't be retrieved the function returns null.
      */
     @Get
     public String retrieveBO() {
@@ -131,61 +133,63 @@ public class BOResource extends LisaServerResource {
         String contentType = "";
         String returnString = null;
 
-        /* Retrieve a data object from a node (could be an NRS) */
+        // Retrieve a data object from a node (could be an NRS)
         InformationObject io = retrieveDO();	
 
-        /* Retrieve the data corresponding to the hash from another device. */
+        // Retrieve the data corresponding to the hash from another device.
         if (io != null) {
-            /* Store the content type of the requested BO */
+            // Store the content type of the requested BO 
             contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
 
             Log.d(TAG, "Trying to receive file with the following content type: " + contentType);
 
-            /* Attempt to transfer the BO from a remote device */
+            // Attempt to transfer the BO from a remote device 
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
 
             try {
                 fileData = tsDispatcher.getByteArray(io);
-            }
-            catch (IOException e) {
-                Log.e(TAG, "Couldn't retrieve the requested data.");
+            } catch (IOException e) {
+                Log.e(TAG, "Couldn't retrieve the requested data.");          
+                return null;
             }
 
-            /* Writes the received data to file */ 
+            // Writes the received data to file  
             if (fileData != null) {
-                // Fetch metadata from IO
-                String metaData = 
-                        io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
-                Metadata metaLabel = new Metadata(metaData);
+            	
+            // Fetch metadata from IO
+            String metaData = 
+            		io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
+            Metadata metaLabel = new Metadata(metaData);
 
-                // Set saving filename to the same filename as in metadata
-                filePath = mSharedFolder + metaLabel.get("filename");
-                Log.d(TAG, "Filepath is: " + filePath);
+            // Set saving filename to the same filename as in metadata
+            filePath = mSharedFolder + metaLabel.get("filename");
+            Log.d(TAG, "Filepath is: " + filePath);
 
-                // Write it to file
-                writeByteStreamToFile(filePath, fileData);
-                makeFileVisibleToPhone(filePath, contentType);
+            // Write it to file
+            writeByteStreamToFile(filePath, fileData);
+            makeFileVisibleToPhone(filePath, contentType);
 
-                // Make a new metadata to pass along the content_type and filepath
-                Metadata lisaMetadata = new Metadata();
-                lisaMetadata.insert(CONTENT_TYPE, contentType);
-                lisaMetadata.insert(FILEPATH, filePath);
+            // Make a new metadata to pass along the content_type and filepath
+            Metadata lisaMetadata = new Metadata();
+            lisaMetadata.insert(CONTENT_TYPE, contentType);
+            lisaMetadata.insert(FILEPATH, filePath);
 
-                returnString = lisaMetadata.convertToString();
-            }
-            else {
+            returnString = lisaMetadata.convertToString();
+            
+            } else {
                 Log.e(TAG, "No file data to write.");
+                return null;
             }
 
             return returnString;
-        }
-        else {
-            // TODO: Think about an exception to be thrown here. Maybe handle the return value
-            // TODO: and throw an exception if that happens.
+            
+        } else {
+            /* TODO: Think about an exception to be thrown here. Maybe handle the return value
+               TODO: and throw an exception if that happens. */
             Log.d(TAG, "InformationObject is null. Nothing was done here.");
-            return returnString;
+            return null;
         }
     }
 
@@ -203,8 +207,7 @@ public class BOResource extends LisaServerResource {
 
         try {
             io = getNodeConnection().getIO(identifier);
-        }
-        catch (NetInfCheckedException e) {
+        } catch (NetInfCheckedException e) {
             Log.e(TAG, "Failed retrieving the IO from the NRS. Hash value: "
                     + mHashValue);
         }
@@ -258,19 +261,20 @@ public class BOResource extends LisaServerResource {
         try {
             fos = new FileOutputStream(targetPath);
             fos.write(fileData);
-        }
-        catch (FileNotFoundException e) {
+            
+        } catch (FileNotFoundException e) {
             Log.e(TAG, "Couldn't find file: " + targetPath);
-        }
-        catch (IOException e) {
+            
+        } catch (IOException e) {
             Log.e(TAG, "Failed while writing data to " + targetPath);
-        }
-        finally {
+            
+        } finally {
+        	
+        	// Clean up the output stream
             if (fos != null) {
                 try {
                     fos.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Log.e(TAG, "Failed closing the stream after writing to file.");
                 }
             }
