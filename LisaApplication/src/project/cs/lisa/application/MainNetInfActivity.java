@@ -153,7 +153,7 @@ public class MainNetInfActivity extends Activity {
      */   
     private void setupBluetoothAvailability() {
         BTHandler bt = new BTHandler();
-        bt.forceEnable(this);
+        bt.forceEnable(sContext);
     }
 
     /**

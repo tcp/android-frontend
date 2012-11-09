@@ -19,6 +19,11 @@ public class BTHandler {
     private final String TAG = "LisaBTHandler";
     private BluetoothAdapter mBluetoothAdapter;
     private IntentFilter mIntentFilter;
+    
+    public BTHandler() {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mIntentFilter = new IntentFilter();
+    }
 
     public boolean isEnabled() {
         if (mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON)
