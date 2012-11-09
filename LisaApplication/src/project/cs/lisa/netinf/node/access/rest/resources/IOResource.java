@@ -197,13 +197,15 @@ public class IOResource extends LisaServerResource {
             io.addAttribute(address);
         }
 
-        if (mMeta.length() > 0) {
-            // Add the metadata
-            IdentifierLabel label = mDatamodelFactory.createIdentifierLabel();
-            label.setLabelName(SailDefinedLabelName.META_DATA.getLabelName());
-            label.setLabelValue(mMeta);
-            identifier.addIdentifierLabel(label);
+        if (!(mMeta.length() > 0)) {
+            // Create empty meta data
+            mMeta = "{\"meta\":{}}";
         }
+        // Add the metadata
+        IdentifierLabel label = mDatamodelFactory.createIdentifierLabel();
+        label.setLabelName(SailDefinedLabelName.META_DATA.getLabelName());
+        label.setLabelValue(mMeta);
+        identifier.addIdentifierLabel(label);
 
         //Putting the IO
         try {
