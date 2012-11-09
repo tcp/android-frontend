@@ -331,7 +331,7 @@ public class MainNetInfActivity extends Activity {
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
                     hash.substring(0, HASH_LENGTH));
             publishRequest.setContentType(contentType);
-            publishRequest.setMetadata(lisaMetaData);
+//            publishRequest.setMetadata(lisaMetaData);
             publishRequest.execute();
 
             // Execute the publish
