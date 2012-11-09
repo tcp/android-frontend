@@ -115,18 +115,24 @@ public class BluetoothServer extends Thread {
 			try {
 				// Start listening for incoming pairing requests. 
 				tmp = mBtAdapter.listenUsingRfcommWithServiceRecord(TAG, MY_UUID);
+				connectionSucceeded = true;
+				
 			} catch (IOException e) {
 				--attempts;
 			}
+			
 		} while (!connectionSucceeded && attempts > 0);
 
 		if (!connectionSucceeded) {
 			Log.e(TAG, "Bluetooth Server Socket couldn't be initialized.");
-			tmp = null;
+			
+			mBtServerSocket = null;
+			mServerListens = false;
+		} else {
+			mBtServerSocket = tmp;
+			mServerListens = true;
 		}
 
-		mBtServerSocket = tmp;
-		mServerListens = true;
 	}
 
 	@Override
