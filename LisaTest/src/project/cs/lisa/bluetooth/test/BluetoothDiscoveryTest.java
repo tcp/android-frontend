@@ -13,7 +13,7 @@ public class BluetoothDiscoveryTest extends AndroidTestCase {
      */
     public BluetoothDiscoveryTest() {
         super();
-        mBluetoothDiscovery = BluetoothDiscovery.INSTANCE;
+        //mBluetoothDiscovery = BluetoothDiscovery.INSTANCE;
     }
     
     // What to test here?
