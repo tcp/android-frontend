@@ -359,7 +359,6 @@ public class MainNetInfActivity extends Activity {
      * @return  the context
      */
     public static Context getContext() {
-        Log.d(TAG, "getContext()");
         return sContext;
     }
     

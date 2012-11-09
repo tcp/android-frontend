@@ -41,16 +41,21 @@ import org.restlet.routing.Router;
 import project.cs.lisa.netinf.node.access.rest.resources.BOResource;
 import project.cs.lisa.netinf.node.access.rest.resources.IOResource;
 
+/**
+ * Routes NetInf requests to the appropriate classes.
+ * @author Linus Sunde
+ *
+ */
 public class RESTApplication extends Application {
 	
-		/** Connection to a NetInfNode */
-		private NetInfNodeConnection nodeConnection;
-		/** Implementation of a DatamodelFacotry */
-		private DatamodelFactory datamodelFactory;
+        /** Node Connection, used to access the local NetInf node. **/
+		private NetInfNodeConnection mNodeConnection;
+		/** Implementation of DatamodelFactory, used to create and edit InformationObjects etc. **/
+		private DatamodelFactory mDatamodelFactory;
 
 		/**
-		 * Contructs a new RESTful Application
-		 * @param connection Connection with the NetInf node
+		 * Constructs a new RESTful Application for routing NetInf requests.
+		 * @param connection Connection with the local NetInf node
 		 * @param factory creates different objects necessary in the NetInf model
 		 */
 		public RESTApplication(NetInfNodeConnection connection, DatamodelFactory factory) {
@@ -59,16 +64,24 @@ public class RESTApplication extends Application {
 			Handler[] handlers = rootLogger.getHandlers();
 			rootLogger.removeHandler(handlers[0]);
 
-			nodeConnection = connection;
-			datamodelFactory = factory;
+			mNodeConnection = connection;
+			mDatamodelFactory = factory;
 		}
 	   
+		/**
+		 * Gets a connection to the local NetInf node.
+		 * @return the node connection
+		 */
 		public NetInfNodeConnection getNodeConnection() {
-			return nodeConnection;
+			return mNodeConnection;
 		}
 
+		/**
+		 * Gets a data model factory implementation.
+		 * @return the datamodel factory
+		 */
 		public DatamodelFactory getDatamodelFactory() {
-			return datamodelFactory;
+			return mDatamodelFactory;
 		}
 
 		@Override
@@ -76,9 +89,10 @@ public class RESTApplication extends Application {
 			Router router = new Router(getContext());
 			
 			// Redirect NetInf Publish requests
-			String target = "/io?HASH_ALG={hash_alg}&HASH={hash}&CT={ct}" +
-					"&METHOD={method}&BTMAC={btmac}&META={meta}";	     
-			Redirector redirector = new Redirector(getContext(), target, Redirector.MODE_CLIENT_TEMPORARY);
+			String target = "/io?HASH_ALG={hash_alg}&HASH={hash}&CT={ct}"
+			        + "&METHOD={method}&BTMAC={btmac}&META={meta}";	     
+			Redirector redirector = new Redirector(
+			        getContext(), target, Redirector.MODE_CLIENT_TEMPORARY);
 			Extractor extractor = new Extractor(getContext(), redirector);    	          
 			extractor.extractFromQuery("btmac", "BTMAC", true);
 			extractor.extractFromQuery("method", "METHOD", true);
@@ -90,7 +104,8 @@ public class RESTApplication extends Application {
 			
 			// Redirect NetInf Get requests
 			String getTarget = "/bo?HASH_ALG={hash_alg}&HASH={hash}";  
-			Redirector getRedirector = new Redirector(getContext(), getTarget, Redirector.MODE_CLIENT_TEMPORARY);
+			Redirector getRedirector = new Redirector(
+			        getContext(), getTarget, Redirector.MODE_CLIENT_TEMPORARY);
 			Extractor getExtractor = new Extractor(getContext(), getRedirector);
 			
 			router.attach("/bo/{hash_alg};{hash}", getExtractor);
