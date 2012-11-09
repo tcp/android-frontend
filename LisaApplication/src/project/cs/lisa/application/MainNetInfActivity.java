@@ -44,6 +44,7 @@ import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.node.StarterNodeThread;
+import project.cs.lisa.networksettings.BTHandler;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.visualize.VisualizeFile;
 import android.app.Activity;
@@ -104,6 +105,7 @@ public class MainNetInfActivity extends Activity {
         sContext = this; 
         mToast = new Toast(this);
         
+        setupBluetoothAvailability();
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
@@ -139,19 +141,25 @@ public class MainNetInfActivity extends Activity {
     /**
      * Initialize and run the StarterNodeThread
      */
-
     private void setupNode() {
         Log.d(TAG, "setupNode()");
         // Start NetInfNode
         mStarterNodeThread = new StarterNodeThread(mApplication);
         mStarterNodeThread.start();
     }
+    
+    /**
+     * Function to forceably initialize Bluetooth and enable discoverability option.
+     */   
+    private void setupBluetoothAvailability() {
+        BTHandler bt = new BTHandler();
+        bt.forceEnable(this);
+    }
 
     /**
      * Gets a file from another node according to the input hash.
      * @param v The view that fired this event.
      */
-
     public final void getButtonClicked(final View v) {
         Log.d(TAG, "getButtonClicked()");
         
