@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -68,10 +68,10 @@ import android.widget.Toast;
  * Main activity that acts as a starting point for the application.
  * It provides functions for the user interaction and for setting up
  * the application.
- * 
+ *
  * @author Paolo Boschini
  * @author Linus Sunde
- * 
+ *
  */
 public class MainNetInfActivity extends Activity {
 
@@ -83,7 +83,7 @@ public class MainNetInfActivity extends Activity {
 
     /** Number of characters of the hash to use. **/
     public static final int HASH_LENGTH = 3;
-    
+
     /** Reference to the global application state. */
     private MainApplication mApplication;
 
@@ -98,16 +98,16 @@ public class MainNetInfActivity extends Activity {
 
     /** Toast. **/
     private Toast mToast;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
 
         mApplication = (MainApplication) getApplication();
-        sContext = this; 
+        sContext = this;
         mToast = new Toast(this);
-        
+
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
@@ -124,7 +124,7 @@ public class MainNetInfActivity extends Activity {
 
     /**
      * Receives messages from the StarterNodeThread when the node is starter.
-     * Right now it does not do anything. Just log 
+     * Right now it does not do anything. Just log
      */
     private void setupBroadcastReceiver() {
         Log.d(TAG, "setupBroadcastReceiver()");
@@ -158,7 +158,7 @@ public class MainNetInfActivity extends Activity {
 
     public final void getButtonClicked(final View v) {
         Log.d(TAG, "getButtonClicked()");
-        
+
         /* Store the input string */
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
@@ -204,21 +204,21 @@ public class MainNetInfActivity extends Activity {
     // TODO: Deprecated? Although I think it is better opening image/* for now
     public final void publishButtonClicked(final View v) {
         Log.d(TAG, "publishButtonClicked()");
-        
+
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, 0);                      
+        startActivityForResult(intent, 0);
     }
 
     /**
      * Publish a file from the image gallery on the phone.
-     * Creates the hash and extracts the content type. 
+     * Creates the hash and extracts the content type.
      * @param requestCode The integer request code originally supplied
      * to startActivityForResult(), allowing you to identify who this result came from.
-     * @param resultCode The integer result code returned 
+     * @param resultCode The integer result code returned
      * by the child activity through its setResult().
-     * @param data An Intent, which can return result 
+     * @param data An Intent, which can return result
      * data to the caller (various data can be attached to Intent "extras").
      */
     @Override
@@ -253,7 +253,7 @@ public class MainNetInfActivity extends Activity {
         // Open file
         File file = new File(filePath);
 
-        if (file.exists()) {            
+        if (file.exists()) {
             /* Help class for files, extract content type */
             String contentType = FileHandler.getFileContentType(filePath);
 
@@ -264,7 +264,7 @@ public class MainNetInfActivity extends Activity {
             // Try to hash the file
             try {
                 lisaHash = new Hash(FileUtils.readFileToByteArray(file));
-                hash = lisaHash.encodeResult(HASH_LENGTH); // Use 0 for using the whole hash 
+                hash = lisaHash.encodeResult(HASH_LENGTH); // Use 0 for using the whole hash
                 Log.d(TAG, "The generated hash is: " + hash);
             } catch (IOException e1) {
                 Log.e(TAG, "Error, could not open the file: " + file.getPath());
@@ -307,18 +307,20 @@ public class MainNetInfActivity extends Activity {
             Metadata lisaMetaData = new Metadata();
 
             // Metadata has 3 fields: filesize, filename and filetype
-            lisaMetaData.insert("filesize", String.valueOf(file.length()));
-            lisaMetaData.insert("filename", file.getName());
-            lisaMetaData.insert("filetype", FileHandler.getFileContentType(filePath));
+//            lisaMetaData.insert("filesize", String.valueOf(file.length()));
+//            lisaMetaData.insert("filename", file.getName());
+//            lisaMetaData.insert("filetype", FileHandler.getFileContentType(filePath));
+            // Metadata has 1 field: publish time
+            lisaMetaData.insert("time", Long.toString(System.currentTimeMillis()));
 
             // Convert metadata into readable format
-            String metaData = lisaMetaData.convertToString();
+//            String metaData = lisaMetaData.convertToString();
 
             // TODO: Remove this hack! Talk to other team about the metadata storage on their side
-            metaData = lisaMetaData.remove_brackets(metaData);
+//            metaData = lisaMetaData.remove_brackets(metaData);
 
             // Log the metadata
-            Log.d(TAG, "metadata: " + metaData);
+//            Log.d(TAG, "metadata: " + metaData);
 
             // Publish!
             Log.d(TAG, "Trying to publish a new file.");
@@ -329,9 +331,9 @@ public class MainNetInfActivity extends Activity {
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
                     hash.substring(0, HASH_LENGTH));
             publishRequest.setContentType(contentType);
-//          publishRequest.setMetadata(lisaMetaData.convertToString());
+            publishRequest.setMetadata(lisaMetaData);
             publishRequest.execute();
-            
+
             // Execute the publish
 //            try {
 //                publishRequest.execute(new String[] {contentType, ""});
@@ -342,7 +344,7 @@ public class MainNetInfActivity extends Activity {
 //                Log.d(TAG, "Error encoding");
 //                e.printStackTrace();
 //            }
-        }                       
+        }
     }
 
     /**
@@ -361,7 +363,7 @@ public class MainNetInfActivity extends Activity {
     public static Context getContext() {
         return sContext;
     }
-    
+
     /**
      * Show a toast.
      * @param text      The text to show in the toast.
@@ -372,7 +374,7 @@ public class MainNetInfActivity extends Activity {
         mToast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         mToast.show();
     }
-    
+
     /**
      * Cancel current toast.
      */
@@ -380,7 +382,7 @@ public class MainNetInfActivity extends Activity {
         Log.d(TAG, "cancelToast()");
         mToast.cancel();
     }
-    
+
     /**
      * Hides the progress bar.
      */
@@ -393,7 +395,7 @@ public class MainNetInfActivity extends Activity {
         TextView tv = (TextView) findViewById(R.id.ProgressBarText);
         tv.setVisibility(TextView.INVISIBLE);
     }
-    
+
     /**
      * Shows the progress bar.
      * @param text String with the text to show to the user. Normally informs
@@ -407,5 +409,5 @@ public class MainNetInfActivity extends Activity {
         tv.setVisibility(TextView.VISIBLE);
         tv.setText(text);
     }
-    
+
 }

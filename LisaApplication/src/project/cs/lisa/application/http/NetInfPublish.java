@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -30,6 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import project.cs.lisa.application.MainNetInfActivity;
+import project.cs.lisa.metadata.Metadata;
 import android.bluetooth.BluetoothAdapter;
 import android.util.Log;
 
@@ -41,7 +42,7 @@ public class NetInfPublish extends NetInfRequest {
 
     /** Debug tag. **/
     public static final String TAG = "NetInfPublish";
-    
+
     /**
      * Creates a new asynchronous NetInf PUBLISH.
      * @param activity     Activity creating this object
@@ -54,11 +55,11 @@ public class NetInfPublish extends NetInfRequest {
             String hashAlg, String hash) {
         super(activity, host, port, hashAlg, hash);
         Log.d(TAG, "NetInfPublish()");
-        
+
         // TODO make this beautiful
         setPathPrefix("ni");
-        addQuery("METHOD", "PUT"); 
-        
+        addQuery("METHOD", "PUT");
+
     }
 
     /**
@@ -70,7 +71,7 @@ public class NetInfPublish extends NetInfRequest {
     @Override
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
-        
+
         // Try to add the Bluetooth MAC, if success run superclass method.
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -84,16 +85,16 @@ public class NetInfPublish extends NetInfRequest {
             addQuery("BTMAC", btMac);
             jsonResponse = super.doInBackground(voids);
         }
-        
+
         return jsonResponse;
     }
-    
+
     /**
      * Handles the response to the sent NetInf PUBLISH message.
      * @param jsonResponse     The JSON response.
      */
     @Override
-    protected void onPostExecute(String jsonResponse) { 	
+    protected void onPostExecute(String jsonResponse) {
         Log.d(TAG, "onPostExecute()");
         Log.d(TAG, "jsonString = " + jsonResponse);
     }
@@ -106,16 +107,17 @@ public class NetInfPublish extends NetInfRequest {
         Log.d(TAG, "setContentType()");
         addQuery("CT", contentType);
     }
-    
+
     /**
      * Sets the metadata to be sent in the NetInf PUBLISH message.
      * @param metadata      The JSON string containing the metadata.
      */
-    public void setMetadata(String metadata) {
+    public void setMetadata(Metadata metadata) {
         Log.d(TAG, "setMetadata()");
-        Log.d(TAG, "metadata = " + metadata);
+        String metadataJsonString = metadata.convertToMetadataString();
+        Log.d(TAG, "metadata = " + metadataJsonString);
         try {
-            String encodedMetadata = URLEncoder.encode(metadata, "UTF-8");
+            String encodedMetadata = URLEncoder.encode(metadataJsonString, "UTF-8");
             Log.d(TAG, "encoded = " + encodedMetadata);
             addQuery("META", encodedMetadata);
         } catch (UnsupportedEncodingException e) {
@@ -123,5 +125,5 @@ public class NetInfPublish extends NetInfRequest {
             e.printStackTrace();
         }
     }
-    
+
 }
