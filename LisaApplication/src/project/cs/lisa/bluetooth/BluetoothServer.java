@@ -173,8 +173,12 @@ public class BluetoothServer extends Thread {
 		try {
 			Log.d(TAG, "Close BluetoothServerSocket. Stop listening.");
 
-			mServerListens = false;
-			mBtServerSocket.close();
+			if (mServerListens) {
+				mServerListens = false;
+				mBtServerSocket.close();
+			} else {
+				Log.d(TAG, "Bluetooth Server is already closed.");
+			}
 
 		} catch (IOException e) {
 			Log.e(TAG, "Error while closing Bluetooth socket");

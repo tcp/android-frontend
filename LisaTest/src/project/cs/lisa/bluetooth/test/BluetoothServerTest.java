@@ -22,24 +22,28 @@ public class BluetoothServerTest extends AndroidTestCase {
 	/** Bluetooth Server instance to test. */
 	BluetoothServer mBtServer;
 	
-	/** Initializes the Bluetooth Server and the Bluetooth Adapter. */
-	public BluetoothServerTest() {
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();	
 		mBtAdapter.enable();
 		while (!mBtAdapter.isEnabled());
-		
-		try {
-			mBtServer = new BluetoothServer();
-		} catch (Exception e) {
-			Assert.fail("Creating a Bluetooth Server should not have raised an exception.");
-		}
+
+		mBtServer = new BluetoothServer();
 	}
 	
 	/** 
 	 * Starts the Bluetooth Server and tests its reactions
 	 * due to different Bluetooth Adapter configurations.
 	 */
-	public void testRun() {		
+	public void testInitialize() {		
+		
+		/* Cancel the current Bluetooth Server in order to 
+		 * test the initialization of a new Server.
+		 */
+		mBtServer.cancel();
+		
 		// Creates a Bluetooth Server with a disabled Bluetooth Adapter.
 		try {
 			mBtAdapter.disable();
@@ -60,8 +64,6 @@ public class BluetoothServerTest extends AndroidTestCase {
 		} catch (IOException e) {
 			Assert.fail("Should not have raised an exception.");
 		}
-		
-		mBtServer.start();
 	}
 	
 	/**
@@ -70,6 +72,15 @@ public class BluetoothServerTest extends AndroidTestCase {
 	public void testCancel() {
 		mBtServer.cancel();
 		assertFalse(mBtServer.isAlive());
+		
+		mBtServer.start();
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		mBtServer.cancel();
 	}
 
 }
