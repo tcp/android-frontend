@@ -27,8 +27,8 @@
 package project.cs.lisa.application.http;
 
 import project.cs.lisa.application.MainNetInfActivity;
-import project.cs.lisa.file.FileHandler;
 import project.cs.lisa.metadata.Metadata;
+import project.cs.lisa.visualize.VisualizeFile;
 import android.util.Log;
 
 /**
@@ -87,10 +87,10 @@ public class NetInfGet extends NetInfRequest {
 		Log.d(TAG, "filePath = " + filePath);
 
 		// Try to display the file
-		int code = FileHandler.displayContent(getActivity(), filePath, contentType);
+		int code = VisualizeFile.displayContent(getActivity(), filePath, contentType);
 		Log.d(TAG, "code = " + code);
 		switch (code) {
-		case FileHandler.OK:
+		case VisualizeFile.OK:
 			break;
 		default:
 			getActivity().showToast("Opening file failed.");
