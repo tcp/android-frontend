@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -26,16 +26,17 @@
  */
 package project.cs.lisa.application.http;
 
+import org.apache.http.client.methods.HttpGet;
+
 import project.cs.lisa.application.MainNetInfActivity;
-import project.cs.lisa.metadata.Metadata;
-import project.cs.lisa.visualize.VisualizeFile;
+import project.cs.lisa.exceptions.NullEntityException;
 import android.util.Log;
 
 /**
  * Used to send NetInf GET requests to the OpenNetInf RESTful API.
  * @author Linus Sunde
  */
-public class NetInfGet extends NetInfRequest {
+public class NetInfRetrieve extends NetInfRequest {
 
 	/** Debug tag. **/
 	public static final String TAG = "NetInfGet";
@@ -48,56 +49,32 @@ public class NetInfGet extends NetInfRequest {
 	 * @param hashAlg      Hash algorithm used
 	 * @param hash         Hash
 	 */
-	public NetInfGet(MainNetInfActivity activity, String host, String port,
+	public NetInfRetrieve(MainNetInfActivity activity, String host, String port,
 			String hashAlg, String hash) {
 
 		super(activity, host, port, hashAlg, hash);
 
 		// TODO make this beautiful
-		setPathPrefix("bo");
-		addQuery("METHOD", "GET");
+		setPathPrefix("retrieve");
 
 	}
 
-	/**
-	 * Handles the response to the sent NetInf GET message.
-	 * @param jsonResponse     The JSON response.
-	 */
-	@Override
-	protected void onPostExecute(String jsonResponse) { 	
-		Log.d(TAG, "onPostExecute()");
-		Log.d(TAG, "jsonString = " + jsonResponse);
+    /**
+     * Asks the NetInf node to retrieve a file using HTTP.
+     * @param   voids   Nothing.
+     * @return          JSON response from the NetInf node
+     *                  or null if the request failed
+     */
+    @Override
+    protected String doInBackground(Void... voids) {
+        Log.d(TAG, "doInBackground()");
 
-		/* 
-		 * If the get request couldn't download the file
-		 * it will notify the user and stop processing.
-		 */
-		Log.d(TAG, "jsonResponse: " + jsonResponse);
-		if (jsonResponse == null) {
-			getActivity().showToast(
-					"Getting file failed. Check your Internet and Bluetooth connections");
-			return;
-		}
-
-		// Parse the JSON
-		Metadata json = new Metadata(jsonResponse);
-		String filePath = json.get("filePath");
-		String contentType = json.get("contentType");
-		Log.d(TAG, "contentType = " + contentType);
-		Log.d(TAG, "filePath = " + filePath);
-
-		// Try to display the file
-		int code = VisualizeFile.displayContent(getActivity(), filePath, contentType);
-		Log.d(TAG, "code = " + code);
-		switch (code) {
-		case VisualizeFile.OK:
-			break;
-		default:
-			getActivity().showToast("Opening file failed.");
-			break;
-		}
-
-
-	}
+        HttpGet get = new HttpGet(getUri());
+        try {
+            return execute(get);
+        } catch (NullEntityException e) {
+            return null;
+        }
+    }
 
 }

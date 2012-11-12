@@ -114,7 +114,7 @@ public abstract class LisaServerResource extends ServerResource {
         identifierLabel2.setLabelValue(hash);
         identifier.addIdentifierLabel(identifierLabel2);
         
-      //Creating the HASH_CONTENT label
+        //Creating the CONTENT_TYPE label
         IdentifierLabel identifierLabel3 = getDatamodelFactory().createIdentifierLabel();
         identifierLabel3.setLabelName(SailDefinedLabelName.CONTENT_TYPE.getLabelName());
         identifierLabel3.setLabelValue(contentType);
