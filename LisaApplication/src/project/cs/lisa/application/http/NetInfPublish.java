@@ -29,7 +29,10 @@ package project.cs.lisa.application.http;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import org.apache.http.client.methods.HttpPut;
+
 import project.cs.lisa.application.MainNetInfActivity;
+import project.cs.lisa.exceptions.NullEntityException;
 import project.cs.lisa.metadata.Metadata;
 import android.bluetooth.BluetoothAdapter;
 import android.util.Log;
@@ -57,8 +60,7 @@ public class NetInfPublish extends NetInfRequest {
         Log.d(TAG, "NetInfPublish()");
 
         // TODO make this beautiful
-        setPathPrefix("ni");
-        addQuery("METHOD", "PUT");
+        setPathPrefix("publish");
 
     }
 
@@ -72,31 +74,26 @@ public class NetInfPublish extends NetInfRequest {
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
 
-        // Try to add the Bluetooth MAC, if success run superclass method.
+        // Try to get the Bluetooth MAC
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
-        String jsonResponse = null;
         if (adapter == null) {
             getActivity().showToast("Error: Bluetooth not supported");
-        } else if (!adapter.isEnabled()) {
-            getActivity().showToast("Error: Bluetooth not enabled");
-        } else {
-            String btMac = adapter.getAddress();
-            addQuery("BTMAC", btMac);
-            jsonResponse = super.doInBackground(voids);
+            return null;
         }
 
-        return jsonResponse;
-    }
+        if (!adapter.isEnabled()) {
+            getActivity().showToast("Error: Bluetooth not enabled");
+            return null;
+        }
 
-    /**
-     * Handles the response to the sent NetInf PUBLISH message.
-     * @param jsonResponse     The JSON response.
-     */
-    @Override
-    protected void onPostExecute(String jsonResponse) {
-        Log.d(TAG, "onPostExecute()");
-        Log.d(TAG, "jsonString = " + jsonResponse);
+        try {
+            addQuery("BTMAC", adapter.getAddress());
+            HttpPut put = new HttpPut(getUri());
+            return execute(put);
+        } catch (NullEntityException e) {
+            return null;
+        }
     }
 
     /**

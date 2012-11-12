@@ -38,8 +38,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import project.cs.lisa.R;
-import project.cs.lisa.application.http.NetInfGet;
 import project.cs.lisa.application.http.NetInfPublish;
+import project.cs.lisa.application.http.NetInfRetrieve;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.file.FileHandler;
 import project.cs.lisa.hash.Hash;
@@ -172,14 +172,49 @@ public class MainNetInfActivity extends Activity {
         // Create a new get request with the current hash
         Log.d(TAG, "Requesting the following hash: " + hash.substring(0, HASH_LENGTH));
 
-        NetInfGet getRequest = new NetInfGet(this,
+        NetInfRetrieve retrieve = new NetInfRetrieve(this,
                 UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                 UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                 UProperties.INSTANCE.getPropertyWithName("hash.alg"),
-                hash.substring(0, HASH_LENGTH));
+                hash.substring(0, HASH_LENGTH)) {
+
+            @Override
+            protected void onPostExecute(String jsonResponse) {
+                /*
+                 * If the get request couldn't download the file
+                 * it will notify the user and stop processing.
+                 */
+                Log.d(TAG, "jsonResponse: " + jsonResponse);
+                if (jsonResponse == null) {
+                    getActivity().showToast(
+                            "Getting file failed. Check your Internet and Bluetooth connections");
+                    return;
+                }
+
+                // Parse the JSON
+                Metadata json = new Metadata(jsonResponse);
+                String filePath = json.get("filePath");
+                String contentType = json.get("contentType");
+                Log.d(TAG, "contentType = " + contentType);
+                Log.d(TAG, "filePath = " + filePath);
+
+                // Try to display the file
+                int code = FileHandler.displayContent(getActivity(), filePath, contentType);
+                Log.d(TAG, "code = " + code);
+                switch (code) {
+                case FileHandler.OK:
+                    break;
+                default:
+                    getActivity().showToast("Opening file failed.");
+                    break;
+                }
+            }
+
+
+        };
 
         // Execute request
-        getRequest.execute();
+        retrieve.execute();
 
         //        For now open the received file in the asynch task.
         //        Later, uncomment this code and use a Handler to get back
@@ -233,7 +268,7 @@ public class MainNetInfActivity extends Activity {
 
         if (data.getScheme().equals("content")) {
             if (data.getData().getPath().contains("/external/images")) {
-            	
+
                 /* Get the file path of the selected image. */
                 Uri selectedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -308,20 +343,20 @@ public class MainNetInfActivity extends Activity {
             Metadata lisaMetaData = new Metadata();
 
             // Metadata has 3 fields: filesize, filename and filetype
-//            lisaMetaData.insert("filesize", String.valueOf(file.length()));
-//            lisaMetaData.insert("filename", file.getName());
-//            lisaMetaData.insert("filetype", FileHandler.getFileContentType(filePath));
+            //            lisaMetaData.insert("filesize", String.valueOf(file.length()));
+            //            lisaMetaData.insert("filename", file.getName());
+            //            lisaMetaData.insert("filetype", FileHandler.getFileContentType(filePath));
             // Metadata has 1 field: publish time
             lisaMetaData.insert("time", Long.toString(System.currentTimeMillis()));
 
             // Convert metadata into readable format
-//            String metaData = lisaMetaData.convertToString();
+            //            String metaData = lisaMetaData.convertToString();
 
             // TODO: Remove this hack! Talk to other team about the metadata storage on their side
-//            metaData = lisaMetaData.remove_brackets(metaData);
+            //            metaData = lisaMetaData.remove_brackets(metaData);
 
             // Log the metadata
-//            Log.d(TAG, "metadata: " + metaData);
+            //            Log.d(TAG, "metadata: " + metaData);
 
             // Publish!
             Log.d(TAG, "Trying to publish a new file.");
@@ -332,19 +367,19 @@ public class MainNetInfActivity extends Activity {
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
                     hash.substring(0, HASH_LENGTH));
             publishRequest.setContentType(contentType);
-//            publishRequest.setMetadata(lisaMetaData);
+            //            publishRequest.setMetadata(lisaMetaData);
             publishRequest.execute();
 
             // Execute the publish
-//            try {
-//                publishRequest.execute(new String[] {contentType, ""});
-                        //URLEncoder.encode(metaData, "UTF-8")});
-//            }
-//            catch (UnsupportedEncodingException e) {
-//                // TODO Auto-generated catch block
-//                Log.d(TAG, "Error encoding");
-//                e.printStackTrace();
-//            }
+            //            try {
+            //                publishRequest.execute(new String[] {contentType, ""});
+            //URLEncoder.encode(metaData, "UTF-8")});
+            //            }
+            //            catch (UnsupportedEncodingException e) {
+            //                // TODO Auto-generated catch block
+            //                Log.d(TAG, "Error encoding");
+            //                e.printStackTrace();
+            //            }
         }
     }
 

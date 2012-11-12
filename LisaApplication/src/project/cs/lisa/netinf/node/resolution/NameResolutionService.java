@@ -43,6 +43,7 @@ import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
 import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
+import netinf.common.exceptions.NetInfResolutionException;
 import netinf.node.resolution.ResolutionService;
 
 import org.apache.http.Header;
@@ -420,11 +421,9 @@ public class NameResolutionService
             Log.d(TAG, "content = " + streamToString(response.getEntity().getContent()));
 
         } catch (UnsupportedEncodingException e) {
-            // TODO WHAT DO I DO IT FAILED D:
-            e.printStackTrace();
+            throw new NetInfResolutionException("Encoding not supported", e);
         } catch (IOException e) {
-            // TODO WHAT DO I DO IT FAILED D:
-            e.printStackTrace();
+            throw new NetInfResolutionException("Unable to connect to NRS", e);
         }
 	}
 

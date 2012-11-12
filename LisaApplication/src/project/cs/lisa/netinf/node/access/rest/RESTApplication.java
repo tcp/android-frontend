@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -34,8 +34,6 @@ import netinf.common.datamodel.DatamodelFactory;
 
 import org.restlet.Application;
 import org.restlet.Restlet;
-import org.restlet.routing.Extractor;
-import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 
 import project.cs.lisa.netinf.node.access.rest.resources.BOResource;
@@ -47,7 +45,7 @@ import project.cs.lisa.netinf.node.access.rest.resources.IOResource;
  *
  */
 public class RESTApplication extends Application {
-	
+
         /** Node Connection, used to access the local NetInf node. **/
 		private NetInfNodeConnection mNodeConnection;
 		/** Implementation of DatamodelFactory, used to create and edit InformationObjects etc. **/
@@ -67,7 +65,7 @@ public class RESTApplication extends Application {
 			mNodeConnection = connection;
 			mDatamodelFactory = factory;
 		}
-	   
+
 		/**
 		 * Gets a connection to the local NetInf node.
 		 * @return the node connection
@@ -87,30 +85,12 @@ public class RESTApplication extends Application {
 		@Override
 		public Restlet createInboundRoot() {
 			Router router = new Router(getContext());
-			
-			// Redirect NetInf Publish requests
-			String target = "/io?HASH_ALG={hash_alg}&HASH={hash}&CT={ct}"
-			        + "&METHOD={method}&BTMAC={btmac}&META={meta}";	     
-			Redirector redirector = new Redirector(
-			        getContext(), target, Redirector.MODE_CLIENT_TEMPORARY);
-			Extractor extractor = new Extractor(getContext(), redirector);    	          
-			extractor.extractFromQuery("btmac", "BTMAC", true);
-			extractor.extractFromQuery("method", "METHOD", true);
-			extractor.extractFromQuery("ct", "CT", true);
-			extractor.extractFromQuery("meta", "META", true); 
-			
-			router.attach("/ni/{hash_alg};{hash}", extractor);
-			router.attach("/io", IOResource.class);
-			
-			// Redirect NetInf Get requests
-			String getTarget = "/bo?HASH_ALG={hash_alg}&HASH={hash}";  
-			Redirector getRedirector = new Redirector(
-			        getContext(), getTarget, Redirector.MODE_CLIENT_TEMPORARY);
-			Extractor getExtractor = new Extractor(getContext(), getRedirector);
-			
-			router.attach("/bo/{hash_alg};{hash}", getExtractor);
-			router.attach("/bo", BOResource.class);
-			
+
+			router.attach("/publish", IOResource.class);
+
+			router.attach("/retrieve", BOResource.class);
+
 			return router;
+
 		}
 }

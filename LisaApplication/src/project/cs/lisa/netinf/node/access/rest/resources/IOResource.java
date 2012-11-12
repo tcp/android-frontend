@@ -59,9 +59,12 @@ import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.attribute.Attribute;
 import netinf.common.exceptions.NetInfCheckedException;
+import netinf.common.exceptions.NetInfUncheckedException;
 
+import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
+import org.restlet.resource.Put;
 
 import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
@@ -77,30 +80,24 @@ public class IOResource extends LisaServerResource {
     /** Debug tag. **/
 	public static final String TAG = "IOResource";
 
-	/** METHOD query variable value for a NetInf GET. **/
-    private static final String GET    = "GET";
-    /** METHOD query variable value for a NetInf PUT. **/
-    private static final String PUT    = "PUT";
-    /** METHOD query variable value for a NetInf DELETE. **/
-    private static final String DELETE = "DELETE";
-    /** METHOD query variable value for a NetInf CACHE. **/
-    private static final String CACHE  = "CACHE";
-
     /** Hash Algorithm. **/
-	private String mHashAlg;
-	/** Hash. **/
-	private String mHash;
-	/** Content Type. **/
-	private String mContentType;
-	/** Method, either GET, PUT, DELETE, or CACHE. **/
-	private String mMethod;
-	/** Bluetooth MAC Address. **/
-	private String mBluetoothMac;
-	/** Metadata. **/
-	private String mMeta;
+    private String mHashAlg;
+
+    /** Hash. **/
+    private String mHash;
+
+    /** Content Type. **/
+    private String mContentType;
+
+    /** Bluetooth MAC Address. **/
+    private String mBluetoothMac;
+
+    /** Metadata. **/
+    private String mMeta;
 
 	/** Implementation of DatamodelFactory, used to create and edit InformationObjects etc. **/
     private DatamodelFactory mDatamodelFactory;
+
     /** Node Connection, used to access the local NetInf node. **/
     private NetInfNodeConnection mNodeConnection;
 
@@ -109,84 +106,66 @@ public class IOResource extends LisaServerResource {
     	super.doInit();
     	Log.d(TAG, "doInit()");
 
-    	mHashAlg          = getQuery().getFirstValue("HASH_ALG", true);
-    	mHash          	  = getQuery().getFirstValue("HASH", true);
-    	mContentType      = getQuery().getFirstValue("CT", true);
-    	mMethod           = getQuery().getFirstValue("METHOD", true);
-    	mBluetoothMac     = getQuery().getFirstValue("BTMAC", true);
-    	mMeta             = getQuery().getFirstValue("META", true);
+    	mHashAlg           = getQuery().getFirstValue("hashAlg", true);
+    	mHash              = getQuery().getFirstValue("hash", true);
+        mContentType       = getQuery().getFirstValue("ct", true);
+        mBluetoothMac      = getQuery().getFirstValue("btmac", true);
+        mMeta              = getQuery().getFirstValue("meta", true);
+
+        Log.d(TAG, "mHashAlg = " + mHashAlg);
+        Log.d(TAG, "mHash = " + mHash);
+        Log.d(TAG, "mContentType = " + mContentType);
+        Log.d(TAG, "mBluetoothMac = " + mBluetoothMac);
+        Log.d(TAG, "mMeta = " + mMeta);
+
         mDatamodelFactory = getDatamodelFactory();
         mNodeConnection   = getNodeConnection();
-
-        Log.d(TAG, "HASH_ALG=" + mHashAlg);
-        Log.d(TAG, "HASH=" + mHash);
-        Log.d(TAG, "CT=" + mContentType);
-        Log.d(TAG, "METHOD=" + mMethod);
-        Log.d(TAG, "BTMAC=" + mBluetoothMac);
-        Log.d(TAG, "META=" + mMeta);
-
 	}
 
-	/**
-	 * Handle the HTTP GET request from the RESTful server according to the method.
-	 * @return an Information Object if it is a GET request
-	 * 		   null if it is a PUT request
-	 */
-	@Get
-	public InformationObject handleGet() {
-		Log.d(TAG, "handleGet()");
+    /**
+     * Debug.
+     */
+    @Post
+    public void handlePost() {
+        Log.e(TAG, "@Post");
+    }
 
-	    // TODO handle other request types as well
+    /**
+     * Debug.
+     */
+    @Get
+    public void handleGet() {
+        Log.e(TAG, "@Get");
+    }
 
-		if (mMethod.equals(GET)) {
-			return getIO();
-		} else if (mMethod.equals(PUT)) {
-            putIO();
-            return null;
-        } else {
-		    return null;
-		}
-	}
-
-	/**
-	 * Not use yet.
-	 */
-	@Post
-	public void handlePost() {
-		Log.d(TAG, "handlePost()");
-	}
-
-	/**
-	 * Gets an IO given its name.
-	 * @return the IO that the NetInf node got.
-	 */
-    private InformationObject getIO() {
-
-        InformationObject io = null;
-
-        //Create Identifier
-        Identifier identifier = createIdentifier(mHashAlg, mHash);
-
-        try {
-            io = mNodeConnection.getIO(identifier);
-        } catch (NetInfCheckedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return io;
+    /**
+     * Debug.
+     */
+    @Delete
+    public void handleDelete() {
+        Log.e(TAG, "@Delete");
     }
 
     /**
      * Publish an IO.
+     * @return      JSON String with key "status" set to "ok" if publish succeeded
+     *              or "failed" if publish failed
      */
-    private void putIO() {
+    @Put
+    public String putIO() {
+        Log.d(TAG, "putIO()");
 
         //Create dummy IO
         InformationObject io = mDatamodelFactory.createInformationObject();
 
         //Creating and setting the identifier
-        Identifier identifier = createIdentifier(mHashAlg, mHash, mContentType);
+        Identifier identifier = createIdentifier(mHashAlg, mHash);
+        if (mContentType != null) {
+            IdentifierLabel label = mDatamodelFactory.createIdentifierLabel();
+            label.setLabelName(SailDefinedLabelName.CONTENT_TYPE.getLabelName());
+            label.setLabelValue(mContentType);
+            identifier.addIdentifierLabel(label);
+        }
         io.setIdentifier(identifier);
 
         if (mBluetoothMac.length() > 0) {
@@ -196,8 +175,7 @@ public class IOResource extends LisaServerResource {
             address.setValue(mBluetoothMac);
             io.addAttribute(address);
         }
-
-        if (!(mMeta.length() > 0)) {
+        if (mMeta == null) {
             // Create empty meta data
             mMeta = "{\"meta\":{}}";
         }
@@ -211,11 +189,15 @@ public class IOResource extends LisaServerResource {
         try {
             Log.d(TAG, "putIO()");
             mNodeConnection.putIO(io);
-
         } catch (NetInfCheckedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            return "{\"status\":\"failed\"}";
+        } catch (NetInfUncheckedException e) {
+            Log.e(TAG, e.getMessage());
+            return "{\"status\":\"failed\"}";
         }
+        Log.d(TAG, "Publish succeeded.");
+        return "{\"status\":\"ok\"}";
     }
 
 }
