@@ -36,7 +36,10 @@ import com.google.inject.Injector;
 
 /**
  * Base class for maintaining a global application state.
+ * 
+ * @author Linus Sunde
  * @author Paolo Boschini
+ * 
  */
 public class MainApplication extends Application {
 

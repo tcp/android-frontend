@@ -49,7 +49,8 @@ public enum SailDefinedLabelName {
    HASH_CONTENT ("HASH_CONTENT", 3),
    FILE_LOCATOR ("FILE_LOCATOR", 4),
    TTL          ("TTL", 5),
-   CONTENT_TYPE ("CONTENT_TYPE",6);
+   CONTENT_TYPE ("CONTENT_TYPE", 6),
+   META_DATA    ("META_DATA", 7);
 
    private final String labelName;
    private final int order;
