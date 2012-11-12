@@ -101,8 +101,11 @@ public class BluetoothServer extends Thread {
 	/**
 	 * Creates a new BluetoothServer that waits for incoming
 	 * bluetooth requests and handles file requests.
+	 * 
+	 * @throws IOException	An exception will be thrown if the 
+	 * 						Server couldn't be initialized.
 	 */
-	public BluetoothServer() {
+	public BluetoothServer() throws IOException {
 		createSharedFolder();
 
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -127,6 +130,8 @@ public class BluetoothServer extends Thread {
 
 			mBtServerSocket = null;
 			mServerListens = false;
+			
+			throw new IOException("Bluetooth Server couldn't be initialized.");
 		} else {
 			mBtServerSocket = tmp;
 			mServerListens = true;
@@ -168,8 +173,12 @@ public class BluetoothServer extends Thread {
 		try {
 			Log.d(TAG, "Close BluetoothServerSocket. Stop listening.");
 
-			mServerListens = false;
-			mBtServerSocket.close();
+			if (mServerListens) {
+				mServerListens = false;
+				mBtServerSocket.close();
+			} else {
+				Log.d(TAG, "Bluetooth Server is already closed.");
+			}
 
 		} catch (IOException e) {
 			Log.e(TAG, "Error while closing Bluetooth socket");

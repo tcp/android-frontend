@@ -79,6 +79,9 @@ public class MainNetInfActivity extends Activity {
     /** Debugging tag. */
     private static final String TAG = "MainNetInfActivity";
 
+	/** Represents the number of attempts to initialize a BluetoothServer. */
+	private static final int NUMBER_OF_ATTEMPTS = 2;
+    
     /** Message communicating if the node were started successfully. */
     public static final String NODE_STARTED_MESSAGE = "project.cs.list.node.started";
 
@@ -167,7 +170,7 @@ public class MainNetInfActivity extends Activity {
     public final void getButtonClicked(final View v) {
         Log.d(TAG, "getButtonClicked()");
 
-        /* Store the input string */
+        // Store the input string 
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
 
@@ -386,8 +389,22 @@ public class MainNetInfActivity extends Activity {
      */
     private void setupBluetoothServer() {
         Log.d(TAG, "setupBluetoothServer()");
-        mBluetoothServer = new BluetoothServer();
-        mBluetoothServer.start();
+        
+        // Tries to initialize the Bluetooth Server several times, if unsuccessful.
+        int attempts = NUMBER_OF_ATTEMPTS;
+        do {
+        	try {
+        		mBluetoothServer = new BluetoothServer();
+        		mBluetoothServer.start();
+        	} catch (IOException e) {
+        		--attempts;
+        		mBluetoothServer = null;
+        	}
+        } while (mBluetoothServer == null && attempts > 0);
+        
+        if (mBluetoothServer == null) {
+        	Log.e(TAG, "BluetoothServer couldn't be initialized.");
+        }
     }
 
     /**
