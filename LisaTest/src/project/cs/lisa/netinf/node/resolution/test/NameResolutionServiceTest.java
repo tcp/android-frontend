@@ -8,9 +8,10 @@ import java.lang.reflect.Method;
 import netinf.common.datamodel.DatamodelFactory;
 import netinf.common.datamodel.impl.DatamodelFactoryImpl;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.mime.Header;
 import org.apache.http.entity.mime.MultipartEntity;
 
 
@@ -93,7 +94,11 @@ public class NameResolutionServiceTest extends AndroidTestCase {
 			method = NameResolutionService.class.getDeclaredMethod("createGet", String.class);
 			result = (HttpPost)method.invoke(mNameResolutionService, uri);
 			
-			//HttpEntity
+			HttpEntity entity = result.getEntity(); 
+			
+			assertEquals(result.getHeaders("Content-Type"),"application/x-www-form-urlencoded");
+			InputStream stream = entity.getContent();
+			assertEquals(uri,stream.toString());
 			
 			
 			
@@ -110,6 +115,12 @@ public class NameResolutionServiceTest extends AndroidTestCase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
