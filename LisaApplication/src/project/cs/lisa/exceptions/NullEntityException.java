@@ -6,7 +6,6 @@ package project.cs.lisa.exceptions;
  * @author Paolo Boschini
  */
 public class NullEntityException extends Exception {
-
     /**
      * Constructs a NullEntityException.
      */
@@ -30,6 +29,5 @@ public class NullEntityException extends Exception {
     public NullEntityException(String message, Throwable cause) {
         super(message, cause);
     }
-
 }
 

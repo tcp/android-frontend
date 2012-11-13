@@ -505,7 +505,6 @@ public class NameResolutionService
 		return post;
 	}
 
-
 	@Override
 	protected ResolutionServiceIdentityObject createIdentityObject() {
 		// TODO Auto-generated method stub
@@ -525,7 +524,6 @@ public class NameResolutionService
             return "";
         }
     }
-
 
 	/**
 	 * Converts a string to a type ByteArrayInputStream.

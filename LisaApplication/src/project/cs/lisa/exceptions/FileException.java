@@ -30,12 +30,13 @@ package project.cs.lisa.exceptions;
  * Class for setting the relevant exceptions associated with out project.
  * @author Thiago Costa Porto
  */
-public class LisaFileException extends Exception {
+public class FileException extends Exception {
+    
     /**
      * Generic constructor for LisaFileException. To be raised when a 'bad' file
      * is given to the program.
      */
-    public LisaFileException() {
+    public FileException() {
         super("Please open a proper file");
     }
     
@@ -43,7 +44,16 @@ public class LisaFileException extends Exception {
      * Constructor for throwing exception with a message field.
      * @param message Message received from throwing call
      */
-    public LisaFileException(String message) {
+    public FileException(String message) {
         super(message);
+    }
+    
+    /**
+     * Throws FileException with cause. 
+     * @param message Err message.
+     * @param cause   Cause of throwable.
+     */
+    public FileException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

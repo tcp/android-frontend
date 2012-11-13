@@ -46,6 +46,9 @@ public class NetInfPublish extends NetInfRequest {
     /** Debug tag. **/
     public static final String TAG = "NetInfPublish";
 
+    /** Bluetooth Adapter. **/
+    BluetoothAdapter mAdapter;
+
     /**
      * Creates a new asynchronous NetInf PUBLISH.
      * @param activity     Activity creating this object
@@ -64,6 +67,22 @@ public class NetInfPublish extends NetInfRequest {
 
     }
 
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+
+        // Try to get the Bluetooth MAC
+        mAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if (mAdapter == null) {
+            MainNetInfActivity.getActivity().showToast("Error: Bluetooth not supported");
+        }
+
+        if (!mAdapter.isEnabled()) {
+            MainNetInfActivity.getActivity().showToast("Error: Bluetooth not enabled");
+        }
+    }
+
     /**
      * Sends the NetInf PUBLISH request to the local node using HTTP.
      * @param   voids   Nothing.
@@ -74,22 +93,13 @@ public class NetInfPublish extends NetInfRequest {
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
 
-        // Try to get the Bluetooth MAC
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-
-        if (adapter == null) {
-            getActivity().showToast("Error: Bluetooth not supported");
+        if (mAdapter == null || !mAdapter.isEnabled()) {
             return null;
         }
 
-        if (!adapter.isEnabled()) {
-            getActivity().showToast("Error: Bluetooth not enabled");
-            return null;
-        }
-
+        addQuery("BTMAC", mAdapter.getAddress());
+        HttpPut put = new HttpPut(getUri());
         try {
-            addQuery("BTMAC", adapter.getAddress());
-            HttpPut put = new HttpPut(getUri());
             return execute(put);
         } catch (NullEntityException e) {
             return null;
