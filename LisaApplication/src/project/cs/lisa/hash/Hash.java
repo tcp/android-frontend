@@ -202,11 +202,11 @@ public class Hash {
     public String encodeResult() {
         return encodeResult(0);
     }
-    
+
     public String encodeResult(int maxChars) {
         String output = null;
         byte[] hash = null;
-                        
+
         MessageDigest digest = null;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -254,7 +254,7 @@ public class Hash {
                 return base64String.substring(0, maxChars);
             }
         }
-                
+
         return base64String;
     } 
 }

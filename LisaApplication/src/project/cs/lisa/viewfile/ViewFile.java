@@ -1,4 +1,4 @@
-package project.cs.lisa.file;
+package project.cs.lisa.viewfile;
 
 import java.io.File;
 import java.util.List;
@@ -20,7 +20,7 @@ import android.widget.Toast;
  * @author Thiago Costa Porto
  */
 
-public class FileHandler {
+public class ViewFile {
     public static final int ERR_NULL_PATH_RECEIVED = -1;
     public static final int ERR_NULL_TYPE_RECEIVED = -2;
     public static final int ERR_EMPTY_PATH_RECEIVED = -3;

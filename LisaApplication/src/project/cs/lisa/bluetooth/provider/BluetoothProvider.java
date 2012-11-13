@@ -61,6 +61,12 @@ public class BluetoothProvider implements ByteArrayProvider {
     
     /** All bluetooth locators have the following indicator in their address. */
     private static final String BLUETOOTH_LOCATOR_INDICATOR = "nimacbt";
+   
+    /** Represents the full loaded progress bar. */
+    private static final int FULL_PROGRESS = 100;
+    
+    /** Represents the number of attempts to connect to a remote device. */
+    private static final int NUMBER_OF_ATTEMPTS = 2;
 
     /** The Bluetooth adapter. */
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -97,7 +103,8 @@ public class BluetoothProvider implements ByteArrayProvider {
             fileArray = downloadFile(socket);
             
         } catch (IOException e) {
-            Log.e(TAG, "Trying to close the socket due to a fail in the connection...");
+            Log.e(TAG, "Connection to locator failed.");
+            fileArray = null;
             
             if (socket != null) {
                 try {
@@ -117,21 +124,38 @@ public class BluetoothProvider implements ByteArrayProvider {
      * @return  The Bluetooth socket for the communication.
      * @throws  IOException The exception for the socket.
      */
-    private BluetoothSocket connectToRemoteDevice(String locator) throws IOException {
+    private BluetoothSocket connectToRemoteDevice(String locator) throws IOException{
         Log.d(TAG, "Start requesting a socket to a remote device: " + locator);
 
         BluetoothSocket socket = null;
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(locator);
-
-        // Get a BluetoothSocket for a connection with the given BluetoothDevice.
-        socket   = device.createRfcommSocketToServiceRecord(MY_UUID);
-
-        /* This is a blocking call and will only return on a
-         * successful connection or an exception.
-         */
-        Log.d(TAG, "Trying to connect to a device through a socket...");
-        mBluetoothAdapter.cancelDiscovery();
-        socket.connect();
+        
+        // Tries to connect to remote device several times up to a limit
+        int attempts = NUMBER_OF_ATTEMPTS;
+        boolean connectionSucceeded = false;
+        do {
+	        try {
+	        	// Get a BluetoothSocket for a connection with the given BluetoothDevice.
+	        	socket   = device.createRfcommSocketToServiceRecord(MY_UUID);
+	        	
+	            /* This is a blocking call and will only return on a
+	             * successful connection or an exception.
+	             */
+	            Log.d(TAG, "Trying to connect to a device through a socket...");
+	            mBluetoothAdapter.cancelDiscovery();
+	            socket.connect();
+	            
+	            connectionSucceeded = true;
+	        } catch (IOException e) {
+	        	--attempts;
+	        }
+        } while (!connectionSucceeded && attempts > 0);
+        
+        if (!connectionSucceeded) {
+        	Log.e(TAG, "Device couldn't establish a connection to selected remote device.");
+        	
+        	throw new IOException("Couldn't establish connection to remote device.");
+        }
 
         return socket;
     }
@@ -200,7 +224,7 @@ public class BluetoothProvider implements ByteArrayProvider {
                 tv.setText("Downloading " + offset + " of " + fileSize + "");
                 ProgressBar pb = (ProgressBar) activity.findViewById(R.id.progressbar_Horizontal);
                 pb.setVisibility(ProgressBar.VISIBLE);
-                pb.setProgress(100 * offset / fileSize);
+                pb.setProgress(FULL_PROGRESS * offset / fileSize);
             }
         });
     }

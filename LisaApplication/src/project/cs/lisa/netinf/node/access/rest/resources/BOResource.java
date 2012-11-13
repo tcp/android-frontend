@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -28,18 +28,18 @@
 /**
  * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
  * (Full list of owners see http://www.netinf.org/about-2/license)
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright notice,
  *       this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  *     * Neither the name of the University of Paderborn nor the names of its contributors may be used to endorse
  *       or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -73,14 +73,14 @@ import android.util.Log;
 
 /**
  * Requests and Retrieves a BO.
- * 
+ *
  * @author Miguel Sosa
  * @author Hugo Negrette
  * @author Paolo Boschini
  * @author Kim-Anh Tran
  * @author Linus Sunde
  * @author Thiago Costa Porto
- * 
+ *
  */
 public class BOResource extends LisaServerResource {
 
@@ -100,7 +100,7 @@ public class BOResource extends LisaServerResource {
     private String mHashAlgorithm;
 
     /** The directory containing the published files. */
-    private String mSharedFolder = 
+    private String mSharedFolder =
             Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
 
     /**
@@ -110,8 +110,8 @@ public class BOResource extends LisaServerResource {
     protected void doInit() {
         super.doInit();
 
-        mHashValue = getQuery().getFirstValue("HASH", true);
-        mHashAlgorithm = getQuery().getFirstValue("HASH_ALG", true);
+        mHashValue = getQuery().getFirstValue("hash", true);
+        mHashAlgorithm = getQuery().getFirstValue("hashAlg", true);
 
         createSharedFolder();
     }
@@ -119,9 +119,10 @@ public class BOResource extends LisaServerResource {
     /**
      * Responds to an HTTP get request. Returns a Map describing the retrieved
      * file.
-     * 
+     *
      * @return The Map that contains the information about the file: First key:
-     *         the file path Second key: the content type of the file
+     *         the file path Second key: the content type of the file.
+     *         If the object couldn't be retrieved the function returns null.
      */
     @Get
     public String retrieveBO() {
@@ -133,31 +134,32 @@ public class BOResource extends LisaServerResource {
         String returnString = null;
 
         // Retrieve a data object from a node (could be an NRS)
-        InformationObject io = retrieveDO();	
+        InformationObject io = retrieveDO();
 
         // Retrieve the data corresponding to the hash from another device.
         if (io != null) {
-            // Store the content type of the requested BO 
+            // Store the content type of the requested BO
             contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
 
             Log.d(TAG, "Trying to receive file with the following content type: " + contentType);
 
-            // Attempt to transfer the BO from a remote device 
+            // Attempt to transfer the BO from a remote device
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
 
             try {
                 fileData = tsDispatcher.getByteArray(io);
             } catch (IOException e) {
                 Log.e(TAG, "Couldn't retrieve the requested data.");
+                return null;
             }
 
-            // Writes the received data to file  
+            // Writes the received data to file
             if (fileData != null) {
-            	
+
             // Fetch metadata from IO
-            String metaData = 
+            String metaData =
             		io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
             Metadata metaLabel = new Metadata(metaData);
 
@@ -175,25 +177,26 @@ public class BOResource extends LisaServerResource {
             lisaMetadata.insert(FILEPATH, filePath);
 
             returnString = lisaMetadata.convertToString();
-            
+
             } else {
                 Log.e(TAG, "No file data to write.");
+                return null;
             }
 
             return returnString;
-            
+
         } else {
             /* TODO: Think about an exception to be thrown here. Maybe handle the return value
                TODO: and throw an exception if that happens. */
             Log.d(TAG, "InformationObject is null. Nothing was done here.");
-            return returnString;
+            return null;
         }
     }
 
     /**
      * Returns an IO (i.e. DO) containing the list of locators that own the
      * requested BO.
-     * 
+     *
      * @return The IO that contains the locator list.
      */
     private InformationObject retrieveDO() {
@@ -231,7 +234,7 @@ public class BOResource extends LisaServerResource {
 
     /**
      * Makes the file specified by file path visible to the user.
-     * 
+     *
      * @param filePath		The file path pointing to the file.
      * @param contentType	The content type of the file.
      */
@@ -244,7 +247,7 @@ public class BOResource extends LisaServerResource {
     /**
      * Creates a new file containing the specified fileData at the specified
      * targetPath.
-     * 
+     *
      * @param targetPath
      *            The location to create the file
      * @param fileData
@@ -258,15 +261,15 @@ public class BOResource extends LisaServerResource {
         try {
             fos = new FileOutputStream(targetPath);
             fos.write(fileData);
-            
+
         } catch (FileNotFoundException e) {
             Log.e(TAG, "Couldn't find file: " + targetPath);
-            
+
         } catch (IOException e) {
             Log.e(TAG, "Failed while writing data to " + targetPath);
-            
+
         } finally {
-        	
+
         	// Clean up the output stream
             if (fos != null) {
                 try {

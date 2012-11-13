@@ -86,6 +86,9 @@ public enum TransferDispatcher {
     /** The debug tag. */
     private static final String TAG = "TransferDispatcher";
 
+    /** The prefix for identifying bluetooth locator nodes. */
+    private static final String BLUETOOTH_PREFIX = "nimacbt://";
+    
     /** The list of available byte array providers. */
     private List<ByteArrayProvider> mByteArrayProviders;
 
@@ -117,12 +120,11 @@ public enum TransferDispatcher {
         /* Try to discover available devices and only keep those
          * locators that are right now available via bluetooth.
          */
-        List<String> availableFilteredBluetoothLocators = filterLocators(locators);
+        List<String> availableFilteredBluetoothLocators = filterBluetoothLocators(locators);
         
         byte[] resultArray;
         String hash = io.getIdentifier().getIdentifierLabel(
         		SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
-
 
         // Tries to retrieve the BO from the first possible locator. 
         for (String currentLocator : availableFilteredBluetoothLocators) {
@@ -146,11 +148,21 @@ public enum TransferDispatcher {
      * @return			The sublist of locators that are available
      * 					via bluetooth.
      */
-    private List<String> filterLocators(List<Attribute> locators) {
+    private List<String> filterBluetoothLocators(List<Attribute> locators) {
     	Log.d(TAG, "Filter locators.");
     	
     	BluetoothDiscovery btDiscovery = BluetoothDiscovery.INSTANCE;
         List<String> availableLocators = btDiscovery.startBluetoothDiscovery();
+               
+        // Configure locator identifiers to have the bluetooth locator node prefix. 
+        int numberOfLocators = availableLocators.size();
+        for (int i = 0; i < numberOfLocators; ++i) {    
+        	String locator = availableLocators.get(i);
+        	locator = BLUETOOTH_PREFIX + locator;
+        	availableLocators.set(i, locator);
+        }
+        
+        Log.d(TAG, "The first locator: " + availableLocators.get(0));
         
         /* 
          * Converts the Attribute locators to String locators that represent
@@ -207,10 +219,11 @@ public enum TransferDispatcher {
         
         ByteArrayProvider provider = getByteArrayProvider(locator);
         if (provider != null) {
-        	String locatorAddress = extractLocatorAddress(locator);
-        	return provider.getByteArray(locatorAddress, hash);
+        	String locatorMacAddress = extractLocatorAddress(locator);
+        	return provider.getByteArray(locatorMacAddress, hash);
         	
         } else {
+        	Log.e(TAG, "No provider could be found.");
         	return null;
         }
     }   
