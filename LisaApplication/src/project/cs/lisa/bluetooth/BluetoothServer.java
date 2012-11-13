@@ -37,7 +37,6 @@ import java.util.UUID;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.MainNetInfActivity;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
@@ -101,8 +100,8 @@ public class BluetoothServer extends Thread {
 	/**
 	 * Creates a new BluetoothServer that waits for incoming
 	 * bluetooth requests and handles file requests.
-	 * 
-	 * @throws IOException	An exception will be thrown if the 
+	 *
+	 * @throws IOException	An exception will be thrown if the
 	 * 						Server couldn't be initialized.
 	 */
 	public BluetoothServer() throws IOException {
@@ -130,7 +129,7 @@ public class BluetoothServer extends Thread {
 
 			mBtServerSocket = null;
 			mServerListens = false;
-			
+
 			throw new IOException("Bluetooth Server couldn't be initialized.");
 		} else {
 			mBtServerSocket = tmp;
@@ -291,7 +290,7 @@ public class BluetoothServer extends Thread {
 	 *             1 for Sent
 	 */
 	public void onBufferSend(final int done) {
-		final Activity activity = (Activity) MainNetInfActivity.getContext();
+	    final MainNetInfActivity activity = MainNetInfActivity.getActivity();
 
 		activity.runOnUiThread(new Runnable() {
 			public void run() {

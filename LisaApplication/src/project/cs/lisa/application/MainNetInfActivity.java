@@ -81,7 +81,7 @@ public class MainNetInfActivity extends Activity {
 
 	/** Represents the number of attempts to initialize a BluetoothServer. */
 	private static final int NUMBER_OF_ATTEMPTS = 2;
-    
+
     /** Message communicating if the node were started successfully. */
     public static final String NODE_STARTED_MESSAGE = "project.cs.list.node.started";
 
@@ -98,7 +98,7 @@ public class MainNetInfActivity extends Activity {
     private BluetoothServer mBluetoothServer;
 
     /** Activity context. */
-    private static Context sContext;
+    private static MainNetInfActivity mMainNetInfActivity;
 
     /** Toast. **/
     private Toast mToast;
@@ -109,7 +109,7 @@ public class MainNetInfActivity extends Activity {
         Log.d(TAG, "onCreate()");
 
         mApplication = (MainApplication) getApplication();
-        sContext = this;
+        mMainNetInfActivity = this;
         mToast = new Toast(this);
 
         setupBluetoothAvailability();
@@ -160,7 +160,7 @@ public class MainNetInfActivity extends Activity {
      */
     private void setupBluetoothAvailability() {
         BTHandler bt = new BTHandler();
-        bt.forceEnable(sContext);
+        bt.forceEnable(mMainNetInfActivity);
     }
 
     /**
@@ -170,7 +170,7 @@ public class MainNetInfActivity extends Activity {
     public final void getButtonClicked(final View v) {
         Log.d(TAG, "getButtonClicked()");
 
-        // Store the input string 
+        // Store the input string
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
 
@@ -389,7 +389,7 @@ public class MainNetInfActivity extends Activity {
      */
     private void setupBluetoothServer() {
         Log.d(TAG, "setupBluetoothServer()");
-        
+
         // Tries to initialize the Bluetooth Server several times, if unsuccessful.
         int attempts = NUMBER_OF_ATTEMPTS;
         do {
@@ -401,7 +401,7 @@ public class MainNetInfActivity extends Activity {
         		mBluetoothServer = null;
         	}
         } while (mBluetoothServer == null && attempts > 0);
-        
+
         if (mBluetoothServer == null) {
         	Log.e(TAG, "BluetoothServer couldn't be initialized.");
         }
@@ -411,8 +411,8 @@ public class MainNetInfActivity extends Activity {
      * Returns the context of this activity.
      * @return  the context
      */
-    public static Context getContext() {
-        return sContext;
+    public static MainNetInfActivity getActivity() {
+        return mMainNetInfActivity;
     }
 
     /**
