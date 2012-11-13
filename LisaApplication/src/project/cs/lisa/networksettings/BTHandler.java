@@ -44,9 +44,11 @@ public class BTHandler {
 
     public boolean forceEnable(Context context) {
         if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE) {
-            mBluetoothAdapter.enable();
+            //mBluetoothAdapter.enable();
             mIntentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
             context.registerReceiver(mReceive, mIntentFilter);
+            Intent startBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            context.startActivity(startBluetoothIntent);
         }
         
         if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {

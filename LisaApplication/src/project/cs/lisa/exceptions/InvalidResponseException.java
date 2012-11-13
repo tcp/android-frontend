@@ -6,7 +6,6 @@ package project.cs.lisa.exceptions;
  *
  */
 public class InvalidResponseException extends Exception {
-
     /**
      * Constructs a InvalidResponseException with the specified detail message.
      * @param message   the detail message.
@@ -22,6 +21,5 @@ public class InvalidResponseException extends Exception {
      */
     public InvalidResponseException(String message, Throwable cause) {
         super(message, cause);
-    }
-    
+    }   
 }
