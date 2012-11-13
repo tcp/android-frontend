@@ -117,8 +117,8 @@ public class BOResource extends LisaServerResource {
     }
 
     /**
-     * Responds to an HTTP get request. Returns a Map describing the retrieved
-     * file.
+     * Responds to an HTTP get request. Returns a String representing the meta-data
+     * that describes the retrieved file.
      *
      * @return The Map that contains the information about the file: First key:
      *         the file path Second key: the content type of the file.
