@@ -1,4 +1,4 @@
-package project.cs.lisa.netinf.node.resolution;
+package project.cs.lisa.exceptions;
 
 /**
  * Thrown when the response to a NetInf message can't be parsed.
