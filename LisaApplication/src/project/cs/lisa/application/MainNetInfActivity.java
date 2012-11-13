@@ -359,13 +359,13 @@ public class MainNetInfActivity extends Activity {
             // Metadata has 1 field: publish time
 
             // Convert metadata into readable format
-            String metaData = lisaMetaData.convertToString();
+//            String metaData = lisaMetaData.convertToString();
 
             // TODO: Remove this hack! Talk to other team about the metadata storage on their side
-            metaData = lisaMetaData.remove_brackets(metaData);
+//            metaData = lisaMetaData.remove_brackets(metaData);
 
             // Log the metadata
-            Log.d(TAG, "metadata: " + metaData);
+//            Log.d(TAG, "metadata: " + metaData);
 
             // Publish!
             Log.d(TAG, "Trying to publish a new file.");
@@ -376,7 +376,7 @@ public class MainNetInfActivity extends Activity {
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
                     hash.substring(0, HASH_LENGTH));
             publishRequest.setContentType(contentType);
-            //            publishRequest.setMetadata(lisaMetaData);
+            publishRequest.setMetadata(lisaMetaData);
             publishRequest.execute();
         }
     }
