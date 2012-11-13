@@ -20,7 +20,6 @@ import org.apache.http.entity.mime.MultipartEntity;
 
 
 import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
-import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributePurpose;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.netinf.node.resolution.NameResolutionService;
 
@@ -32,9 +31,12 @@ public class NameResolutionServiceTest extends AndroidTestCase {
 	private DatamodelFactory mDatamodelFactory; 
 	private NameResolutionService mNameResolutionService;
 	
+	//private LocalTestServer
+	
+	
 	public NameResolutionServiceTest() {
 		mDatamodelFactory = new DatamodelFactoryImpl();
-		mNameResolutionService = new NameResolutionService(mDatamodelFactory);
+		mNameResolutionService = new NameResolutionService("127,0,0,1",80,mDatamodelFactory);
 	}
 	
 //	private void testPublish() {
@@ -164,7 +166,7 @@ public class NameResolutionServiceTest extends AndroidTestCase {
         io.setIdentifier(identifier);
        
         Attribute address = mDatamodelFactory.createAttribute();
-        address.setAttributePurpose(SailDefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
+        //address.setAttributePurpose(SailDefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
         address.setIdentification(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
         address.setValue(bluetoothMac);
         io.addAttribute(address);   
