@@ -46,7 +46,7 @@ import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
 import project.cs.lisa.util.UProperties;
-import project.cs.lisa.visualize.VisualizeFile;
+import project.cs.lisa.viewfile.ViewFile;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -210,10 +210,10 @@ public class MainNetInfActivity extends Activity {
                 Log.d(TAG, "filePath = " + filePath);
 
                 // Try to display the file
-                int code = VisualizeFile.displayContent(getActivity(), filePath, contentType);
+                int code = ViewFile.displayContent(getActivity(), filePath, contentType);
                 Log.d(TAG, "code = " + code);
                 switch (code) {
-                case VisualizeFile.OK:
+                case ViewFile.OK:
                     break;
                 default:
                     getActivity().showToast("Opening file failed.");
@@ -302,7 +302,7 @@ public class MainNetInfActivity extends Activity {
 
         if (file.exists()) {
             /* Help class for files, extract content type */
-            String contentType = VisualizeFile.getFileContentType(filePath);
+            String contentType = ViewFile.getFileContentType(filePath);
 
             /* Help class for files, generate the hash */
             Hash lisaHash = null;
@@ -356,7 +356,7 @@ public class MainNetInfActivity extends Activity {
             // Metadata has 3 fields: filesize, filename and filetype
             lisaMetaData.insert("filesize", String.valueOf(file.length()));
             lisaMetaData.insert("filename", file.getName());
-            lisaMetaData.insert("filetype", VisualizeFile.getFileContentType(filePath));
+            lisaMetaData.insert("filetype", ViewFile.getFileContentType(filePath));
             lisaMetaData.insert("time", Long.toString(System.currentTimeMillis()));
 
             // Metadata has 1 field: publish time

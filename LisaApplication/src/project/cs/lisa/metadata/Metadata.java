@@ -33,12 +33,16 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+/**
+ * Implementation of Metadata support class.
+ * @author Thiago Costa Porto
+ */
 public class Metadata {
 
     // Class TAG
     private final String TAG = "MetadataClass";
 
-    // Metadata Object
+    // Metadata JSON Object
     private JSONObject mJSONObject;
 
     /**
