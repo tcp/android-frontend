@@ -33,9 +33,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.jsoup.HttpStatusException;
+import org.jsoup.Jsoup;
+import org.jsoup.UnsupportedMimeTypeException;
+import org.jsoup.nodes.Document;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfGet;
@@ -48,18 +54,23 @@ import project.cs.lisa.networksettings.BTHandler;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.visualize.VisualizeFile;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -95,7 +106,7 @@ public class MainNetInfActivity extends Activity {
 
     /** Toast. **/
     private Toast mToast;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,13 +115,130 @@ public class MainNetInfActivity extends Activity {
         mApplication = (MainApplication) getApplication();
         sContext = this; 
         mToast = new Toast(this);
-        
+
         setupBluetoothAvailability();
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
 
         setContentView(R.layout.activity_main);
+
+        // Get the input address 
+        EditText editText = (EditText) findViewById(R.id.url);
+        editText.setText(UProperties.INSTANCE.getPropertyWithName("default.webpage"));
+
+        showStartDialog(new ShareDialog());
+        showStartDialog(new WifiDialog());
+
+        /*
+         * ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar);
+         * Set the color of the progress bar programmatically.
+         * Blue is the default one set in activity_main.xml
+         * pb.setProgressDrawable(getResources().getDrawable(R.drawable.green_progress));
+         * pb.setProgressDrawable(getResources().getDrawable(R.drawable.red_progress));
+         * pb.setProgressDrawable(getResources().getDrawable(R.drawable.blue_progress));
+         */
+    }
+
+    /**
+     * Loads the web page asynchronously.
+     * @author Paolo Boschini
+     *
+     */
+    private class DownloadWebPageTask extends AsyncTask<String, Void, Document> {
+        @Override
+        protected Document doInBackground(String... urls) {
+
+            String pageAddress = urls[0];
+            Document response = null;
+
+            Log.d(TAG, pageAddress);
+
+            // TRY WITHOUT JSOUP, BUT WITH A WHILE LOOP WITH BYTES
+            // TO HAVE A PROGRESS BAR
+            
+            try {                                              
+                // get the actual page
+                response = Jsoup.connect(pageAddress).get();
+            } catch (IllegalArgumentException e) {                          
+                Log.e(TAG, "IllegalArgumentException on " + pageAddress);
+            } catch (MalformedURLException e1) {                          
+                Log.e(TAG, "MalformedURLException on " + pageAddress);
+            } catch (HttpStatusException e2) {                          
+                Log.e(TAG, "HttpStatusException on " + pageAddress);
+            } catch (UnsupportedMimeTypeException e3) {                          
+                Log.e(TAG, "UnsupportedMimeTypeException on " + pageAddress);
+            } catch (SocketTimeoutException e4) {                          
+                Log.e(TAG, "SocketTimeoutException on " + pageAddress);
+            } catch (IOException e5) {                          
+                Log.e(TAG, "IOException on " + pageAddress);
+            }                                                  
+
+            return response;
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            // TODO Auto-generated method stub
+            super.onProgressUpdate(values);
+        }
+        /**
+         * Load the result html into the web view.
+         */
+        @Override
+        protected void onPostExecute(Document doc) {
+            String result = doc.html();
+            WebView webView = (WebView) findViewById(R.id.webView);
+            webView.loadDataWithBaseURL(result, result, "text/html", null, null);
+        }
+    }
+
+    private void showStartDialog(DialogFragment dialog) {
+        android.app.FragmentManager fm = getFragmentManager();
+        dialog.show(fm, "");
+    }
+
+    /**
+     * Try to fetch the requested webpage.
+     * @param v
+     */
+    public final void goButtonClicked(final View v) {
+
+        /* Load web page in the web view for now.
+         * This will generate a request to the NRS or whatever
+         * node acts as an NRS. 
+         */
+        EditText editText = (EditText) findViewById(R.id.url);
+        String url = editText.getText().toString();
+
+        // Dismiss keyboard
+        InputMethodManager imm =
+                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+        WebView webView = (WebView) findViewById(R.id.webView);
+        webView.requestFocus();
+
+        if (!addressIsValid(url)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Invalid url")
+            .setTitle("Invalid url")
+            .setNeutralButton("Ok, sorry :(", null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+        } else {
+            DownloadWebPageTask task = new DownloadWebPageTask();
+            task.execute(url);
+        }
+    }
+
+    /**
+     * Checks if a URL address is valid.
+     * @return
+     */
+    public boolean addressIsValid(String url) {
+        return url.matches("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
     }
 
     @Override
@@ -147,7 +275,7 @@ public class MainNetInfActivity extends Activity {
         mStarterNodeThread = new StarterNodeThread(mApplication);
         mStarterNodeThread.start();
     }
-    
+
     /**
      * Function to forceably initialize Bluetooth and enable discoverability option.
      */   
@@ -162,7 +290,7 @@ public class MainNetInfActivity extends Activity {
      */
     public final void getButtonClicked(final View v) {
         Log.d(TAG, "getButtonClicked()");
-        
+
         /* Store the input string */
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
@@ -208,7 +336,7 @@ public class MainNetInfActivity extends Activity {
     // TODO: Deprecated? Although I think it is better opening image/* for now
     public final void publishButtonClicked(final View v) {
         Log.d(TAG, "publishButtonClicked()");
-        
+
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -237,7 +365,7 @@ public class MainNetInfActivity extends Activity {
 
         if (data.getScheme().equals("content")) {
             if (data.getData().getPath().contains("/external/images")) {
-            	
+
                 /* Get the file path of the selected image. */
                 Uri selectedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -339,19 +467,19 @@ public class MainNetInfActivity extends Activity {
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
                     hash.substring(0,3));
             publishRequest.setContentType(contentType);
-//          publishRequest.setMetadata(lisaMetaData.convertToString());
+            //          publishRequest.setMetadata(lisaMetaData.convertToString());
             publishRequest.execute();
-            
+
             // Execute the publish
-//            try {
-//                publishRequest.execute(new String[] {contentType, ""});
-                        //URLEncoder.encode(metaData, "UTF-8")});
-//            }
-//            catch (UnsupportedEncodingException e) {
-//                // TODO Auto-generated catch block
-//                Log.d(TAG, "Error encoding");
-//                e.printStackTrace();
-//            }
+            //            try {
+            //                publishRequest.execute(new String[] {contentType, ""});
+            //URLEncoder.encode(metaData, "UTF-8")});
+            //            }
+            //            catch (UnsupportedEncodingException e) {
+            //                // TODO Auto-generated catch block
+            //                Log.d(TAG, "Error encoding");
+            //                e.printStackTrace();
+            //            }
         }                       
     }
 
@@ -372,7 +500,7 @@ public class MainNetInfActivity extends Activity {
         Log.d(TAG, "getContext()");
         return sContext;
     }
-    
+
     /**
      * Show a toast.
      * @param text      The text to show in the toast.
@@ -383,7 +511,7 @@ public class MainNetInfActivity extends Activity {
         mToast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         mToast.show();
     }
-    
+
     /**
      * Cancel current toast.
      */
@@ -391,7 +519,7 @@ public class MainNetInfActivity extends Activity {
         Log.d(TAG, "cancelToast()");
         mToast.cancel();
     }
-    
+
     /**
      * Hides the progress bar.
      */
@@ -404,7 +532,7 @@ public class MainNetInfActivity extends Activity {
         TextView tv = (TextView) findViewById(R.id.ProgressBarText);
         tv.setVisibility(TextView.INVISIBLE);
     }
-    
+
     /**
      * Shows the progress bar.
      * @param text String with the text to show to the user. Normally informs
@@ -418,5 +546,5 @@ public class MainNetInfActivity extends Activity {
         tv.setVisibility(TextView.VISIBLE);
         tv.setText(text);
     }
-    
+
 }

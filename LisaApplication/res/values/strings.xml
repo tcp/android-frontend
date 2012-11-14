@@ -24,5 +24,18 @@
     <string name="get_button">Fetch File</string>
     <string name="publish_button">Publish File</string>
     <string name="enter_hash">Enter the hash value</string>
+    <string name="go">GO</string>
+    <string name="dialog_share_msg">To improve your browsing experience, we recommend you to share the content
+        you are browsing. This will require Bluetooth connectivity. Do you want to turn Bluetooth on?</string>
+    <string name="dialog_share_title">Share content?</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_server_settings">Server Settings</string>
+    <string name="menu_help">Help</string>
+    <string name="dialog_wifi_msg">This application requires WiFi connection. Please select a network:</string>
+    <string name="dialog_wifi_title">Select WiFi connection</string>
+    <string name="ok">OK</string>
+    <string name="cancel">"Cancel"</string>
 
 </resources>
