@@ -53,9 +53,11 @@ import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.viewfile.ViewFile;
+import project.cs.lisa.wifi.WifiDiscovery;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -134,8 +136,10 @@ public class MainNetInfActivity extends Activity {
         EditText editText = (EditText) findViewById(R.id.url);
         editText.setText(UProperties.INSTANCE.getPropertyWithName("default.webpage"));
 
-        showStartDialog(new ShareDialog());
-        showStartDialog(new WifiDialog());
+//        showDialog(new ShareDialog());
+//        showDialog(new WifiDialog());
+        
+        showDialog(new WifiInfoMessage());
 
         /*
          * ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar);
@@ -145,6 +149,27 @@ public class MainNetInfActivity extends Activity {
          * pb.setProgressDrawable(getResources().getDrawable(R.drawable.red_progress));
          * pb.setProgressDrawable(getResources().getDrawable(R.drawable.blue_progress));
          */
+    }
+
+    public void doPositiveClickWifiInfoMessage() {
+        Log.d(TAG, "doPositiveClickWifiInfoMessage()");
+        
+        /*
+         *  The user wants to start the wifi scanning,
+         *  so check the wifi is on.
+         */
+        WifiDiscovery wifiDiscovery = new WifiDiscovery();
+        wifiDiscovery.startDiscovery();
+    }
+
+    public void doNegativeClickWifiInfoMessage() {
+        Log.d(TAG, "doNegativeClickWifiInfoMessage()");
+        finish();
+    }
+
+    private void showDialog(DialogFragment dialog) {
+        dialog.show(getFragmentManager(), "");
+        dialog.setCancelable(false);
     }
 
     /**
@@ -199,11 +224,6 @@ public class MainNetInfActivity extends Activity {
             WebView webView = (WebView) findViewById(R.id.webView);
             webView.loadDataWithBaseURL(result, result, "text/html", null, null);
         }
-    }
-
-    private void showStartDialog(DialogFragment dialog) {
-        android.app.FragmentManager fm = getFragmentManager();
-        dialog.show(fm, "");
     }
 
     /**
