@@ -117,8 +117,8 @@ public class BOResource extends LisaServerResource {
     }
 
     /**
-     * Responds to an HTTP get request. Returns a Map describing the retrieved
-     * file.
+     * Responds to an HTTP get request. Returns a String representing the meta-data
+     * that describes the retrieved file.
      *
      * @return The Map that contains the information about the file: First key:
      *         the file path Second key: the content type of the file.
@@ -129,23 +129,12 @@ public class BOResource extends LisaServerResource {
         Log.d(TAG, "Trying to retrieve the BO.");
 
         byte[] fileData = null;
-        String filePath = "";
-        String contentType = "";
-        String returnString = null;
 
         // Retrieve a data object from a node (could be an NRS)
         InformationObject io = retrieveDO();
 
         // Retrieve the data corresponding to the hash from another device.
         if (io != null) {
-            // Store the content type of the requested BO
-            contentType = io.getIdentifier().getIdentifierLabel(
-                    SailDefinedLabelName.CONTENT_TYPE.getLabelName())
-                    .getLabelValue();
-
-            Log.d(TAG, "Trying to receive file with the following content type: " + contentType);
-
-            // Attempt to transfer the BO from a remote device
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
 
             try {
@@ -155,45 +144,58 @@ public class BOResource extends LisaServerResource {
                 return null;
             }
 
-            // Writes the received data to file
             if (fileData != null) {
-
-            // Fetch metadata from IO
-            String metaData =
-            		io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
-            Metadata metaLabel = new Metadata(metaData);
-
-            // Set saving filename to the same filename as in metadata
-            filePath = mSharedFolder + metaLabel.get("filename");
-            Log.d(TAG, "Filepath is: " + filePath);
-
-            // Write it to file
-            writeByteStreamToFile(filePath, fileData);
-            makeFileVisibleToPhone(filePath, contentType);
-
-            // Make a new metadata to pass along the content_type and filepath
-            Metadata lisaMetadata = new Metadata();
-            lisaMetadata.insert(CONTENT_TYPE, contentType);
-            lisaMetadata.insert(FILEPATH, filePath);
-
-            returnString = lisaMetadata.convertToString();
-
+            	String metaDataString = saveBO(io, fileData);
+            	return metaDataString;
+            	
             } else {
                 Log.e(TAG, "No file data to write.");
                 return null;
             }
 
-            return returnString;
-
         } else {
-            /* TODO: Think about an exception to be thrown here. Maybe handle the return value
-               TODO: and throw an exception if that happens. */
-            Log.d(TAG, "InformationObject is null. Nothing was done here.");
+            Log.e(TAG, "InformationObject is null. Nothing was done here.");
             return null;
         }
     }
 
-    /**
+    /** 
+     * Saves the file data corresponding to the specified io and
+     * returns a String representation of the related meta-data.
+     * 
+     * @param io		The Information Object describing the file data
+     * @param fileData	The file data corresponding to the io
+     * @return			Returns a String representation of the meta data.
+     */
+    private String saveBO(InformationObject io, byte[] fileData) {
+        // Store the content type of the requested BO
+        String contentType = io.getIdentifier().getIdentifierLabel(
+                SailDefinedLabelName.CONTENT_TYPE.getLabelName())
+                .getLabelValue();
+	
+        // Fetch metadata from IO
+        String metaData =
+        		io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
+        Metadata metaLabel = new Metadata(metaData);
+
+        // Set saving filename to the same filename as in metadata
+        String filePath = mSharedFolder + metaLabel.get("filename");
+        Log.d(TAG, "Filepath is: " + filePath);
+
+        // Write it to file
+        writeByteStreamToFile(filePath, fileData);
+        makeFileVisibleToPhone(filePath, contentType);
+
+        // Make a new metadata to pass along the content_type and filepath
+        Metadata metadata = new Metadata();
+        metadata.insert(CONTENT_TYPE, contentType);
+        metadata.insert(FILEPATH, filePath);
+
+        return metadata.convertToString();
+        
+	}
+
+	/**
      * Returns an IO (i.e. DO) containing the list of locators that own the
      * requested BO.
      *
