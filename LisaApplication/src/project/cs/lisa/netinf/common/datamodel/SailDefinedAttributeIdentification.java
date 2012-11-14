@@ -1,24 +1,18 @@
-/* Modified by Linus
- * Based on netinf.common.datamodel.DefinedAttributeIdentification
- * added META_DATA("meta_data", false);
- *     an attribute that contains the meta data
- */
-
 /*
  * Copyright (C) 2009-2011 University of Paderborn, Computer Networks Group
  * (Full list of owners see http://www.netinf.org/about-2/license)
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright notice,
  *       this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  *     * Neither the name of the University of Paderborn nor the names of its contributors may be used to endorse
  *       or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -37,18 +31,17 @@ import netinf.common.datamodel.rdf.DefinedRdfNames;
  * This class contains a list of all predefined attribute identifications. With the help of the
  * {@link SailDefinedAttributeIdentification#getURI()} method, it is possible to access the underlying URI of the according defined
  * attribute.
- * 
+ *
  * @author PG Augnet 2, University of Paderborn
  */
 public enum SailDefinedAttributeIdentification {
 
    LOCATOR_PRIORITY("locator_priority", false), // specifies the priority for a locator
-   BLUETOOTH_MAC("bluetooth_mac", false),  
+   BLUETOOTH_MAC("bluetooth_mac", false),
    WIFI_MAC("wifi_mac", false),
    WIFI_IP("wifi_ip", false),
-   NCS_URL("ncs_url", false),
-   META_DATA("meta_data", false);
-   
+   NCS_URL("ncs_url", false);
+
    private final String uri;
 
    private SailDefinedAttributeIdentification(String uri, boolean fromNetInf) {

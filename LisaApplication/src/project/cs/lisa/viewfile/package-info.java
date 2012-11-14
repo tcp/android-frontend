@@ -1,4 +1,4 @@
 /**
  * Provides file handling functions
  */
-package project.cs.lisa.visualize;
+package project.cs.lisa.viewfile;
