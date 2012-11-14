@@ -11,9 +11,9 @@ import org.restlet.resource.ServerResource;
 
 import project.cs.lisa.application.http.Locator;
 import project.cs.lisa.application.http.NetInfPublish;
+import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.mock.MockServer;
 import android.test.InstrumentationTestCase;
-import android.util.Log;
 
 public class NetInfPublishTest extends InstrumentationTestCase {
 
@@ -26,15 +26,31 @@ public class NetInfPublishTest extends InstrumentationTestCase {
     private static final String mHost = "localhost";
     private static final String mHashAlg = "sha-256";
     private static final String mBluetoothMac = "11:22:33:44:55:66";
+    private static final String mMetaKey = "metaKey";
+    private static final String mMetaValue = "metaValue";
+    private static final String mMetaJsonTag = "meta";
 
     private MockServer mMockServer;
 
     public static class MockServerResource extends ServerResource {
         @Put
         public String mockGet() {
-            Log.d("TEST", "@Get");
+
             assertNotNull("Hash not in URI query", getQuery().getFirstValue("hash"));
             assertNotNull("Hash algorithm not in URI query", getQuery().getFirstValue("hashAlg"));
+
+            String jsonMeta = getQuery().getFirstValue("meta");
+            if (jsonMeta != null) {
+                Object extObj = JSONValue.parse(jsonMeta);
+                assertTrue("Ext should be JSON", extObj instanceof JSONObject);
+                JSONObject ext = (JSONObject) extObj;
+                assertTrue("Ext should have contained a specific key", ext.containsKey(mMetaJsonTag));
+                Object metaObj = ext.get(mMetaJsonTag);
+                assertTrue("Meta should be JSON", metaObj instanceof JSONObject);
+                JSONObject meta = (JSONObject) metaObj;
+                assertTrue("Meta should have contained a specific key", meta.containsKey(mMetaKey));
+                assertEquals("Meta contained wrong data for the specific key", meta.get(mMetaKey), mMetaValue);
+            }
 
             if (getQuery().getFirstValue("hash").equals(mHash)) {
                 JSONObject json = new JSONObject();
@@ -117,7 +133,7 @@ public class NetInfPublishTest extends InstrumentationTestCase {
                 assertTrue("Should have received JSON as response", obj instanceof JSONObject);
                 JSONObject json = (JSONObject) obj;
                 assertTrue("JSON response should have contained status",json.containsKey("status"));
-                assertEquals("JSON response should have contained status ok", json.get("status"), "ok");
+                assertEquals("JSON response value of status wrong", json.get("status"), "ok");
                 // Signal done
                 signal.countDown();
             }
@@ -156,7 +172,7 @@ public class NetInfPublishTest extends InstrumentationTestCase {
                 assertTrue("Should have received JSON as response", obj instanceof JSONObject);
                 JSONObject json = (JSONObject) obj;
                 assertTrue("JSON response should have contained status",json.containsKey("status"));
-                assertEquals("JSON response should have contained status ok", json.get("status"), "ok");
+                assertEquals("JSON response value of status wrong", json.get("status"), "ok");
                 // Signal done
                 signal.countDown();
             }
@@ -194,6 +210,50 @@ public class NetInfPublishTest extends InstrumentationTestCase {
                 signal.countDown();
             }
         };
+
+        // Run on UI thread
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                publish.execute();
+            }
+        });
+
+        // Wait a few seconds for the done signal, if timeout fail
+        assertTrue("Request took more than " + TIMEOUT_SECONDS + " seconds.",
+                signal.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
+
+    }
+
+    public void testPublishWithMetadata() throws Throwable {
+
+        // Signal used to wait for ASyncTask
+        final CountDownLatch signal = new CountDownLatch(1);
+
+        // Locators
+        HashSet<Locator> locators = new HashSet<Locator>();
+        Locator locator = new Locator(Locator.Type.BLUETOOTH, mBluetoothMac);
+        locators.add(locator);
+
+        final NetInfPublish publish = new NetInfPublish(mHost, Integer.toString(MockServer.PORT), mHashAlg, mHash, locators) {
+            @Override
+            protected void onPostExecute(String jsonResponse) {
+                assertNotNull("Should have received a response", jsonResponse);
+                Object obj = JSONValue.parse(jsonResponse);
+                assertTrue("Should have received JSON as response", obj instanceof JSONObject);
+                JSONObject json = (JSONObject) obj;
+                assertTrue("JSON response should have contained status",json.containsKey("status"));
+                assertEquals("JSON response value of status wrong", json.get("status"), "ok");
+                // Signal done
+                signal.countDown();
+            }
+        };
+
+        // Metadata
+        Metadata metadata = new Metadata();
+        metadata.insert(mMetaKey, mMetaValue);
+
+        publish.setMetadata(metadata);
 
         // Run on UI thread
         runTestOnUiThread(new Runnable() {
