@@ -26,15 +26,15 @@
  */
 package project.cs.lisa.application.http;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Set;
 
 import org.apache.http.client.methods.HttpPut;
 
-import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
 import project.cs.lisa.metadata.Metadata;
-import android.bluetooth.BluetoothAdapter;
 import android.util.Log;
 
 /**
@@ -46,41 +46,28 @@ public class NetInfPublish extends NetInfRequest {
     /** Debug tag. **/
     public static final String TAG = "NetInfPublish";
 
-    /** Bluetooth Adapter. **/
-    BluetoothAdapter mAdapter;
+    /** Locators. **/
+    private Set<Locator> mLocators;
 
     /**
      * Creates a new asynchronous NetInf PUBLISH.
-     * @param activity     Activity creating this object
      * @param host         Target host of the message
      * @param port         Target port
      * @param hashAlg      Hash algorithm used
      * @param hash         Hash
+     * @param locators     Set of locators to publish
      */
-    public NetInfPublish(MainNetInfActivity activity, String host, String port,
-            String hashAlg, String hash) {
-        super(activity, host, port, hashAlg, hash);
+    public NetInfPublish(String host, String port,
+            String hashAlg, String hash, Set<Locator> locators) {
+
+        super(host, port, hashAlg, hash);
         Log.d(TAG, "NetInfPublish()");
+
+        mLocators = locators;
 
         // TODO make this beautiful
         setPathPrefix("publish");
 
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-
-        // Try to get the Bluetooth MAC
-        mAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        if (mAdapter == null) {
-            MainNetInfActivity.getActivity().showToast("Error: Bluetooth not supported");
-        }
-
-        if (!mAdapter.isEnabled()) {
-            MainNetInfActivity.getActivity().showToast("Error: Bluetooth not enabled");
-        }
     }
 
     /**
@@ -93,15 +80,25 @@ public class NetInfPublish extends NetInfRequest {
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
 
-        if (mAdapter == null || !mAdapter.isEnabled()) {
+        // Don't publish without locators
+        if (mLocators == null || mLocators.size() == 0) {
             return null;
         }
 
-        addQuery("BTMAC", mAdapter.getAddress());
+        // Add locators
+        for (Locator locator : mLocators) {
+            addQuery(locator.getQueryKey(), locator.getQueryValue());
+        }
+
+        // Execute HTTP request
         HttpPut put = new HttpPut(getUri());
         try {
             return execute(put);
         } catch (NullEntityException e) {
+            Log.e(TAG, e.getMessage());
+            return null;
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
             return null;
         }
     }
@@ -112,7 +109,7 @@ public class NetInfPublish extends NetInfRequest {
      */
     public void setContentType(String contentType) {
         Log.d(TAG, "setContentType()");
-        addQuery("CT", contentType);
+        addQuery("ct", contentType);
     }
 
     /**
@@ -126,7 +123,7 @@ public class NetInfPublish extends NetInfRequest {
         try {
             String encodedMetadata = URLEncoder.encode(metadataJsonString, "UTF-8");
             Log.d(TAG, "encoded = " + encodedMetadata);
-            addQuery("META", encodedMetadata);
+            addQuery("meta", encodedMetadata);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "UTF-8 not supported");
             e.printStackTrace();
