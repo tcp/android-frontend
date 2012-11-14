@@ -53,7 +53,7 @@ import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.viewfile.ViewFile;
-import project.cs.lisa.wifi.WifiDiscovery;
+import project.cs.lisa.wifi.WifiHandler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -158,13 +158,14 @@ public class MainNetInfActivity extends Activity {
          *  The user wants to start the wifi scanning,
          *  so check the wifi is on.
          */
-        WifiDiscovery wifiDiscovery = new WifiDiscovery();
+        WifiHandler wifiDiscovery = new WifiHandler();
         wifiDiscovery.startDiscovery();
     }
 
     public void doNegativeClickWifiInfoMessage() {
         Log.d(TAG, "doNegativeClickWifiInfoMessage()");
         finish();
+        // Ugly but it works
     }
 
     private void showDialog(DialogFragment dialog) {

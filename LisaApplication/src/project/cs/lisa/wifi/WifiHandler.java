@@ -40,6 +40,8 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 
 /**
  * Singleton for performing a Bluetooth discovery task.
@@ -47,7 +49,7 @@ import android.util.Log;
  * @author Paolo Boschini
  * @author Kim-Anh Tran
  */
-public class WifiDiscovery {
+public class WifiHandler {
 
     /** The constant timeout for the Bluetooth discovery task. 
     private static final int TIMEOUT = 10000; */
@@ -65,7 +67,7 @@ public class WifiDiscovery {
 
     WifiManager wifiManager;
 
-    public WifiDiscovery() {
+    public WifiHandler() {
         wifiManager = (WifiManager) MainNetInfActivity.getActivity().getSystemService(Context.WIFI_SERVICE); 
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
@@ -91,48 +93,10 @@ public class WifiDiscovery {
         progressBar.show();
     }
 
-    //    private BluetoothDiscovery() {
-    //
-    //        // Setup a broadcast receiver for being notified when a new device was found
-    //        setUpBroadcastReceiver();
-    //        mIntentFilter = new IntentFilter();
-    //        mIntentFilter.addAction(BluetoothDevice.ACTION_FOUND);
-    //        MainApplication.getAppContext().registerReceiver(mBroadcastReceiver, mIntentFilter);
-    //
-    //        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    //    }
-    //
-    //    /**
-    //     * Returns a list of available Bluetooth devices.
-    //     * It performs a discovery within a fixed timeout of TIMEOUT seconds.
-    //     * Why? Well, because there is no sense
-    //     * trying to discover Bluetooth devices for a longer time.
-    //     * 
-    //     * @return  The list of available devices represented by MAC:addresses.
-    //     */
-    //    public synchronized List<String> startBluetoothDiscovery() {
-    //        Log.d(TAG, "Start bluetooth discovery.");
-    //
-    //        // Initiate a new list every time we start a discovery 
-    //        mAvailableDevices = new ArrayList<String>();
-    //
-    //        mBluetoothAdapter.startDiscovery();
-    //
-    //        // Wait for the discover to finish within n seconds 
-    //        try {
-    //            Thread.sleep(TIMEOUT);
-    //        } catch (InterruptedException e) {
-    //            Log.e(TAG, "Timeout sleep was interrupted.");
-    //        }
-    //
-    //        // Discovery done, cancel it
-    //        mBluetoothAdapter.cancelDiscovery();
-    //
-    //        Log.d(TAG, "Bluetooth discovery is finished.");
-    //
-    //        return mAvailableDevices;
-    //    }
-
+    public void connectToSelectedNetwork(String networkSSID) {
+        Log.d(TAG, "Yeah, let's try to connect to " + networkSSID);
+    }
+    
     /**
      * Broadcast Receiver mReceive that handles with WIFI 'signal' changes.
      * This is used to populate the device list as well as altering the text
@@ -155,7 +119,8 @@ public class WifiDiscovery {
                     wifis.add(scanResult.SSID);
                 }
                 
-                (new WifiDialog(wifis)).show(MainNetInfActivity.getActivity().getFragmentManager(), "");
+                // Show to the user the dialog with discovered wifi networks
+                (new WifiDialog(wifis, WifiHandler.this)).show(MainNetInfActivity.getActivity().getFragmentManager(), "");
             }
         }
     };
