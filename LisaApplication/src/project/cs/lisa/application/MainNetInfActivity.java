@@ -158,8 +158,8 @@ public class MainNetInfActivity extends Activity {
          *  The user wants to start the wifi scanning,
          *  so check the wifi is on.
          */
-        WifiHandler wifiDiscovery = new WifiHandler();
-        wifiDiscovery.startDiscovery();
+        WifiHandler wifiHandler = new WifiHandler();
+        wifiHandler.startDiscovery();
     }
 
     public void doNegativeClickWifiInfoMessage() {

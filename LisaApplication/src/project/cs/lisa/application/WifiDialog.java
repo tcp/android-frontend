@@ -1,10 +1,9 @@
 package project.cs.lisa.application;
 
-import java.util.List;
+import java.util.Set;
 
 import project.cs.lisa.R;
 import project.cs.lisa.wifi.WifiHandler;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -16,16 +15,15 @@ public class WifiDialog extends DialogFragment {
 
     private static final String TAG = "WifiDialog";
 
-    private List<String> wifis;
+    private Set<String> wifis;
 
     WifiHandler wifiHandler;
 
     String selectedWifi;
 
-    public WifiDialog(List<String> wifis, WifiHandler wifiHandler) {
+    public WifiDialog(Set<String> wifis, WifiHandler wifiHandler) {
         this.wifis = wifis;
         this.wifiHandler = wifiHandler;
-        Log.d(TAG, wifis.toString());
     }
 
     @Override

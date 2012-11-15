@@ -27,21 +27,25 @@
 
 package project.cs.lisa.wifi;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.application.WifiDialog;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.wifi.ScanResult;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 
 /**
  * Singleton for performing a Bluetooth discovery task.
@@ -55,48 +59,66 @@ public class WifiHandler {
     private static final int TIMEOUT = 10000; */
 
     /** The Debug TAG for this Activity. */
-    private static final String TAG = "WifiDiscovery";
+    private static final String TAG = "WifiHandler";
 
     /** The filter for choosing what actions the broadcast receiver will catch. */
     private IntentFilter mIntentFilter;
 
     /** The list that contains the discovered wifi networks. */
     private List<ScanResult> wifiScannedNetworks;
-    
+
     private ProgressDialog progressBar;
 
     WifiManager wifiManager;
+
+    private String currentChosenNetwork;
 
     public WifiHandler() {
         wifiManager = (WifiManager) MainNetInfActivity.getActivity().getSystemService(Context.WIFI_SERVICE); 
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
         }
+        
+        progressBar = new ProgressDialog(MainNetInfActivity.getActivity());
+
     }
 
     public void startDiscovery() {
 
-        setUpProgressDialog();
+        showProgressDialog("Scanning wifi networks...");
 
         // when the wifi scanning is done, call onReceive in mReceiver
-        IntentFilter iFilter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        MainNetInfActivity.getActivity().registerReceiver(mReceiver, iFilter);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        MainNetInfActivity.getActivity().registerReceiver(mReceiver, filter);
 
         wifiManager.startScan();
     }
 
-    private void setUpProgressDialog() {
+    private void showProgressDialog(String message) {
         // Start ProgressDialog for discovering wifi networks
-        progressBar = new ProgressDialog(MainNetInfActivity.getActivity());
         progressBar.setCancelable(true);
-        progressBar.setMessage("Scanning wifi networks...");
+        progressBar.setMessage(message);
         progressBar.show();
     }
 
     public void connectToSelectedNetwork(String networkSSID) {
         Log.d(TAG, "Yeah, let's try to connect to " + networkSSID);
+
+        showProgressDialog("Try to connect to " + networkSSID);
+        
+        currentChosenNetwork = networkSSID;
+
+        WifiConfiguration conf = new WifiConfiguration();
+        conf.SSID = "\"" + networkSSID + "\"";
+        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+        int networkId = wifiManager.addNetwork(conf);
+        wifiManager.disconnect();
+        wifiManager.enableNetwork(networkId, true);
+        wifiManager.reconnect();
     }
-    
+
     /**
      * Broadcast Receiver mReceive that handles with WIFI 'signal' changes.
      * This is used to populate the device list as well as altering the text
@@ -104,23 +126,62 @@ public class WifiHandler {
      */
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
+        private boolean doneScanning = false; 
+
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
             // this is called when the wifi discovery is done
             if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)) {
+
+                /*
+                 *  Prevent the scanning to show the wifi dialog several time.
+                 *  Android scans wifi networks continuously.
+                 */
+                if (doneScanning) {
+                    return;
+                }
+
+                doneScanning = true;
+
                 Log.d(TAG, "Finished scanning");
+
                 progressBar.dismiss();
-                
-                List<String> wifis = new ArrayList<String>();
-                for (ScanResult scanResult : wifiManager.getScanResults()) {
-                    Log.d(TAG, scanResult.SSID);
+
+                List<ScanResult> scanResults = wifiManager.getScanResults();
+                Set<String> wifis = new HashSet<String>();
+                for (ScanResult scanResult : scanResults) {
                     wifis.add(scanResult.SSID);
                 }
                 
+                Log.d(TAG, wifis.toString());
+
                 // Show to the user the dialog with discovered wifi networks
                 (new WifiDialog(wifis, WifiHandler.this)).show(MainNetInfActivity.getActivity().getFragmentManager(), "");
+            }
+
+
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
+
+                String chosenNetWork = wifiManager.getConnectionInfo().getSSID();
+                SupplicantState state = wifiManager.getConnectionInfo().getSupplicantState();
+
+                if (chosenNetWork.equals(currentChosenNetwork) && state == SupplicantState.COMPLETED) {
+
+                    progressBar.dismiss();
+
+                    new AlertDialog.Builder(MainNetInfActivity.getActivity())
+                    .setMessage("You have been successfully connected to " + currentChosenNetwork)
+                    .setTitle("Wifi message")
+                    .setCancelable(true)
+                    .setNeutralButton("OK", null)
+                    .show();
+                }
+                
+                if (doneScanning) MainNetInfActivity.getActivity().unregisterReceiver(mReceiver);
+
+                
             }
         }
     };
