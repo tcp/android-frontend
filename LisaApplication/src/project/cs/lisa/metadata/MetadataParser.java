@@ -64,7 +64,6 @@ public class MetadataParser {
      * @param json JSON Object
      * @return String with 
      */
-    
     public String extractMimeContentType(JSONObject json) {
         Log.d(TAG, "" + json.toString());
         // Value ct (Content-type)

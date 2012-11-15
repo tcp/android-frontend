@@ -94,6 +94,20 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
         mClient = new DefaultHttpClient(httpParams);
     }
 
+    public NetInfRequest(MainNetInfActivity activity, String host, String port) {
+        Log.d(TAG, "NetInfRequest() for searching");
+        mActivity = activity;
+        mHost = host;
+        mPort = port;
+        mPathPrefix = "";
+
+        // HTTP client with a timeout
+        HttpParams httpParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT);
+        mClient = new DefaultHttpClient(httpParams);
+    }
+
     /**
      * Sends the NetInf request to the local node using HTTP.
      * @param   voids   Nothing.

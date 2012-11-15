@@ -33,18 +33,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Random;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONObject;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.application.http.NetInfRetrieve;
+import project.cs.lisa.application.http.NetInfSearch;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
+import project.cs.lisa.search.SearchRequest;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.viewfile.ViewFile;
 import android.app.Activity;
@@ -57,6 +62,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -173,60 +179,69 @@ public class MainNetInfActivity extends Activity {
         // Store the input string
         EditText editText = (EditText) findViewById(R.id.hash_field);
         String hash = editText.getText().toString();
-
-        if (hash.length() != HASH_LENGTH) {
+        
+/*        if (hash.length() != HASH_LENGTH) {
             Toast.makeText(getApplicationContext(),
                     "Only three characters are allowed!", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Create a new get request with the current hash
-        Log.d(TAG, "Requesting the following hash: " + hash.substring(0, HASH_LENGTH));
-
-        NetInfRetrieve retrieve = new NetInfRetrieve(this,
+*/
+        NetInfSearch search = new NetInfSearch(this,
                 UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                 UProperties.INSTANCE.getPropertyWithName("access.http.port"),
-                UProperties.INSTANCE.getPropertyWithName("hash.alg"),
-                hash.substring(0, HASH_LENGTH)) {
+                makeMsgId(),
+                hash,
+                "not defined yet");
 
-            @Override
-            protected void onPostExecute(String jsonResponse) {
-                /*
-                 * If the get request couldn't download the file
-                 * it will notify the user and stop processing.
-                 */
-                Log.d(TAG, "jsonResponse: " + jsonResponse);
-                if (jsonResponse == null) {
-                    getActivity().showToast(
-                            "Getting file failed. Check your Internet and Bluetooth connections");
-                    return;
-                }
-
-                // Parse the JSON
-                Metadata json = new Metadata(jsonResponse);
-                String filePath = json.get("filePath");
-                String contentType = json.get("contentType");
-                Log.d(TAG, "contentType = " + contentType);
-                Log.d(TAG, "filePath = " + filePath);
-
-                // Try to display the file
-                int code = ViewFile.displayContent(getActivity(), filePath, contentType);
-                Log.d(TAG, "code = " + code);
-                switch (code) {
-                case ViewFile.OK:
-                    break;
-                default:
-                    getActivity().showToast("Opening file failed.");
-                    break;
-                }
-            }
-
-
-        };
-
-        // Execute request
-        retrieve.execute();
-
+        search.execute();
+        
+        // Create a new get request with the current hash
+        Log.d(TAG, "Requesting the following hash: " + hash.substring(0, HASH_LENGTH));
+//
+//        NetInfRetrieve retrieve = new NetInfRetrieve(this,
+//                UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+//                UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+//                UProperties.INSTANCE.getPropertyWithName("hash.alg"),
+//                hash.substring(0, HASH_LENGTH)) {
+//
+//            @Override
+//            protected void onPostExecute(String jsonResponse) {
+//                /*
+//                 * If the get request couldn't download the file
+//                 * it will notify the user and stop processing.
+//                 */
+//                Log.d(TAG, "jsonResponse: " + jsonResponse);
+//                if (jsonResponse == null) {
+//                    getActivity().showToast(
+//                            "Getting file failed. Check your Internet and Bluetooth connections");
+//                    return;
+//                }
+//
+//                // Parse the JSON
+//                Metadata json = new Metadata(jsonResponse);
+//                String filePath = json.get("filePath");
+//                String contentType = json.get("contentType");
+//                Log.d(TAG, "contentType = " + contentType);
+//                Log.d(TAG, "filePath = " + filePath);
+//
+//                // Try to display the file
+//                int code = ViewFile.displayContent(getActivity(), filePath, contentType);
+//                Log.d(TAG, "code = " + code);
+//                switch (code) {
+//                case ViewFile.OK:
+//                    break;
+//                default:
+//                    getActivity().showToast("Opening file failed.");
+//                    break;
+//                }
+//            }
+//
+//
+//        };
+//
+//        // Execute request
+//        retrieve.execute();
+//
         //        For now open the received file in the asynch task.
         //        Later, uncomment this code and use a Handler to get back
         //        the filePath and the contentType.
@@ -241,6 +256,24 @@ public class MainNetInfActivity extends Activity {
         //        /* Replace image/* with contentType */
         //        intent.setDataAndType(Uri.fromFile(file), "image/*");
         //        startActivity(intent);
+    }
+
+    private String makeMsgId() {
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        final String tmDevice, tmSerial, androidId;
+        tmDevice = "" + tm.getDeviceId();
+        tmSerial = "" + tm.getSimSerialNumber();
+        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+
+        UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
+        String deviceId = deviceUuid.toString();
+        
+        int randomNumber = new Random(System.currentTimeMillis()).nextInt();
+        
+        String msgId = deviceId + String.valueOf(randomNumber);
+        
+        return msgId;
     }
 
     /**

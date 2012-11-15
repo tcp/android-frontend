@@ -38,6 +38,7 @@ import org.restlet.routing.Router;
 
 import project.cs.lisa.netinf.node.access.rest.resources.BOResource;
 import project.cs.lisa.netinf.node.access.rest.resources.IOResource;
+import project.cs.lisa.search.SearchRequest;
 
 /**
  * Routes NetInf requests to the appropriate classes.
@@ -89,8 +90,9 @@ public class RESTApplication extends Application {
 			router.attach("/publish", IOResource.class);
 
 			router.attach("/retrieve", BOResource.class);
+			
+			router.attach("/search", SearchRequest.class);
 
 			return router;
-
 		}
 }
