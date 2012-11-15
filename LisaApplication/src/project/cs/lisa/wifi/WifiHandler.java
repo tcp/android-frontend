@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 import project.cs.lisa.application.MainNetInfActivity;
-import project.cs.lisa.application.WifiDialog;
+import project.cs.lisa.application.ListDialog;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -115,10 +115,16 @@ public class WifiHandler {
         conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         int networkId = wifiManager.addNetwork(conf);
         wifiManager.disconnect();
+
         wifiManager.enableNetwork(networkId, true);
         wifiManager.reconnect();
+
     }
 
+    public void onDiscoveryDone(Set<String> wifis) {
+        Log.d(TAG, "onDiscoveryDone");
+    }
+    
     /**
      * Broadcast Receiver mReceive that handles with WIFI 'signal' changes.
      * This is used to populate the device list as well as altering the text
@@ -157,8 +163,7 @@ public class WifiHandler {
                 
                 Log.d(TAG, wifis.toString());
 
-                // Show to the user the dialog with discovered wifi networks
-                (new WifiDialog(wifis, WifiHandler.this)).show(MainNetInfActivity.getActivity().getFragmentManager(), "");
+                onDiscoveryDone(wifis);
             }
 
 

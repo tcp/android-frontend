@@ -37,5 +37,6 @@
     <string name="dialog_wifi_title">Select WiFi connection</string>
     <string name="ok">OK</string>
     <string name="cancel">"Cancel"</string>
+    
 
 </resources>

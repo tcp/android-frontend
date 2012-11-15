@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,8 +43,6 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
-
-import com.example.lime.DisplayMessageActivity;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfPublish;
@@ -55,14 +54,14 @@ import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.viewfile.ViewFile;
-import project.cs.lisa.wifi.ChooseWifiActivity;
 import project.cs.lisa.wifi.WifiHandler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -128,6 +127,7 @@ public class MainNetInfActivity extends Activity {
         mMainNetInfActivity = this;
         mToast = new Toast(this);
 
+        setupWifi();
         setupBluetoothAvailability();
         setupBroadcastReceiver();
         setupNode();
@@ -141,15 +141,6 @@ public class MainNetInfActivity extends Activity {
 
 //        showDialog(new ShareDialog());
 //        showDialog(new WifiDialog());
-        
-        Intent intent = new Intent(this, ChooseWifiActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-
-        
-        showDialog(new WifiInfoMessage());
 
         /*
          * ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar);
@@ -161,34 +152,41 @@ public class MainNetInfActivity extends Activity {
          */
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        System.out.println("Request code: " + requestCode);
-        System.out.println("Result code : " + resultCode);
-        System.out.println("Intent data : " + data);
-    }
-
-    public void doPositiveClickWifiInfoMessage() {
-        Log.d(TAG, "doPositiveClickWifiInfoMessage()");
-        
-        /*
-         *  The user wants to start the wifi scanning,
-         *  so check the wifi is on.
-         */
-        WifiHandler wifiHandler = new WifiHandler();
-        wifiHandler.startDiscovery();
-    }
-
-    public void doNegativeClickWifiInfoMessage() {
-        Log.d(TAG, "doNegativeClickWifiInfoMessage()");
-        finish();
-        // Ugly but it works
+    private void setupWifi() {
+        // Create OK dialog
+        showDialog(new OkButtonDialog("Wifi Information", getString(R.string.dialog_wifi_msg), new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d(TAG, "doPositiveClickWifiInfoMessage()");
+                
+                // This is run when OK is clicked
+                // Create a WifiHandler
+                WifiHandler wifiHandler = new WifiHandler() {
+                    @Override
+                    public void onDiscoveryDone(Set<String> wifis) {
+                        
+                        // This is run when the WIFI discovery is done
+                        // Create a ListDialog that shows the networks
+                        ListDialog listDialog = new ListDialog(wifis) {
+                            @Override
+                            public void onConfirm(String wifi) {
+                                
+                                // This is run when the ListDialog is confirmed
+                                connectToSelectedNetwork(wifi);
+                            }
+                        };
+                        showDialog(listDialog);
+                    }
+                };
+                // Start WifiHandler discovery
+                wifiHandler.startDiscovery();
+            }
+        }));
     }
 
     private void showDialog(DialogFragment dialog) {
-        dialog.show(getFragmentManager(), "");
         dialog.setCancelable(false);
+        dialog.show(getFragmentManager(), "");
     }
 
     /**
