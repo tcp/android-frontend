@@ -43,6 +43,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 
+import com.example.lime.DisplayMessageActivity;
+
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.application.http.NetInfRetrieve;
@@ -53,6 +55,7 @@ import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.viewfile.ViewFile;
+import project.cs.lisa.wifi.ChooseWifiActivity;
 import project.cs.lisa.wifi.WifiHandler;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -139,6 +142,13 @@ public class MainNetInfActivity extends Activity {
 //        showDialog(new ShareDialog());
 //        showDialog(new WifiDialog());
         
+        Intent intent = new Intent(this, ChooseWifiActivity.class);
+        EditText editText = (EditText) findViewById(R.id.edit_message);
+        String message = editText.getText().toString();
+        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+
+        
         showDialog(new WifiInfoMessage());
 
         /*
@@ -149,6 +159,14 @@ public class MainNetInfActivity extends Activity {
          * pb.setProgressDrawable(getResources().getDrawable(R.drawable.red_progress));
          * pb.setProgressDrawable(getResources().getDrawable(R.drawable.blue_progress));
          */
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("Request code: " + requestCode);
+        System.out.println("Result code : " + resultCode);
+        System.out.println("Intent data : " + data);
     }
 
     public void doPositiveClickWifiInfoMessage() {
