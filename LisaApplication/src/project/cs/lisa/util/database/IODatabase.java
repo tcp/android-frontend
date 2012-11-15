@@ -26,6 +26,9 @@
  */
 package project.cs.lisa.util.database;
 
+import java.util.List;
+
+import netinf.common.datamodel.InformationObject;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -93,8 +96,48 @@ public class IODatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+		
+		onCreate(db);
+	}
+	
+	/**
+	 * Inserts the specified information object into the database.
+	 * 
+	 * @param io	The information object to insert.
+	 */
+	public void addIO(InformationObject io) {
 		
 	}
-
+	
+	/**
+	 * Deletes the information object corresponding to 
+	 * the specified hash value.
+	 * 
+	 * @param hash	The hash value identifying the information object.
+	 */
+	public void deleteIO(String hash) {
+		
+	}
+	
+	/**
+	 * Returns the information object specified by the hash value, if existent.
+	 * 
+	 * @param hash	The hash value identifying the information object.
+	 * @return		The information object.
+	 */
+	public InformationObject getIO(String hash) {
+		return null;
+	}
+	
+	/**
+	 * Returns the list of all information objects that are stored in the
+	 * database. 
+	 * 
+	 * @return	Returns a list of all information objects.
+	 */
+	public List<InformationObject> getAllIO() {
+		return null;
+	}
+	
 }
