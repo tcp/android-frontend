@@ -26,8 +26,16 @@
  */
 package project.cs.lisa.metadata;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.JSONArray;
 
 import android.util.Log;
 
@@ -46,6 +54,7 @@ public class MetadataParser {
     public static final String TAG_timestamp = "ts";
     public static final String TAG_metadata = "metadata";
     public static final String TAG_loc = "loc";
+    public static final String TAG_meta = "meta";
     
     // JSON Object
     private JSONObject mJSONMetadata;
@@ -101,15 +110,70 @@ public class MetadataParser {
         
         return mimetype;
     }
-}
+    
+    /** 
+     * Returns a map that represents the meta-data contained in the JSON object.
+     * If it fails to read the meta-data, it will return null.
+     * 
+     * @param json	The JSOn object.
+     * @return		The map with all meta-data values.
+     */
+    public Map<String, Object> extractMetaData(JSONObject json) {
+    	Map<String, Object> map = new LinkedHashMap<String, Object>();
+    	
+    	// Extract the metadata from the json object
+    	JSONObject metadata; 
+    	try {
+			metadata = json.getJSONObject(TAG_metadata).getJSONObject(TAG_meta);
+		} catch (JSONException e) {
+			Log.e(TAG, "Extracting the meta-data failed.");
+			return null;
+		}
+    	
+    	//metada.keys does not have a defined type but it always will be a String
+    	@SuppressWarnings("unchecked")
+		Iterator<String> iterator = metadata.keys();
+    	
+    	while (iterator.hasNext()) {
+    		String key = iterator.next();
+    		Object value;
+    		
+			try {
+				value = metadata.get(key);
+				
+	    		if (value instanceof JSONArray) {		
+	    			List<String> list = extractList((JSONArray) value);
+	    			map.put(key, list);
+	    			
+	    		} else {
+	    			map.put(key, value);
+	    		}
+	    		
+			} catch (JSONException e) {
+				Log.e(TAG, "Extracting a value in a meta-data field failed");
+				e.printStackTrace();
+			}
+    	}
+    
+    	
+    	return map;
+    }
 
-// Code to write a quick JSON Object:
-//  String jsonString = null;
-//  try {
-//      JSONObject jobj = new JSONObject("{\"metadata\":{\"ct\":\"oi\"}}");
-//      jsonString = new MetadataParser().extractMimeType(jobj);
-//  } catch (JSONException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//  }
-//  Log.d(TAG, "JSON Extracted String: " + jsonString);
+    /** 
+     * Converts a json array into a collection of corresponding string values.
+     * 
+     * @param jsonArray	The specified json array to convert.
+     * @return			A collection containing the corresponding String values.
+     */
+	private List<String> extractList(JSONArray jsonArray) {
+		List<String> list = new ArrayList<String>();     
+		
+		int len = jsonArray.size();
+		for (int i = 0; i < len; i++) { 
+			list.add(jsonArray.get(i).toString());
+		} 
+		
+		return list;
+	}
+    
+}
