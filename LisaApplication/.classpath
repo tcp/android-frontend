@@ -14,7 +14,5 @@
 	<classpathentry kind="lib" path="libs/protobuf-java-2.3.0.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="libs/sqlite-jdbc-3.7.2-javadoc.jar"/>
-	<classpathentry kind="lib" path="libs/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

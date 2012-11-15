@@ -27,15 +27,14 @@
 package project.cs.lisa.metadata;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.JSONArray;
 
 import android.util.Log;
 
@@ -154,7 +153,6 @@ public class MetadataParser {
 				e.printStackTrace();
 			}
     	}
-    
     	
     	return map;
     }
@@ -162,17 +160,19 @@ public class MetadataParser {
     /** 
      * Converts a json array into a collection of corresponding string values.
      * 
-     * @param jsonArray	The specified json array to convert.
-     * @return			A collection containing the corresponding String values.
+     * @param jsonArray			The specified json array to convert.
+     * @return					A collection containing the corresponding String values.
+     * @throws JSONException	Throws a JSONException in case an array element could not
+     * 							be retrieved.
      */
-	private List<String> extractList(JSONArray jsonArray) {
+	private List<String> extractList(JSONArray jsonArray) throws JSONException {
 		List<String> list = new ArrayList<String>();     
 		
-		int len = jsonArray.size();
+		int len = jsonArray.length();
 		for (int i = 0; i < len; i++) { 
 			list.add(jsonArray.get(i).toString());
 		} 
-		
+
 		return list;
 	}
     
