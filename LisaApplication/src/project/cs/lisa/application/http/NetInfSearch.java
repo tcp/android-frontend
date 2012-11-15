@@ -1,5 +1,7 @@
 package project.cs.lisa.application.http;
 
+import java.io.IOException;
+
 import org.apache.http.client.methods.HttpGet;
 
 import project.cs.lisa.application.MainNetInfActivity;
@@ -71,7 +73,12 @@ public class NetInfSearch extends NetInfRequest {
 //        }
         
         try {
-            execute(search);
+            try {
+                execute(search);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         } catch (NullEntityException e) {
             Log.d(TAG, "something failed during search");
         }

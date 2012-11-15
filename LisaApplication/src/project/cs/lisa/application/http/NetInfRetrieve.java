@@ -26,9 +26,10 @@
  */
 package project.cs.lisa.application.http;
 
+import java.io.IOException;
+
 import org.apache.http.client.methods.HttpGet;
 
-import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
 import android.util.Log;
 
@@ -43,16 +44,15 @@ public class NetInfRetrieve extends NetInfRequest {
 
 	/**
 	 * Creates a new asynchronous NetInf GET.
-	 * @param activity     Activity creating this object
 	 * @param host         Target host of the message
 	 * @param port         Target port
 	 * @param hashAlg      Hash algorithm used
 	 * @param hash         Hash
 	 */
-	public NetInfRetrieve(MainNetInfActivity activity, String host, String port,
+	public NetInfRetrieve(String host, String port,
 			String hashAlg, String hash) {
 
-		super(activity, host, port, hashAlg, hash);
+		super(host, port, hashAlg, hash);
 
 		// TODO make this beautiful
 		setPathPrefix("retrieve");
@@ -69,10 +69,15 @@ public class NetInfRetrieve extends NetInfRequest {
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
 
+        // Execute HTTP request
         HttpGet get = new HttpGet(getUri());
         try {
             return execute(get);
         } catch (NullEntityException e) {
+            Log.e(TAG, "NullEntityException");
+            return null;
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
             return null;
         }
     }
