@@ -41,6 +41,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * The database that contains the data corresponding to an information object
@@ -62,10 +63,10 @@ public class IODatabase extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "IODatabase"; 
 	
 	/** The name of the table containing our Information Object information. */
-	private static final String TABLE_IO = "LocalResolutionTable";
+	private static final String TABLE_IO = "IO";
 	
 	/** The name of the table containing the url values corresponding to each hash value. */
-	private static final String TABLE_URL = "UrlTable";
+	private static final String TABLE_URL = "IO_url";
 	
 	/** The hash value corresponding to the IO. This is the primary key. */
 	private static final String KEY_HASH = "hash";
@@ -138,6 +139,7 @@ public class IODatabase extends SQLiteOpenHelper {
 	 * @param io	The information object to insert.
 	 */
 	public void addIO(InformationObject io) {
+		SQLiteDatabase db = this.getWritableDatabase();
 		
 		Identifier identifier = io.getIdentifier();
 
@@ -154,17 +156,37 @@ public class IODatabase extends SQLiteOpenHelper {
 		Map<String, Object> metadataMap = null;
 		
 		try {
-			metadataMap = 
-					MetadataParser.extractMetaData(new JSONObject(metadata));
+			metadataMap = MetadataParser.extractMetaData(new JSONObject(metadata));
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+			Log.e(TAG,"Error extracting metadata");
+			//TODO Throw Exception
 			e.printStackTrace();
 		}
 		
+		String filePath = (String) metadataMap.get("filepath");
+		String fileSize = (String) metadataMap.get("filesize");
+		List<String> urlList = (List<String>) metadataMap.get("url");
 		
-		ContentValues values = new ContentValues();
+		// Create an entry for the main io table
+		ContentValues ioEntry = new ContentValues();
+		ioEntry.put(KEY_HASH, hash);
+		ioEntry.put(KEY_HASH_ALGORITHM, hashAlgorithm);
+		ioEntry.put(KEY_CONTENT_TYPE, contentType);
 		
+		ioEntry.put(KEY_FILEPATH, filePath);
+		ioEntry.put(KEY_FILE_SIZE, fileSize);
+	
+		db.insert(TABLE_IO, null, ioEntry);
 		
+		// Create an entry for the corresponding url table
+		for (String url : urlList) {
+			ContentValues urlEntry = new ContentValues();	
+			urlEntry.put(KEY_HASH, hash);
+			urlEntry.put(KEY_URL, url);
+			db.insert(TABLE_URL, null, urlEntry);
+		}
+		
+		db.close();		
 	}
 	
 	/**
