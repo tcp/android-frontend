@@ -117,7 +117,7 @@ public class MetadataParser {
      * @param json	The JSOn object.
      * @return		The map with all meta-data values.
      */
-    public Map<String, Object> extractMetaData(JSONObject json) {
+    public static Map<String, Object> extractMetaData(JSONObject json) {
     	Map<String, Object> map = new LinkedHashMap<String, Object>();
     	
     	// Extract the metadata from the json object
@@ -165,7 +165,7 @@ public class MetadataParser {
      * @throws JSONException	Throws a JSONException in case an array element could not
      * 							be retrieved.
      */
-	private List<String> extractList(JSONArray jsonArray) throws JSONException {
+	private static List<String> extractList(JSONArray jsonArray) throws JSONException {
 		List<String> list = new ArrayList<String>();     
 		
 		int len = jsonArray.length();

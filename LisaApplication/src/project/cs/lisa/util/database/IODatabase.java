@@ -27,9 +27,15 @@
 package project.cs.lisa.util.database;
 
 import java.util.List;
+import java.util.Map;
 
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import project.cs.lisa.metadata.MetadataParser;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import android.content.ContentValues;
 import android.content.Context;
@@ -144,6 +150,16 @@ public class IODatabase extends SQLiteOpenHelper {
 		
 		String metadata = identifier.getIdentifierLabel(
 						SailDefinedLabelName.META_DATA.getLabelName()).getLabelValue();
+		
+		Map<String, Object> metadataMap = null;
+		
+		try {
+			metadataMap = 
+					MetadataParser.extractMetaData(new JSONObject(metadata));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 		ContentValues values = new ContentValues();

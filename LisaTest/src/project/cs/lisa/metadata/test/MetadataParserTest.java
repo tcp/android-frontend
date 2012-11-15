@@ -21,14 +21,7 @@ import android.test.AndroidTestCase;
  */
 public class MetadataParserTest extends AndroidTestCase {
 
-		/** The parser under test. */
-		private MetadataParser parser;
-		
-		@Override
-		protected void setUp() throws Exception {
-			super.setUp();
-			parser = new MetadataParser();
-		}
+
 		
 		public void testExtractMetaData() {
 			String jsonString = "{"
@@ -59,7 +52,7 @@ public class MetadataParserTest extends AndroidTestCase {
 			}
 			
 			// Extract the meta data and check its contents
-			Map<String, Object> map = parser.extractMetaData(jsonObject);
+			Map<String, Object> map = MetadataParser.extractMetaData(jsonObject);
 
 			assertEquals(map.get("filename"),"001.jpg");
 			assertEquals(map.get("filetype"),"image/jpeg");
