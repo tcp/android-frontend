@@ -28,7 +28,10 @@ package project.cs.lisa.util.database;
 
 import java.util.List;
 
+import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
+import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -43,6 +46,9 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class IODatabase extends SQLiteOpenHelper {
 	
+	/** Debug Tag. */
+	private static final String TAG = "IODatabase";
+	
 	/** The current database version. */
 	private static final int DATABASE_VERSION = 1;
 	
@@ -50,7 +56,10 @@ public class IODatabase extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "IODatabase"; 
 	
 	/** The name of the table containing our Information Object information. */
-	private static final String TABLE_NAME = "LocalResolutionTable";
+	private static final String TABLE_IO = "LocalResolutionTable";
+	
+	/** The name of the table containing the url values corresponding to each hash value. */
+	private static final String TABLE_URL = "UrlTable";
 	
 	/** The hash value corresponding to the IO. This is the primary key. */
 	private static final String KEY_HASH = "hash";
@@ -69,6 +78,9 @@ public class IODatabase extends SQLiteOpenHelper {
 	
 	/** The file size of the file associated with the IO. */
 	private static final String KEY_FILE_SIZE = "file_size";
+	
+	/** The JSON String representing the meta-data as a whole. */
+	private static final String KEY_METADATA = "meta_data";
 
 	/**
 	 * Creates a new Database for storing IO information.
@@ -83,20 +95,33 @@ public class IODatabase extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String createTable = "CREATE TABLE " + TABLE_NAME + "(" 
+		String createIoTable = "CREATE TABLE " + TABLE_IO + "(" 
 							+ KEY_HASH + " TEXT PRIMARY KEY," 
 							+ KEY_HASH_ALGORITHM + " TEXT NOT NULL, "
 							+ KEY_FILEPATH + " TEXT NOT NULL, "
 							+ KEY_CONTENT_TYPE + " TEXT NOT NULL, "
 							+ KEY_URL + " TEXT NOT NULL, "
-							+ KEY_FILE_SIZE + " REAL NOT NULL CHECK(" + KEY_FILE_SIZE + " > 0.0))";
-		db.execSQL(createTable);
+							+ KEY_FILE_SIZE + " REAL NOT NULL CHECK(" + KEY_FILE_SIZE + " > 0.0), "
+							+ KEY_METADATA + " TEXT NOT NULL)";
+		
+		String createUrlTable = "CREATE TABLE " + TABLE_URL + "(" 
+							+ KEY_HASH + " TEXT NOT NULL, "
+							+ KEY_URL + " TEXT NOT NULL, " 
+							+ "CONSTRAINT primarykey PRIMARY KEY " 
+							+ "( " + KEY_HASH + ", " + KEY_URL + "), "
+							+ "FOREIGN KEY (" + KEY_HASH + ") " 
+							+ "REFERENCES " + TABLE_IO + " ( " + KEY_HASH + ") "
+							+ "ON DELETE CASCADE )";
+									
+		
+		db.execSQL(createIoTable);
+		db.execSQL(createUrlTable);
 	}
 
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_IO + " " + TABLE_URL);
 		
 		onCreate(db);
 	}
@@ -107,6 +132,22 @@ public class IODatabase extends SQLiteOpenHelper {
 	 * @param io	The information object to insert.
 	 */
 	public void addIO(InformationObject io) {
+		
+		Identifier identifier = io.getIdentifier();
+
+		String hash = identifier.getIdentifierLabel(
+				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+		String hashAlgorithm = identifier.getIdentifierLabel(
+				SailDefinedLabelName.HASH_ALG.getLabelName()).getLabelValue();
+		String contentType = identifier.getIdentifierLabel(
+				SailDefinedLabelName.CONTENT_TYPE.getLabelName()).getLabelValue();
+		
+		String metadata = identifier.getIdentifierLabel(
+						SailDefinedLabelName.META_DATA.getLabelName()).getLabelValue();
+		
+		
+		ContentValues values = new ContentValues();
+		
 		
 	}
 	
