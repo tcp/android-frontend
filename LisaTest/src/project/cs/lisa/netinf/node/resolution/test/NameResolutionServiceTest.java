@@ -31,7 +31,7 @@ public class NameResolutionServiceTest extends AndroidTestCase {
 	private DatamodelFactory mDatamodelFactory; 
 	private NameResolutionService mNameResolutionService;
 	
-	//private LocalTestServer
+	
 	
 	
 	public NameResolutionServiceTest() {
