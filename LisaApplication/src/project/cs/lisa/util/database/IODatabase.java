@@ -35,6 +35,7 @@ import netinf.common.datamodel.InformationObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import project.cs.lisa.exceptions.DatabaseException;
 import project.cs.lisa.metadata.MetadataParser;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import android.content.ContentValues;
@@ -136,13 +137,14 @@ public class IODatabase extends SQLiteOpenHelper {
 	/**
 	 * Inserts the specified information object into the database.
 	 * 
-	 * @param io	The information object to insert.
+	 * @param io					The information object to insert.
+	 * @throws DatabaseException 	thrown if insert operation fails
 	 */
-	public void addIO(InformationObject io) {
+	public void addIO(InformationObject io) throws DatabaseException  {
 		SQLiteDatabase db = this.getWritableDatabase();
 		
+		// Extract the field values for inserting them into the database tables
 		Identifier identifier = io.getIdentifier();
-
 		String hash = identifier.getIdentifierLabel(
 				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 		String hashAlgorithm = identifier.getIdentifierLabel(
@@ -150,45 +152,35 @@ public class IODatabase extends SQLiteOpenHelper {
 		String contentType = identifier.getIdentifierLabel(
 				SailDefinedLabelName.CONTENT_TYPE.getLabelName()).getLabelValue();
 		
+		// Extract meta data 
 		String metadata = identifier.getIdentifierLabel(
 						SailDefinedLabelName.META_DATA.getLabelName()).getLabelValue();
-		
-		Map<String, Object> metadataMap = null;
-		
+		Map<String, Object> metadataMap = null;	
 		try {
 			metadataMap = MetadataParser.extractMetaData(new JSONObject(metadata));
 		} catch (JSONException e) {
-			Log.e(TAG,"Error extracting metadata");
-			//TODO Throw Exception
-			e.printStackTrace();
+			Log.e(TAG, "Error extracting metadata");
+			throw new DatabaseException("The IO cannot be inserted into the database. "
+					+ "Because the meta-data could not be extracted.", e);
 		}
-		
+				
 		String filePath = (String) metadataMap.get("filepath");
 		String fileSize = (String) metadataMap.get("filesize");
+		// Will always be a list of Strings
+		@SuppressWarnings("unchecked")
 		List<String> urlList = (List<String>) metadataMap.get("url");
 		
-		// Create an entry for the main io table
-		ContentValues ioEntry = new ContentValues();
-		ioEntry.put(KEY_HASH, hash);
-		ioEntry.put(KEY_HASH_ALGORITHM, hashAlgorithm);
-		ioEntry.put(KEY_CONTENT_TYPE, contentType);
-		
-		ioEntry.put(KEY_FILEPATH, filePath);
-		ioEntry.put(KEY_FILE_SIZE, fileSize);
-	
+		ContentValues ioEntry = createIOEntry(hash, hashAlgorithm, contentType, filePath, fileSize);
 		db.insert(TABLE_IO, null, ioEntry);
-		
-		// Create an entry for the corresponding url table
+			
 		for (String url : urlList) {
-			ContentValues urlEntry = new ContentValues();	
-			urlEntry.put(KEY_HASH, hash);
-			urlEntry.put(KEY_URL, url);
+			ContentValues urlEntry = createUrlEntry(hash, url);
 			db.insert(TABLE_URL, null, urlEntry);
 		}
 		
 		db.close();		
 	}
-	
+
 	/**
 	 * Deletes the information object corresponding to 
 	 * the specified hash value.
@@ -219,4 +211,43 @@ public class IODatabase extends SQLiteOpenHelper {
 		return null;
 	}
 	
+	/**
+	 * Returns a content value object representing an entry in the IO table.
+	 * 
+	 * @param hash			The hash value of the IO
+	 * @param hashAlgorithm The hash algorithm
+	 * @param contentType	The content type
+	 * @param filePath		The file path
+	 * @param fileSize		The file size
+	 * @return				The corresponding content value
+	 */
+	private ContentValues createIOEntry(
+			String hash, String hashAlgorithm, String contentType, 
+			String filePath, String fileSize) {
+		
+		ContentValues ioEntry = new ContentValues();
+		
+		ioEntry.put(KEY_HASH, hash);
+		ioEntry.put(KEY_HASH_ALGORITHM, hashAlgorithm);
+		ioEntry.put(KEY_CONTENT_TYPE, contentType);
+		
+		ioEntry.put(KEY_FILEPATH, filePath);
+		ioEntry.put(KEY_FILE_SIZE, fileSize);
+		
+		return ioEntry;
+	}
+	
+	/**
+	 * Returns a content value object representing an entry in the IO_url table.
+	 * 
+	 * @param hash	The hash value of the IO
+	 * @param url	The url where it can be found
+	 * @return		The corresponding content value
+	 */
+	private ContentValues createUrlEntry(String hash, String url) {
+		ContentValues urlEntry = new ContentValues();	
+		urlEntry.put(KEY_HASH, hash);
+		urlEntry.put(KEY_URL, url);
+		return urlEntry;
+	}
 }
