@@ -29,17 +29,22 @@ package project.cs.lisa.util.database;
 import java.util.List;
 import java.util.Map;
 
+import netinf.common.datamodel.DatamodelFactory;
 import netinf.common.datamodel.Identifier;
+import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.inject.Inject;
 
 import project.cs.lisa.exceptions.DatabaseException;
 import project.cs.lisa.metadata.MetadataParser;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -89,16 +94,22 @@ public class IODatabase extends SQLiteOpenHelper {
 	
 	/** The JSON String representing the meta-data as a whole. */
 	private static final String KEY_METADATA = "meta_data";
+	
+	/** The datamodel factory used for concstructing the IO. */
+	private DatamodelFactory mDatamodelFactory;
 
 	/**
 	 * Creates a new Database for storing IO information.
 	 * 
 	 * @param context	The application context
 	 */
-	public IODatabase(Context context) {
+	@Inject
+	public IODatabase(Context context, DatamodelFactory datamodelFactory) {
 		
 		// We skip the curser object factory, since we don't need it
 		super(context, DATABASE_NAME, null, DATABASE_VERSION); 
+		
+		mDatamodelFactory = datamodelFactory;
 	}
 	
 	@Override
@@ -194,13 +205,39 @@ public class IODatabase extends SQLiteOpenHelper {
 	/**
 	 * Returns the information object specified by the hash value, if existent.
 	 * 
-	 * @param hash	The hash value identifying the information object.
-	 * @return		The information object.
+	 * @param hash					The hash value identifying the information object
+	 * @return						The information object
+	 * @throws DatabaseException 	Thrown when the query does not return any value
 	 */
-	public InformationObject getIO(String hash) {
+	public InformationObject getIO(String hash) throws DatabaseException {
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		Cursor cursor = db.query(TABLE_IO,null, KEY_HASH + "=?", 
+				new String[]{hash}, null, null, null);
+		
+		 if (cursor != null)
+		        cursor.moveToFirst();
+		 else {
+			 throw new DatabaseException("The given hash does not correspond to any IO.");
+		 }
+		 
+		 InformationObject io = mDatamodelFactory.createInformationObject();
+		 Identifier identifier = mDatamodelFactory.createIdentifier();
+		 
+		 addIdentifierLabel(cursor, identifier, SailDefinedLabelName.HASH_CONTENT.getLabelName(), 0);
+		 addIdentifierLabel(cursor, identifier, SailDefinedLabelName.HASH_ALG.getLabelName(), 1);
+		 addIdentifierLabel(cursor, identifier, SailDefinedLabelName.CONTENT_TYPE.getLabelName(), 3);
+		
 		return null;
 	}
 	
+	private void addIdentifierLabel(Cursor cursor, Identifier identifier, String labelName, int i) {
+		 IdentifierLabel hashLabel = mDatamodelFactory.createIdentifierLabel();
+         hashLabel.setLabelName(labelName);
+         hashLabel.setLabelValue(cursor.getString(0));
+         identifier.addIdentifierLabel(hashLabel);
+	}
+
 	/**
 	 * Returns the list of all information objects that are stored in the
 	 * database. 
