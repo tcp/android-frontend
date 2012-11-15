@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -45,6 +46,7 @@ import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 
 import project.cs.lisa.R;
+import project.cs.lisa.application.http.Locator;
 import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.application.http.NetInfRetrieve;
 import project.cs.lisa.bluetooth.BluetoothServer;
@@ -58,6 +60,7 @@ import project.cs.lisa.wifi.WifiHandler;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -348,7 +351,7 @@ public class MainNetInfActivity extends Activity {
         // Create a new get request with the current hash
         Log.d(TAG, "Requesting the following hash: " + hash.substring(0, HASH_LENGTH));
 
-        NetInfRetrieve retrieve = new NetInfRetrieve(this,
+        NetInfRetrieve retrieve = new NetInfRetrieve(
                 UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                 UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                 UProperties.INSTANCE.getPropertyWithName("hash.alg"),
@@ -538,14 +541,27 @@ public class MainNetInfActivity extends Activity {
             // Publish!
             Log.d(TAG, "Trying to publish a new file.");
 
-            NetInfPublish publishRequest = new NetInfPublish(this,
-                    UProperties.INSTANCE.getPropertyWithName("access.http.host"),
-                    UProperties.INSTANCE.getPropertyWithName("access.http.port"),
-                    UProperties.INSTANCE.getPropertyWithName("hash.alg"),
-                    hash.substring(0, HASH_LENGTH));
-            publishRequest.setContentType(contentType);
-            publishRequest.setMetadata(lisaMetaData);
-            publishRequest.execute();
+            // Try to get the Bluetooth MAC
+            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+
+            if (adapter == null) {
+                MainNetInfActivity.getActivity().showToast("Error: Bluetooth not supported");
+            } else if (!adapter.isEnabled()) {
+                MainNetInfActivity.getActivity().showToast("Error: Bluetooth not enabled");
+            } else {
+                HashSet<Locator> locators = new HashSet<Locator>();
+                locators.add(new Locator(Locator.Type.BLUETOOTH, adapter.getAddress()));
+
+                NetInfPublish publishRequest = new NetInfPublish(
+                        UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+                        UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+                        UProperties.INSTANCE.getPropertyWithName("hash.alg"),
+                        hash.substring(0, HASH_LENGTH),
+                        locators);
+                publishRequest.setContentType(contentType);
+                publishRequest.setMetadata(lisaMetaData);
+                publishRequest.execute();
+            }
         }
     }
 

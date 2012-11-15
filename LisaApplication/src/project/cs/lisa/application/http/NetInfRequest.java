@@ -1,10 +1,7 @@
 package project.cs.lisa.application.http;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,8 +11,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 
-import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -42,9 +39,6 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
     /** HTTP Timeout. **/
     private static final int TIMEOUT = 6000000;
 
-    /** Calling Activity. **/
-    private MainNetInfActivity mActivity;
-
     // TODO inject from properties
     /** Target Host. **/
     private String mHost;
@@ -56,12 +50,6 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
     /** Path Prefix. **/
     private String mPathPrefix;
 
-    /** Hash Algorithm. **/
-    private String mHashAlg;
-
-    /** Hash. **/
-    private String mHash;
-
     /** The rest of the URI. **/
     private HashMap<String, String> mQueryVariables = new HashMap<String, String>();
 
@@ -70,22 +58,23 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
 
     /**
      * Create a new asynchronous NetInf message sent using HTTP GET.
-     * @param activity     Activity creating this object
      * @param host         Target host of the message
      * @param port         Target port
      * @param hashAlg      Hash algorithm used
      * @param hash         Hash
      */
 
-    public NetInfRequest(MainNetInfActivity activity, String host, String port,
+    public NetInfRequest(String host, String port,
             String hashAlg, String hash) {
+
         Log.d(TAG, "NetInfRequest()");
-        mActivity = activity;
+
         mHost = host;
         mPort = port;
         mPathPrefix = "";
-        mHashAlg = hashAlg;
-        mHash = hash;
+
+        addQuery("hashAlg", hashAlg);
+        addQuery("hash", hash);
 
         // HTTP client with a timeout
         HttpParams httpParams = new BasicHttpParams();
@@ -108,35 +97,29 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
      * @param request               The HttpUriRequest to execute
      * @return                      The read JSON string or null if unable to read as JSON
      * @throws NullEntityException  In case the response doesn't contain an entity
+     * @throws IOException          In case the there was another error getting the response
      */
-    protected String execute(HttpUriRequest request) throws NullEntityException {
+    protected String execute(HttpUriRequest request) throws NullEntityException, IOException {
         Log.d(TAG, "execute()");
         Log.d(TAG, "uri = " + request.getURI());
         Log.d(TAG, "class = " + request.getClass().toString());
         Log.d(TAG, "method = " + request.getMethod().toString());
 
+        // TODO improve, maybe throw more exceptions instead of all try:s?
+
         // Execute the HTTP request
-        HttpResponse response = null;
-        try {
-            response = mClient.execute(request);
-        } catch (IOException e) {
-            e.printStackTrace();
+        HttpResponse response = mClient.execute(request);
+
+        // Get entity
+        HttpEntity entity = response.getEntity();
+        // If no entity in response
+        if (entity == null) {
+            Log.d(TAG, "entity = null");
+            throw new NullEntityException();
         }
 
-        String jsonResponse = null;
-        try {
-        	HttpEntity entity = response.getEntity();
-        	// If no entity in response
-        	if (entity == null) {
-        	    Log.d(TAG, "entity = null");
-            	throw new NullEntityException();
-            }
-            InputStream input = entity.getContent();
-            jsonResponse = streamToString(input);
-            Log.d(TAG, "jsonResponse = " + jsonResponse);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String jsonResponse = EntityUtils.toString(entity);
+        Log.d(TAG, "jsonResponse = " + jsonResponse);
 
         // TODO validate that actual JSON is returned.
         return jsonResponse;
@@ -150,22 +133,6 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
     protected void onPostExecute(String jsonResponse) {
         Log.d(TAG, "onPostExecute()");
         Log.d(TAG, "jsonString = " + jsonResponse);
-    }
-
-    /**
-     * Converts an InputStream into a String.
-     * @param input A input stream
-     * @return      String representation of the input stream
-     */
-    protected String streamToString(InputStream input) {
-        Log.d(TAG, "streamToString()");
-        try {
-            // Read the stream from beginning to beginning.
-            // That is everything into one token.
-            return new Scanner(input).useDelimiter("\\A").next();
-        } catch (NoSuchElementException e) {
-            return "";
-        }
     }
 
     /**
@@ -187,14 +154,14 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
     protected String getQueryString() {
         Log.d(TAG, "getQueryString()");
         StringBuilder queryString = new StringBuilder();
-        queryString.append("?");
-        queryString.append("hashAlg=");
-        queryString.append(mHashAlg);
-        queryString.append("&");
-        queryString.append("hash=");
-        queryString.append(mHash);
+        boolean first = true;
         for (String key : mQueryVariables.keySet()) {
-            queryString.append("&");
+            if (first) {
+                queryString.append("?");
+                first = false;
+            } else {
+                queryString.append("&");
+            }
             queryString.append(key);
             queryString.append("=");
             queryString.append(mQueryVariables.get(key));
@@ -217,15 +184,6 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
         uri.append(mPathPrefix);
         uri.append(getQueryString());
         return uri.toString();
-    }
-
-    /**
-     * Gets the creating activity.
-     * @return      The creating activity.
-     */
-    protected MainNetInfActivity getActivity() {
-        Log.d(TAG, "getActivity()");
-        return mActivity;
     }
 
     /**
