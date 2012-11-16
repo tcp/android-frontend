@@ -32,16 +32,15 @@ import java.util.Map;
 
 import netinf.common.datamodel.DatamodelFactory;
 import netinf.common.datamodel.Identifier;
-import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import project.cs.lisa.exceptions.DatabaseException;
-import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.metadata.MetadataParser;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import project.cs.lisa.util.IOBuilder;
 import project.cs.lisa.util.UProperties;
 import android.content.ContentValues;
 import android.content.Context;
@@ -267,54 +266,26 @@ public class IODatabase extends SQLiteOpenHelper {
 		} else {
 			throw new DatabaseException("The given hash does not correspond to any IO.");
 		}
-		 
-		Identifier identifier = mDatamodelFactory.createIdentifier();
 		
-		// Put the information contained in the IO table into the identifier
-		addIdentifierLabel(identifier, 
-				SailDefinedLabelName.HASH_CONTENT.getLabelName(), cursor.getString(0));
-		addIdentifierLabel(identifier,
-				SailDefinedLabelName.HASH_ALG.getLabelName(), cursor.getString(1));
-		addIdentifierLabel(identifier, 
-				SailDefinedLabelName.CONTENT_TYPE.getLabelName(), cursor.getString(2));
-		 
-			 
-		// Put together the meta data information
-		Metadata metaData = new Metadata();
-		metaData.insert(mFilepathLabel, cursor.getString(3));
-		metaData.insert(mFilesizeLabel, cursor.getString(4));
-		 
+		IOBuilder builder = new IOBuilder(mDatamodelFactory);
+		builder.setHash(cursor.getString(0))
+			.setHashAlgorithm(cursor.getString(1))
+			.setContentType(cursor.getString(2))
+			.addMetaData(mFilepathLabel, cursor.getString(3))
+			.addMetaData(mFilesizeLabel, cursor.getString(4));
+		
 		cursor = db.query(TABLE_URL, null, KEY_HASH + "=?", new String[]{hash}, null, null, null);
 		if (cursor != null) {
 			cursor.moveToFirst();
 		} else {
 			throw new DatabaseException("The given hash does not correspond to any IO.");
 		}
-		 
+		
 		do {
-			metaData.insert(mUrlLabel, cursor.getString(1));
+			builder.addMetaData(mUrlLabel, cursor.getString(1));
 		} while (cursor.moveToNext());
 		
-		addIdentifierLabel(identifier,
-				SailDefinedLabelName.META_DATA.getLabelName(), metaData.convertToString());
-		
-		InformationObject io = mDatamodelFactory.createInformationObject();
-		io.setIdentifier(identifier);
-		return io;
-	}
-	
-	/**
-	 * Adds an identifier label for the specified identifier for the passed label properties.
-	 * 
-	 * @param identifier	The identifier to modify
-	 * @param labelName		The label name
-	 * @param labelValue	The label value
-	 */
-	private void addIdentifierLabel(Identifier identifier, String labelName, String labelValue) {
-		 IdentifierLabel hashLabel = mDatamodelFactory.createIdentifierLabel();
-         hashLabel.setLabelName(labelName);
-         hashLabel.setLabelValue(labelValue);
-         identifier.addIdentifierLabel(hashLabel);
+		return builder.build();
 	}
 	
 	/**
