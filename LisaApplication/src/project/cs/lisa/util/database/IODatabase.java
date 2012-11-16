@@ -26,6 +26,7 @@
  */
 package project.cs.lisa.util.database;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,20 +35,23 @@ import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.inject.Inject;
-
 import project.cs.lisa.exceptions.DatabaseException;
+import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.metadata.MetadataParser;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import project.cs.lisa.util.UProperties;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.google.inject.Inject;
 
 /**
  * The database that contains the data corresponding to an information object
@@ -95,6 +99,15 @@ public class IODatabase extends SQLiteOpenHelper {
 	/** The JSON String representing the meta-data as a whole. */
 	private static final String KEY_METADATA = "meta_data";
 	
+	/** Meta-data label for the filepath. */
+	private final String LABEL_FILEPATH;
+	
+	/** Meta-data label for the file size. */
+	private final String LABEL_FILESIZE;
+	
+	/** Meta-data label for the url. */
+	private final String LABEL_URL;
+	
 	/** The datamodel factory used for concstructing the IO. */
 	private DatamodelFactory mDatamodelFactory;
 
@@ -109,6 +122,11 @@ public class IODatabase extends SQLiteOpenHelper {
 		// We skip the curser object factory, since we don't need it
 		super(context, DATABASE_NAME, null, DATABASE_VERSION); 
 		
+		UProperties instance = UProperties.INSTANCE;
+		LABEL_FILEPATH = instance.getPropertyWithName("metadata.filepath");
+		LABEL_FILESIZE = instance.getPropertyWithName("metadata.filesize");
+		LABEL_URL = instance.getPropertyWithName("metadata.url");
+		
 		mDatamodelFactory = datamodelFactory;
 	}
 	
@@ -117,11 +135,11 @@ public class IODatabase extends SQLiteOpenHelper {
 		String createIoTable = "CREATE TABLE " + TABLE_IO + "(" 
 							+ KEY_HASH + " TEXT PRIMARY KEY," 
 							+ KEY_HASH_ALGORITHM + " TEXT NOT NULL, "
-							+ KEY_FILEPATH + " TEXT NOT NULL, "
 							+ KEY_CONTENT_TYPE + " TEXT NOT NULL, "
-							+ KEY_URL + " TEXT NOT NULL, "
+							+ KEY_FILEPATH + " TEXT NOT NULL, "
 							+ KEY_FILE_SIZE + " REAL NOT NULL CHECK(" + KEY_FILE_SIZE + " > 0.0), "
-							+ KEY_METADATA + " TEXT NOT NULL)";
+							+ KEY_URL + " TEXT NOT NULL)";
+
 		
 		String createUrlTable = "CREATE TABLE " + TABLE_URL + "(" 
 							+ KEY_HASH + " TEXT NOT NULL, "
@@ -166,25 +184,27 @@ public class IODatabase extends SQLiteOpenHelper {
 		// Extract meta data 
 		String metadata = identifier.getIdentifierLabel(
 						SailDefinedLabelName.META_DATA.getLabelName()).getLabelValue();
-		Map<String, Object> metadataMap = null;	
-		try {
-			metadataMap = MetadataParser.extractMetaData(new JSONObject(metadata));
-		} catch (JSONException e) {
-			Log.e(TAG, "Error extracting metadata");
-			throw new DatabaseException("The IO cannot be inserted into the database. "
-					+ "Because the meta-data could not be extracted.", e);
-		}
-				
-		String filePath = (String) metadataMap.get("filepath");
-		String fileSize = (String) metadataMap.get("filesize");
-		// Will always be a list of Strings
-		@SuppressWarnings("unchecked")
-		List<String> urlList = (List<String>) metadataMap.get("url");
+		Map<String, Object> metadataMap = extractMetaData(metadata);
+		
+		String filePath = (String) metadataMap.get(LABEL_FILEPATH);
+		String fileSize = (String) metadataMap.get(LABEL_FILESIZE);
 		
 		ContentValues ioEntry = createIOEntry(hash, hashAlgorithm, contentType, filePath, fileSize);
 		db.insert(TABLE_IO, null, ioEntry);
+		
+		// Create entry for the IO_url table
+		Object urlJsonObject = metadataMap.get(LABEL_URL);
+		if (urlJsonObject instanceof JSONArray) {
+			// Will always be a list of strings, in case it is a JSONArray
+			@SuppressWarnings("unchecked")
+			List<String> urlList = (List<String>) urlJsonObject;
 			
-		for (String url : urlList) {
+			for (String url : urlList) {
+				ContentValues urlEntry = createUrlEntry(hash, url);
+				db.insert(TABLE_URL, null, urlEntry);
+			}
+		} else {
+			String url = (String) urlJsonObject;
 			ContentValues urlEntry = createUrlEntry(hash, url);
 			db.insert(TABLE_URL, null, urlEntry);
 		}
@@ -212,32 +232,50 @@ public class IODatabase extends SQLiteOpenHelper {
 	public InformationObject getIO(String hash) throws DatabaseException {
 		SQLiteDatabase db = this.getReadableDatabase();
 		
-		Cursor cursor = db.query(TABLE_IO,null, KEY_HASH + "=?", 
+		Cursor cursor = db.query(TABLE_IO, null, KEY_HASH + "=?", 
 				new String[]{hash}, null, null, null);
 		
-		 if (cursor != null)
+		 if (cursor != null) {
 		        cursor.moveToFirst();
-		 else {
+		 } else {
 			 throw new DatabaseException("The given hash does not correspond to any IO.");
 		 }
 		 
-		 InformationObject io = mDatamodelFactory.createInformationObject();
 		 Identifier identifier = mDatamodelFactory.createIdentifier();
+	
+		 // Put the information contained in the IO table into the identifier
+		 addIdentifierLabel(identifier, 
+				 SailDefinedLabelName.HASH_CONTENT.getLabelName(), cursor.getString(0));
+		 addIdentifierLabel(identifier, 
+				 SailDefinedLabelName.HASH_ALG.getLabelName(), cursor.getString(1));
+		 addIdentifierLabel(identifier, 
+				 SailDefinedLabelName.CONTENT_TYPE.getLabelName(), cursor.getString(2));
+	 
 		 
-		 addIdentifierLabel(cursor, identifier, SailDefinedLabelName.HASH_CONTENT.getLabelName(), 0);
-		 addIdentifierLabel(cursor, identifier, SailDefinedLabelName.HASH_ALG.getLabelName(), 1);
-		 addIdentifierLabel(cursor, identifier, SailDefinedLabelName.CONTENT_TYPE.getLabelName(), 3);
-		
-		return null;
+		 // Put together the meta data information
+		 Metadata metaData = new Metadata();
+		 metaData.insert(LABEL_FILEPATH, cursor.getString(3));
+		 metaData.insert(LABEL_FILESIZE, cursor.getString(4));
+		 
+		 cursor = db.query(TABLE_URL, null, KEY_HASH + "=?", new String[]{hash}, null, null, null);
+		 if (cursor != null) {
+		        cursor.moveToFirst();
+		 } else {
+			 throw new DatabaseException("The given hash does not correspond to any IO.");
+		 }
+		 
+		 do {
+			 metaData.insert(LABEL_URL, cursor.getString(1));
+		 } while (cursor.moveToNext());
+		 
+		 addIdentifierLabel(identifier, 
+				 SailDefinedLabelName.META_DATA.getLabelName(), metaData.convertToString());
+		 
+		 InformationObject io = mDatamodelFactory.createInformationObject();
+		 io.setIdentifier(identifier);
+		 return io;
 	}
 	
-	private void addIdentifierLabel(Cursor cursor, Identifier identifier, String labelName, int i) {
-		 IdentifierLabel hashLabel = mDatamodelFactory.createIdentifierLabel();
-         hashLabel.setLabelName(labelName);
-         hashLabel.setLabelValue(cursor.getString(0));
-         identifier.addIdentifierLabel(hashLabel);
-	}
-
 	/**
 	 * Returns the list of all information objects that are stored in the
 	 * database. 
@@ -246,6 +284,40 @@ public class IODatabase extends SQLiteOpenHelper {
 	 */
 	public List<InformationObject> getAllIO() {
 		return null;
+	}
+	
+	/**
+	 * Adds an identifier label for the specified identifier for the passed label properties.
+	 * 
+	 * @param identifier	The identifier to modify
+	 * @param labelName		The label name
+	 * @param labelValue	The label value
+	 */
+	private void addIdentifierLabel(Identifier identifier, String labelName, String labelValue) {
+		 IdentifierLabel hashLabel = mDatamodelFactory.createIdentifierLabel();
+         hashLabel.setLabelName(labelName);
+         hashLabel.setLabelValue(labelValue);
+         identifier.addIdentifierLabel(hashLabel);
+	}
+	
+	/**
+	 * Returns the map corresponding to the meta data contained in the
+	 * specified metadata String.
+	 * 
+	 * @param metadata				The complete meta-data String
+	 * @return						A map containing the meta data key value pairs
+	 * @throws DatabaseException	Thrown, if a failure occured during extracting
+	 */
+	private Map<String, Object> extractMetaData(String metadata) throws DatabaseException {
+		Map<String, Object> metadataMap = null;	
+		try {
+			metadataMap = MetadataParser.extractMetaData(new JSONObject(metadata));
+		} catch (JSONException e) {
+			Log.e(TAG, "Error extracting metadata");
+			throw new DatabaseException("The IO cannot be inserted into the database. "
+					+ "Because the meta-data could not be extracted.", e);
+		}	
+		return metadataMap;
 	}
 	
 	/**
