@@ -4,67 +4,49 @@
     android:layout_height="match_parent" >
 
     <EditText
-        android:id="@+id/hash_field"
+        android:id="@+id/url"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="90dp"
-        android:hint="@string/enter_hash"
-        android:singleLine="true" >
-
-        <requestFocus />
-    </EditText>
-
+        android:layout_toLeftOf="@+id/goButton"
+        android:ems="10"
+        android:inputType="textUri" />
+    
+        <!--
+            android:inputType="textWebEditText"
+         -->
     <Button
-        android:id="@+id/get_button"
+        android:id="@+id/goButton"
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/url"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="130dp"
-        android:onClick="getButtonClicked"
-        android:text="@string/get_button" />
-
-    <TextView
-        android:id="@+id/ProgressBarText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/get_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
-        android:text="@string/text_BT_Connected"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:visibility="invisible" />
+        android:onClick="goButtonClicked"
+        android:text="@string/go" />
 
     <ProgressBar
-        android:id="@+id/progressbar_Horizontal"
-        style="?android:attr/progressBarStyleHorizontal"
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/hash_field"
-        android:layout_alignRight="@+id/hash_field"
-        android:layout_below="@+id/ProgressBarText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/url"
         android:max="100"
-        android:visibility="invisible" />
+        android:maxHeight="5dip"
+        android:minHeight="5dip"
+        android:progress="30"
+        android:progressDrawable="@drawable/blue_progress" />
 
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/progressbar_Horizontal"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:visibility="invisible" />
-
-    <Button
-        android:id="@+id/publish_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/progressBar1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
-        android:onClick="publishButtonClicked"
-        android:text="@string/publish_button" />
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/progressBar" />
 
 </RelativeLayout>
