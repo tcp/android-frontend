@@ -21,28 +21,25 @@ import android.test.AndroidTestCase;
  */
 public class MetadataParserTest extends AndroidTestCase {
 
-
-		
+		/**
+		 * Extracts and compares the elements of a passed meta-data String.
+		 */
 		public void testExtractMetaData() {
 			String jsonString = "{"
-					+ "\"NetInf\": \"v0.1a\","
-					+ "\"msgid\": \"69936003\","
-					+ " \"status\": 201,"
-					+ " \"ni\": \"ni:///sha-256;ypd\","
-					+ " \"ts\": \"2012-11-13T10:6:1+00:00\","
-					+ " \"ct\": \"image/jpeg\","
-					+ "\"metadata\": {"
-					+ "    \"meta\": {"
 					+ "         \"filename\": \"001.jpg\","
             		+ "         \"time\": ["
             		+ "             \"1352797492198\","
             		+ "             \"1352797502292\","
             		+ "             \"1352797530712\"],"
             		+ "         \"filetype\": \"image/jpeg\","
-            		+ "          \"filesize\": \"5245329\"},"
-            		+ "      \"ct\": \"image/jpeg\"},"
-            		+ "  \"loc\": ["
-            		+ "      \"nimacbt://F0:E7:7E:3F:D2:43\"]}";
+            		+ "          \"filesize\": \"5245329\"}";
+
+			String expectedFilename = "001.jpg";
+			String expectedFilesize = "5245329";
+			String expectedFiletype = "image/jpeg";
+						
+			String[] expectedTimestamps = {"1352797492198", "1352797502292", "1352797530712"};
+			List<String> expectedTimeStampsList = Arrays.asList(expectedTimestamps);
 			
 			JSONObject jsonObject = null;
 			try {
@@ -52,20 +49,18 @@ public class MetadataParserTest extends AndroidTestCase {
 			}
 			
 			// Extract the meta data and check its contents
-			Map<String, Object> map = MetadataParser.extractMetaData(jsonObject);
+			Map<String, Object> map = MetadataParser.toMap(jsonObject);
 
-			assertEquals(map.get("filename"),"001.jpg");
-			assertEquals(map.get("filetype"),"image/jpeg");
-			
-			String[] expectedElements = {"1352797492198", "1352797502292", "1352797530712"};
-			List<String> expectedList = Arrays.asList(expectedElements);
+			assertEquals(expectedFilename, map.get("filename"));
+			assertEquals(expectedFiletype, map.get("filetype"));
+			assertEquals(expectedFilesize, map.get("filesize"));
 			
 			// We know that the result will be a list of Strings
 			@SuppressWarnings("unchecked")
 			List<String> actualList = (List<String>) map.get("time");
 			
-			assertTrue(expectedList.containsAll(actualList));
-			assertEquals(expectedList.size(), actualList.size());  
+			assertTrue(expectedTimeStampsList.containsAll(actualList));
+			assertEquals(expectedTimeStampsList.size(), actualList.size());  
 
 		}
 		

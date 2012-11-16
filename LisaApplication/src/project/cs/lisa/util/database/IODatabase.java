@@ -317,7 +317,7 @@ public class IODatabase extends SQLiteOpenHelper {
 	private Map<String, Object> extractMetaData(String metadata) throws DatabaseException {
 		Map<String, Object> metadataMap = null;	
 		try {
-			metadataMap = MetadataParser.extractMetaData(new JSONObject(metadata));
+			metadataMap = MetadataParser.toMap(new JSONObject(metadata));
 		} catch (JSONException e) {
 			Log.e(TAG, "Error extracting metadata");
 			throw new DatabaseException("The IO cannot be inserted into the database. "

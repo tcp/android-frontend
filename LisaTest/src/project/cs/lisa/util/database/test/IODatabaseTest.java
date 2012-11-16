@@ -150,7 +150,7 @@ public class IODatabaseTest extends AndroidTestCase {
 		
 		Map<String, Object> metadataMap = new HashMap<String, Object>();
 		try {
-			metadataMap = MetadataParser.extractMetaData(new JSONObject(gotIoMetadata));
+			metadataMap = MetadataParser.toMap(new JSONObject(gotIoMetadata));
 		} catch (JSONException e) {
 			Assert.fail("Should not have thrown an exception.");
 		}
@@ -182,16 +182,5 @@ public class IODatabaseTest extends AndroidTestCase {
          hashLabel.setLabelValue(labelValue);
          identifier.addIdentifierLabel(hashLabel);
 	}
-	
-	class DatabaseMockContext extends MockContext {
-		
-		@Override
-		public SQLiteDatabase openOrCreateDatabase(String file, int mode,
-				CursorFactory factory) {
-			return super.openOrCreateDatabase(file, mode, factory);
-		}
-		
-	}
-	
 	
 }

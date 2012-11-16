@@ -111,24 +111,15 @@ public class MetadataParser {
     }
     
     /** 
-     * Returns a map that represents the meta-data contained in the JSON object.
-     * If it fails to read the meta-data, it will return null.
+     * Returns a map that represents the meta-data key value pairs
+     * contained in the specified meta-data.
      * 
-     * @param json	The JSOn object.
-     * @return		The map with all meta-data values.
+     * @param metadata	The JSON object corresponding to the meta-data.
+     * @return			The map with all meta-data values
      */
-    public static Map<String, Object> extractMetaData(JSONObject json) {
+    public static Map<String, Object> toMap(JSONObject metadata) {
     	Map<String, Object> map = new LinkedHashMap<String, Object>();
-    	
-    	//Extract the metadata from the json object
-    	JSONObject metadata = json; 
-    	/*try {
-			metadata = json.getJSONObject(TAG_meta);
-		} catch (JSONException e) {
-			Log.e(TAG, "Extracting the meta-data failed.");
-			return null;
-		}*/
-    	
+
     	//metada.keys does not have a defined type but it always will be a String
     	@SuppressWarnings("unchecked")
 		Iterator<String> iterator = metadata.keys();
