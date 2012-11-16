@@ -1,4 +1,4 @@
-package project.cs.lisa.application;
+package project.cs.lisa.application.dialogs;
 
 import project.cs.lisa.R;
 import android.app.AlertDialog;

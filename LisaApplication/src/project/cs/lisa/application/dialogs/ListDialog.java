@@ -1,4 +1,4 @@
-package project.cs.lisa.application;
+package project.cs.lisa.application.dialogs;
 
 import java.util.Set;
 

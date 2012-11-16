@@ -35,7 +35,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import project.cs.lisa.application.MainNetInfActivity;
-import project.cs.lisa.application.ListDialog;
+import project.cs.lisa.application.dialogs.ListDialog;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
