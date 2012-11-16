@@ -28,6 +28,7 @@ import org.restlet.resource.Get;
 
 import project.cs.lisa.exceptions.InvalidResponseException;
 import project.cs.lisa.netinf.node.access.rest.resources.LisaServerResource;
+import project.cs.lisa.util.UProperties;
 
 import android.util.Log;
 
@@ -42,25 +43,36 @@ public class SearchRequest extends LisaServerResource {
     private String mHost;
     
     /** NRS port. **/
-    private int mPort;
+    private String mPort;
     
     /** HTTP connection timeout. **/
     private static final int TIMEOUT = 5000;
     
+    /** HTTP Client **/
     private HttpClient mClient;
+    
+    /** Keywords string **/
+    private String mTokens;
+    
+    // TODO: Verify if Ext should be JSON
+    /** Ext string **/
+    private String mExt;
+    
+    /** Message ID string **/
+    private String mMsgId;
 
     // TODO: Remove search into a better place.
     // TODO: Hey, I said 'throw away netinf model'. Bad sentence.
     @Override
     /**
-     * Creates a new Name Resolution Service that communicates with a specific NRS.
-     * @param host                 The NRS IP Address
-     * @param port                 The NRS Port
+     * Initializes a Search Service
+     * @param host The NRS IP Address
+     * @param port The NRS Port
      */
     protected void doInit() {
-        mHost = getQuery().getFirstValue("host", true);
-        mPort = Integer.parseInt(getQuery().getFirstValue("port", true));
-        //Log.d(TAG, host + ":" + port);
+        Log.d(TAG, "doInit() search");
+        mHost = UProperties.INSTANCE.getPropertyWithName("nrs.http.host");
+        mPort = UProperties.INSTANCE.getPropertyWithName("nrs.http.port");
         // Setup HTTP client
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
@@ -68,19 +80,27 @@ public class SearchRequest extends LisaServerResource {
         mClient = new DefaultHttpClient(params);
     }
 
+    /**
+     * Creates the search URI that is going to be sent to the NRS.
+     * @param msgId    Unique message-id
+     * @param tokens   Keywords that are going to be searched for
+     * @param ext      Extensions
+     * @return         HTTP Post with host, port and URI
+     * @throws UnsupportedEncodingException
+     */
     private HttpPost createSearch(String msgId, String tokens, String ext)
             throws UnsupportedEncodingException {
-        Log.d(TAG, "createSearch()");
-        
-        Log.d(TAG, mHost + ":" + mPort);
+        Log.d(TAG, "createSearch()");      
+        Log.d(TAG, "Creating search to send to " + mHost + ":" + mPort);
         
         // POST
         HttpPost post = new HttpPost(mHost + ":" + mPort + "/netinfproto/search");
 
         // URI
-        String completeUri = "&msgid=" + msgId  + "&tokens=" + tokens + "&ext=" + ext;
-
-        Log.d(TAG, completeUri);
+        String completeUri = "/search?" + "&msgid=" + msgId  + "&tokens=" + tokens + "&ext=" + ext;
+        
+        // Logs URI
+        Log.d(TAG, "createSearch() URI:\n" + completeUri);
         
         // Encode the URL
         String encodeUrl = null;
@@ -98,38 +118,68 @@ public class SearchRequest extends LisaServerResource {
 
         return post;
     }
-    
+
+    /**
+     * Handles the HTTP response from the server
+     * @param response  HTTP Response from search request
+     * @return          JSON Object
+     * @throws InvalidResponseException
+     */
     private JSONObject handleResponse(HttpResponse response)
             throws InvalidResponseException {
         Log.d(TAG, "handleResponse() [search]");
         
+        // HTTP Status Response from the HTTP request response
         int statusCode = response.getStatusLine().getStatusCode();
         Log.d(TAG, "statusCode = " + statusCode);
         
+        // Return object
+        JSONObject json = null;
+        
+        // Temp string
+        String jsonString = null;
+        
         switch (statusCode) {
+            // Status Code OK: 200
             case HttpStatus.SC_OK:
-                // Locators and actual file
-                String jsonString = readJson(response);
-                JSONObject json = parseJson(jsonString);
+                // 200 returns a JSON
+                jsonString = readJson(response);
+                json = parseJson(jsonString);
                 return json;
             
+            // Status Code NOT FOUND: 404
             case HttpStatus.SC_NOT_FOUND:
-                return null;
+                // Returns null if nothing was found on the server
+                jsonString = readJson(response);
+                json = parseJson(jsonString);
+                return json;
             
+            // Everything else
             default:
                 // Something unhandled
                 throw new InvalidResponseException("Unexpected Response Code = " + statusCode);
         }
     }
-    
+
+    /**
+     * Search function. Build and send a HTTP search request to the NRS and
+     * may receive either a JSON Object or null.
+     * @return  JSON Object if search was successful.
+     *          null        if search raised an exception.
+     */
     @Get
-    public JSONObject search(String msgId, String tokens, String ext) {
+    public JSONObject search() {
         Log.d(TAG, "search()");
+        
+        // Search request requires three fields: tokens (keywords), message-id and ext.
+        mTokens = getQuery().getFirstValue("tokens", true);
+        mMsgId = getQuery().getFirstValue("msgId", true);
+        mExt = getQuery().getFirstValue("ext", true);
         
         try {
             // Create NetInf SEARCH request
             Log.d(TAG, "Creating HTTP POST");
-            HttpPost searchRequest = createSearch(msgId, tokens, ext);
+            HttpPost searchRequest = createSearch(mMsgId, mTokens, mExt);
             Log.d(TAG, searchRequest.toString());
 
             // Execute NetInf SEARCH request
@@ -146,8 +196,9 @@ public class SearchRequest extends LisaServerResource {
             Log.d(TAG, "Handling HTTP POST Response");
             JSONObject json = handleResponse(response);
             Log.d(TAG, "search() succeeded. Returning JSON Object");
+            
+            // Returns JSON Object
             return json;
-
         } catch (InvalidResponseException e) {
             Log.e(TAG, e.getMessage());
         } catch (UnsupportedEncodingException e) {
