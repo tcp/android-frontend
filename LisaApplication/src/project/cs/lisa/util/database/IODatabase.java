@@ -218,35 +218,6 @@ public class IODatabase extends SQLiteOpenHelper {
 		
 		db.close();		
 	}
-
-	/**
-	 * Deletes the information object corresponding to 
-	 * the specified hash value from the database.
-	 * 
-	 * @param hash	The hash value identifying the information object.
-	 */
-	public void deleteIO(String hash) {
-		Log.d(TAG, "Deleting io corresponding to the following hash: " + hash);
-		SQLiteDatabase db = getWritableDatabase();
-		
-		db.delete(TABLE_IO, KEY_HASH + " = ?", new String[] {hash});
-		db.close();
-	}
-	
-	/**
-	 * Deletes the information object that is specified
-	 * from the database.
-	 * 
-	 * @param io	The information object to delete.
-	 */
-	public void deleteIO(InformationObject io) {
-		Log.d(TAG, "Deleting an information object from the database.");
-		
-		Identifier identifier = io.getIdentifier();
-		String hash = identifier.getIdentifierLabel(
-				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
-		deleteIO(hash);
-	}
 	
 	/**
 	 * Returns the information object specified by the hash value, if existent.
@@ -286,6 +257,35 @@ public class IODatabase extends SQLiteOpenHelper {
 		} while (cursor.moveToNext());
 		
 		return builder.build();
+	}
+
+	/**
+	 * Deletes the information object corresponding to 
+	 * the specified hash value from the database.
+	 * 
+	 * @param hash	The hash value identifying the information object.
+	 */
+	public void deleteIO(String hash) {
+		Log.d(TAG, "Deleting io corresponding to the following hash: " + hash);
+		SQLiteDatabase db = getWritableDatabase();
+		
+		db.delete(TABLE_IO, KEY_HASH + " = ?", new String[] {hash});
+		db.close();
+	}
+	
+	/**
+	 * Deletes the information object that is specified
+	 * from the database.
+	 * 
+	 * @param io	The information object to delete.
+	 */
+	public void deleteIO(InformationObject io) {
+		Log.d(TAG, "Deleting an information object from the database.");
+		
+		Identifier identifier = io.getIdentifier();
+		String hash = identifier.getIdentifierLabel(
+				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+		deleteIO(hash);
 	}
 	
 	/**
