@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -26,11 +26,15 @@
  */
 package project.cs.lisa.application.http;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Set;
 
-import project.cs.lisa.application.MainNetInfActivity;
-import android.bluetooth.BluetoothAdapter;
+import org.apache.http.client.methods.HttpPut;
+
+import project.cs.lisa.exceptions.NullEntityException;
+import project.cs.lisa.metadata.Metadata;
 import android.util.Log;
 
 /**
@@ -41,24 +45,29 @@ public class NetInfPublish extends NetInfRequest {
 
     /** Debug tag. **/
     public static final String TAG = "NetInfPublish";
-    
+
+    /** Locators. **/
+    private Set<Locator> mLocators;
+
     /**
      * Creates a new asynchronous NetInf PUBLISH.
-     * @param activity     Activity creating this object
      * @param host         Target host of the message
      * @param port         Target port
      * @param hashAlg      Hash algorithm used
      * @param hash         Hash
+     * @param locators     Set of locators to publish
      */
-    public NetInfPublish(MainNetInfActivity activity, String host, String port,
-            String hashAlg, String hash) {
-        super(activity, host, port, hashAlg, hash);
+    public NetInfPublish(String host, String port,
+            String hashAlg, String hash, Set<Locator> locators) {
+
+        super(host, port, hashAlg, hash);
         Log.d(TAG, "NetInfPublish()");
-        
+
+        mLocators = locators;
+
         // TODO make this beautiful
-        setPathPrefix("ni");
-        addQuery("METHOD", "PUT"); 
-        
+        setPathPrefix("publish");
+
     }
 
     /**
@@ -70,32 +79,28 @@ public class NetInfPublish extends NetInfRequest {
     @Override
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
-        
-        // Try to add the Bluetooth MAC, if success run superclass method.
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
-        String jsonResponse = null;
-        if (adapter == null) {
-            getActivity().showToast("Error: Bluetooth not supported");
-        } else if (!adapter.isEnabled()) {
-            getActivity().showToast("Error: Bluetooth not enabled");
-        } else {
-            String btMac = adapter.getAddress();
-            addQuery("BTMAC", btMac);
-            jsonResponse = super.doInBackground(voids);
+        // Don't publish without locators
+        if (mLocators == null || mLocators.size() == 0) {
+            return null;
         }
-        
-        return jsonResponse;
-    }
-    
-    /**
-     * Handles the response to the sent NetInf PUBLISH message.
-     * @param jsonResponse     The JSON response.
-     */
-    @Override
-    protected void onPostExecute(String jsonResponse) { 	
-        Log.d(TAG, "onPostExecute()");
-        Log.d(TAG, "jsonString = " + jsonResponse);
+
+        // Add locators
+        for (Locator locator : mLocators) {
+            addQuery(locator.getQueryKey(), locator.getQueryValue());
+        }
+
+        // Execute HTTP request
+        HttpPut put = new HttpPut(getUri());
+        try {
+            return execute(put);
+        } catch (NullEntityException e) {
+            Log.e(TAG, e.getMessage());
+            return null;
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -104,24 +109,25 @@ public class NetInfPublish extends NetInfRequest {
      */
     public void setContentType(String contentType) {
         Log.d(TAG, "setContentType()");
-        addQuery("CT", contentType);
+        addQuery("ct", contentType);
     }
-    
+
     /**
      * Sets the metadata to be sent in the NetInf PUBLISH message.
      * @param metadata      The JSON string containing the metadata.
      */
-    public void setMetadata(String metadata) {
+    public void setMetadata(Metadata metadata) {
         Log.d(TAG, "setMetadata()");
-        Log.d(TAG, "metadata = " + metadata);
+        String metadataJsonString = metadata.convertToMetadataString();
+        Log.d(TAG, "metadata = " + metadataJsonString);
         try {
-            String encodedMetadata = URLEncoder.encode(metadata, "UTF-8");
+            String encodedMetadata = URLEncoder.encode(metadataJsonString, "UTF-8");
             Log.d(TAG, "encoded = " + encodedMetadata);
-            addQuery("META", encodedMetadata);
+            addQuery("meta", encodedMetadata);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "UTF-8 not supported");
             e.printStackTrace();
         }
     }
-    
+
 }

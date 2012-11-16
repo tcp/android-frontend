@@ -27,23 +27,25 @@
 package project.cs.lisa.exceptions;
 
 /**
- * Class for setting the relevant exceptions associated with out project.
- * @author Thiago Costa Porto
+ * Thrown when the response to a NetInf message can't be parsed.
+ * @author Linus Sunde
+ *
  */
-public class LisaFileException extends Exception {
+public class InvalidResponseException extends Exception {
     /**
-     * Generic constructor for LisaFileException. To be raised when a 'bad' file
-     * is given to the program.
+     * Constructs a InvalidResponseException with the specified detail message.
+     * @param message   the detail message.
      */
-    public LisaFileException() {
-        super("Please open a proper file");
-    }
-    
-    /**
-     * Constructor for throwing exception with a message field.
-     * @param message Message received from throwing call
-     */
-    public LisaFileException(String message) {
+    public InvalidResponseException(String message) {
         super(message);
     }
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     * @param message   the detail message
+     * @param cause     the cause
+     */
+    public InvalidResponseException(String message, Throwable cause) {
+        super(message, cause);
+    }   
 }
