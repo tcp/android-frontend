@@ -26,7 +26,7 @@
  */
 package project.cs.lisa.util.database;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +35,6 @@ import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -108,7 +107,7 @@ public class IODatabase extends SQLiteOpenHelper {
 	/** Meta-data label for the url. */
 	private final String LABEL_URL;
 	
-	/** The datamodel factory used for concstructing the IO. */
+	/** The datamodel factory used for constructing the IO. */
 	private DatamodelFactory mDatamodelFactory;
 
 	/**
@@ -137,8 +136,7 @@ public class IODatabase extends SQLiteOpenHelper {
 							+ KEY_HASH_ALGORITHM + " TEXT NOT NULL, "
 							+ KEY_CONTENT_TYPE + " TEXT NOT NULL, "
 							+ KEY_FILEPATH + " TEXT NOT NULL, "
-							+ KEY_FILE_SIZE + " REAL NOT NULL CHECK(" + KEY_FILE_SIZE + " > 0.0), "
-							+ KEY_URL + " TEXT NOT NULL)";
+							+ KEY_FILE_SIZE + " REAL NOT NULL CHECK(" + KEY_FILE_SIZE + " > 0.0))";
 
 		
 		String createUrlTable = "CREATE TABLE " + TABLE_URL + "(" 
@@ -170,6 +168,7 @@ public class IODatabase extends SQLiteOpenHelper {
 	 * @throws DatabaseException 	thrown if insert operation fails
 	 */
 	public void addIO(InformationObject io) throws DatabaseException  {
+		Log.d(TAG, "Adding a new information object into the database.");
 		SQLiteDatabase db = this.getWritableDatabase();
 		
 		// Extract the field values for inserting them into the database tables
@@ -186,6 +185,11 @@ public class IODatabase extends SQLiteOpenHelper {
 						SailDefinedLabelName.META_DATA.getLabelName()).getLabelValue();
 		Map<String, Object> metadataMap = extractMetaData(metadata);
 		
+		Log.d(TAG, "IO properties: hash= " + hash 
+				+ ", hash alg = " + hashAlgorithm
+				+ ", content type = " + contentType
+				+ ", metadata = " + metadata);
+		
 		String filePath = (String) metadataMap.get(LABEL_FILEPATH);
 		String fileSize = (String) metadataMap.get(LABEL_FILESIZE);
 		
@@ -194,7 +198,9 @@ public class IODatabase extends SQLiteOpenHelper {
 		
 		// Create entry for the IO_url table
 		Object urlJsonObject = metadataMap.get(LABEL_URL);
-		if (urlJsonObject instanceof JSONArray) {
+		Log.d(TAG, "Url object = " + urlJsonObject.toString());
+		
+		if (urlJsonObject instanceof ArrayList) {
 			// Will always be a list of strings, in case it is a JSONArray
 			@SuppressWarnings("unchecked")
 			List<String> urlList = (List<String>) urlJsonObject;
@@ -235,45 +241,45 @@ public class IODatabase extends SQLiteOpenHelper {
 		Cursor cursor = db.query(TABLE_IO, null, KEY_HASH + "=?", 
 				new String[]{hash}, null, null, null);
 		
-		 if (cursor != null) {
-		        cursor.moveToFirst();
-		 } else {
-			 throw new DatabaseException("The given hash does not correspond to any IO.");
-		 }
+		if (cursor != null) {
+			cursor.moveToFirst();
+		} else {
+			throw new DatabaseException("The given hash does not correspond to any IO.");
+		}
 		 
-		 Identifier identifier = mDatamodelFactory.createIdentifier();
-	
-		 // Put the information contained in the IO table into the identifier
-		 addIdentifierLabel(identifier, 
-				 SailDefinedLabelName.HASH_CONTENT.getLabelName(), cursor.getString(0));
-		 addIdentifierLabel(identifier, 
-				 SailDefinedLabelName.HASH_ALG.getLabelName(), cursor.getString(1));
-		 addIdentifierLabel(identifier, 
-				 SailDefinedLabelName.CONTENT_TYPE.getLabelName(), cursor.getString(2));
-	 
+		Identifier identifier = mDatamodelFactory.createIdentifier();
+		
+		// Put the information contained in the IO table into the identifier
+		addIdentifierLabel(identifier, 
+				SailDefinedLabelName.HASH_CONTENT.getLabelName(), cursor.getString(0));
+		addIdentifierLabel(identifier,
+				SailDefinedLabelName.HASH_ALG.getLabelName(), cursor.getString(1));
+		addIdentifierLabel(identifier, 
+				SailDefinedLabelName.CONTENT_TYPE.getLabelName(), cursor.getString(2));
 		 
-		 // Put together the meta data information
-		 Metadata metaData = new Metadata();
-		 metaData.insert(LABEL_FILEPATH, cursor.getString(3));
-		 metaData.insert(LABEL_FILESIZE, cursor.getString(4));
+			 
+		// Put together the meta data information
+		Metadata metaData = new Metadata();
+		metaData.insert(LABEL_FILEPATH, cursor.getString(3));
+		metaData.insert(LABEL_FILESIZE, cursor.getString(4));
 		 
-		 cursor = db.query(TABLE_URL, null, KEY_HASH + "=?", new String[]{hash}, null, null, null);
-		 if (cursor != null) {
-		        cursor.moveToFirst();
-		 } else {
-			 throw new DatabaseException("The given hash does not correspond to any IO.");
-		 }
+		cursor = db.query(TABLE_URL, null, KEY_HASH + "=?", new String[]{hash}, null, null, null);
+		if (cursor != null) {
+			cursor.moveToFirst();
+		} else {
+			throw new DatabaseException("The given hash does not correspond to any IO.");
+		}
 		 
-		 do {
-			 metaData.insert(LABEL_URL, cursor.getString(1));
-		 } while (cursor.moveToNext());
-		 
-		 addIdentifierLabel(identifier, 
-				 SailDefinedLabelName.META_DATA.getLabelName(), metaData.convertToString());
-		 
-		 InformationObject io = mDatamodelFactory.createInformationObject();
-		 io.setIdentifier(identifier);
-		 return io;
+		do {
+			metaData.insert(LABEL_URL, cursor.getString(1));
+		} while (cursor.moveToNext());
+		
+		addIdentifierLabel(identifier,
+				SailDefinedLabelName.META_DATA.getLabelName(), metaData.convertToString());
+		
+		InformationObject io = mDatamodelFactory.createInformationObject();
+		io.setIdentifier(identifier);
+		return io;
 	}
 	
 	/**

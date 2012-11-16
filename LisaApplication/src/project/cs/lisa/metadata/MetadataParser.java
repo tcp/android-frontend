@@ -120,14 +120,14 @@ public class MetadataParser {
     public static Map<String, Object> extractMetaData(JSONObject json) {
     	Map<String, Object> map = new LinkedHashMap<String, Object>();
     	
-    	// Extract the metadata from the json object
-    	JSONObject metadata; 
-    	try {
-			metadata = json.getJSONObject(TAG_metadata).getJSONObject(TAG_meta);
+    	//Extract the metadata from the json object
+    	JSONObject metadata = json; 
+    	/*try {
+			metadata = json.getJSONObject(TAG_meta);
 		} catch (JSONException e) {
 			Log.e(TAG, "Extracting the meta-data failed.");
 			return null;
-		}
+		}*/
     	
     	//metada.keys does not have a defined type but it always will be a String
     	@SuppressWarnings("unchecked")
