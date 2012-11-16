@@ -99,13 +99,13 @@ public class IODatabase extends SQLiteOpenHelper {
 	private static final String KEY_METADATA = "meta_data";
 	
 	/** Meta-data label for the filepath. */
-	private final String LABEL_FILEPATH;
+	private final String mFilepathLabel;
 	
 	/** Meta-data label for the file size. */
-	private final String LABEL_FILESIZE;
+	private final String mFilesizeLabel;
 	
 	/** Meta-data label for the url. */
-	private final String LABEL_URL;
+	private final String mUrlLabel;
 	
 	/** The datamodel factory used for constructing the IO. */
 	private DatamodelFactory mDatamodelFactory;
@@ -113,7 +113,9 @@ public class IODatabase extends SQLiteOpenHelper {
 	/**
 	 * Creates a new Database for storing IO information.
 	 * 
-	 * @param context	The application context
+	 * @param context			The application context
+	 * @param datamodelFactory	The factory that is used in order to 
+	 * 							create information objects.
 	 */
 	@Inject
 	public IODatabase(Context context, DatamodelFactory datamodelFactory) {
@@ -122,9 +124,9 @@ public class IODatabase extends SQLiteOpenHelper {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION); 
 		
 		UProperties instance = UProperties.INSTANCE;
-		LABEL_FILEPATH = instance.getPropertyWithName("metadata.filepath");
-		LABEL_FILESIZE = instance.getPropertyWithName("metadata.filesize");
-		LABEL_URL = instance.getPropertyWithName("metadata.url");
+		mFilepathLabel = instance.getPropertyWithName("metadata.filepath");
+		mFilesizeLabel = instance.getPropertyWithName("metadata.filesize");
+		mUrlLabel = instance.getPropertyWithName("metadata.url");
 		
 		mDatamodelFactory = datamodelFactory;
 	}
@@ -190,14 +192,14 @@ public class IODatabase extends SQLiteOpenHelper {
 				+ ", content type = " + contentType
 				+ ", metadata = " + metadata);
 		
-		String filePath = (String) metadataMap.get(LABEL_FILEPATH);
-		String fileSize = (String) metadataMap.get(LABEL_FILESIZE);
+		String filePath = (String) metadataMap.get(mFilepathLabel);
+		String fileSize = (String) metadataMap.get(mFilesizeLabel);
 		
 		ContentValues ioEntry = createIOEntry(hash, hashAlgorithm, contentType, filePath, fileSize);
 		db.insert(TABLE_IO, null, ioEntry);
 		
 		// Create entry for the IO_url table
-		Object urlJsonObject = metadataMap.get(LABEL_URL);
+		Object urlJsonObject = metadataMap.get(mUrlLabel);
 		Log.d(TAG, "Url object = " + urlJsonObject.toString());
 		
 		if (urlJsonObject instanceof ArrayList) {
@@ -220,12 +222,31 @@ public class IODatabase extends SQLiteOpenHelper {
 
 	/**
 	 * Deletes the information object corresponding to 
-	 * the specified hash value.
+	 * the specified hash value from the database.
 	 * 
 	 * @param hash	The hash value identifying the information object.
 	 */
 	public void deleteIO(String hash) {
+		Log.d(TAG, "Deleting io corresponding to the following hash: " + hash);
+		SQLiteDatabase db = getWritableDatabase();
 		
+		db.delete(TABLE_IO, KEY_HASH + " = ?", new String[] {hash});
+		db.close();
+	}
+	
+	/**
+	 * Deletes the information object that is specified
+	 * from the database.
+	 * 
+	 * @param io	The information object to delete.
+	 */
+	public void deleteIO(InformationObject io) {
+		Log.d(TAG, "Deleting an information object from the database.");
+		
+		Identifier identifier = io.getIdentifier();
+		String hash = identifier.getIdentifierLabel(
+				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+		deleteIO(hash);
 	}
 	
 	/**
@@ -241,7 +262,7 @@ public class IODatabase extends SQLiteOpenHelper {
 		Cursor cursor = db.query(TABLE_IO, null, KEY_HASH + "=?", 
 				new String[]{hash}, null, null, null);
 		
-		if (cursor != null) {
+		if (cursor != null && cursor.getCount() != 0) {
 			cursor.moveToFirst();
 		} else {
 			throw new DatabaseException("The given hash does not correspond to any IO.");
@@ -260,8 +281,8 @@ public class IODatabase extends SQLiteOpenHelper {
 			 
 		// Put together the meta data information
 		Metadata metaData = new Metadata();
-		metaData.insert(LABEL_FILEPATH, cursor.getString(3));
-		metaData.insert(LABEL_FILESIZE, cursor.getString(4));
+		metaData.insert(mFilepathLabel, cursor.getString(3));
+		metaData.insert(mFilesizeLabel, cursor.getString(4));
 		 
 		cursor = db.query(TABLE_URL, null, KEY_HASH + "=?", new String[]{hash}, null, null, null);
 		if (cursor != null) {
@@ -271,7 +292,7 @@ public class IODatabase extends SQLiteOpenHelper {
 		}
 		 
 		do {
-			metaData.insert(LABEL_URL, cursor.getString(1));
+			metaData.insert(mUrlLabel, cursor.getString(1));
 		} while (cursor.moveToNext());
 		
 		addIdentifierLabel(identifier,
@@ -280,16 +301,6 @@ public class IODatabase extends SQLiteOpenHelper {
 		InformationObject io = mDatamodelFactory.createInformationObject();
 		io.setIdentifier(identifier);
 		return io;
-	}
-	
-	/**
-	 * Returns the list of all information objects that are stored in the
-	 * database. 
-	 * 
-	 * @return	Returns a list of all information objects.
-	 */
-	public List<InformationObject> getAllIO() {
-		return null;
 	}
 	
 	/**

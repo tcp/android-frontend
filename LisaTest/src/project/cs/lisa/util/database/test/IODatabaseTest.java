@@ -8,7 +8,6 @@ import java.util.Map;
 import junit.framework.Assert;
 import netinf.common.datamodel.DatamodelFactory;
 import netinf.common.datamodel.Identifier;
-import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.impl.DatamodelFactoryImpl;
 
@@ -16,16 +15,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import project.cs.lisa.exceptions.DatabaseException;
-import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.metadata.MetadataParser;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import project.cs.lisa.util.IOBuilder;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.util.database.IODatabase;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.test.AndroidTestCase;
 import android.test.RenamingDelegatingContext;
-import android.test.mock.MockContext;
 
 /**
  * Tests the IODatabase storing the information objects that
@@ -46,9 +42,6 @@ public class IODatabaseTest extends AndroidTestCase {
 	/** The Datamodel facotry */
 	private DatamodelFactory mDatamodelFactory;
 	
-	/** Database */
-	private SQLiteDatabase mDatabase;
-	
 	/** Meta-data label for the filepath. */
 	private String LABEL_FILEPATH;
 	
@@ -66,9 +59,7 @@ public class IODatabaseTest extends AndroidTestCase {
         = new RenamingDelegatingContext(getContext(), TEST_FILE_PREFIX);
 		
 		mDatamodelFactory = new DatamodelFactoryImpl();
-		
 		mIoDatabase = new IODatabase(context,mDatamodelFactory);		
-		mDatabase = mIoDatabase.getWritableDatabase();
 		
 		
 		// The meta data tag names
@@ -84,9 +75,6 @@ public class IODatabaseTest extends AndroidTestCase {
 	 * is working.
 	 */
 	public void testAddGetIO() {
-		
-		Identifier identifier = mDatamodelFactory.createIdentifier();
-
 		// The expected values of the information object we want to insert
 		String expectedHash = "61C";
 		String expectedHashAlg = "sha-256";
@@ -95,33 +83,17 @@ public class IODatabaseTest extends AndroidTestCase {
         String expectedFilesize = "58432";
         String expectedUrl1 = "www.google.com";
         String expectedUrl2 = "www.amazon.com";
-		
-		
-        // Add IO fields to identifier
-		addIdentifierLabel(identifier, 
-				SailDefinedLabelName.HASH_CONTENT.getLabelName(), expectedHash);
 
-		addIdentifierLabel(identifier, 
-				SailDefinedLabelName.HASH_ALG.getLabelName(), expectedHashAlg); 
-		
-		addIdentifierLabel(identifier, 
-				SailDefinedLabelName.CONTENT_TYPE.getLabelName(), expectedContentType);
-        
-		
-		// Create the metadata
-        Metadata metaData = new Metadata();      
-		metaData.insert(LABEL_FILEPATH, expectedFilepath);
-		metaData.insert(LABEL_FILESIZE, expectedFilesize);
-		metaData.insert(LABEL_URL, expectedUrl1);
-		metaData.insert(LABEL_URL, expectedUrl2);
-		
-		String expectedMetadata = metaData.convertToString();	
-		addIdentifierLabel(identifier, 
-				SailDefinedLabelName.META_DATA.getLabelName(), expectedMetadata);
-		
-		// Create the Information Object
-		InformationObject io = mDatamodelFactory.createInformationObject();
-		io.setIdentifier(identifier);
+        IOBuilder builder = new IOBuilder(mDatamodelFactory);
+        builder.setHash(expectedHash)
+        	.setHashAlgorithm(expectedHashAlg)
+        	.setContentType(expectedContentType)
+        	.addMetaData(LABEL_FILEPATH, expectedFilepath)
+        	.addMetaData(LABEL_FILESIZE, expectedFilesize)
+        	.addMetaData(LABEL_URL, expectedUrl1)
+        	.addMetaData(LABEL_URL, expectedUrl2);
+        InformationObject io = builder.build();
+
 		
 		// Perform the database requests
 		InformationObject gotIo = null;
@@ -170,17 +142,41 @@ public class IODatabaseTest extends AndroidTestCase {
 	}
 	
 	/**
-	 * Adds an identifier label for the specified identifier for the passed label properties.
-	 * 
-	 * @param identifier	The identifier to modify
-	 * @param labelName		The label name
-	 * @param labelValue	The label value
+	 * Tries to delete an information object from the database table.
 	 */
-	private void addIdentifierLabel(Identifier identifier, String labelName, String labelValue) {
-		 IdentifierLabel hashLabel = mDatamodelFactory.createIdentifierLabel();
-         hashLabel.setLabelName(labelName);
-         hashLabel.setLabelValue(labelValue);
-         identifier.addIdentifierLabel(hashLabel);
+	public void testDeleteIO() {
+		// Create a IO for deleting
+		String hash = "445";
+		String hashAlg = "sha-256";
+		String contentType = "text/plain";
+        String filepath = "/home/lisa/test.txt";
+        String filesize = "11";
+        String url = "www.svt.se";
+
+        IOBuilder builder = new IOBuilder(mDatamodelFactory);
+        builder.setHash(hash)
+        	.setHashAlgorithm(hashAlg)
+        	.setContentType(contentType)
+        	.addMetaData(LABEL_FILEPATH, filepath)
+        	.addMetaData(LABEL_FILESIZE, filesize)
+        	.addMetaData(LABEL_URL, url);
+        InformationObject io = builder.build();
+        
+        try {
+			mIoDatabase.addIO(io);
+			mIoDatabase.deleteIO(io);
+		} catch (DatabaseException e) {
+			Assert.fail("Should not have thrown an exception.");
+		}
+        
+        // Check whether the io is still available
+        try {
+			mIoDatabase.getIO(hash);
+			Assert.fail("Should have thrown an exception since io was removed.");
+		} catch (DatabaseException e) {
+			// Success: io should not be stored in database anymore
+		}
+        
 	}
 	
 }
