@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.application.ListDialog;
@@ -38,12 +40,14 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
@@ -78,9 +82,9 @@ public class WifiHandler {
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
         }
-        
-        progressBar = new ProgressDialog(MainNetInfActivity.getActivity());
 
+        progressBar = new ProgressDialog(MainNetInfActivity.getActivity());
+        setUpBroadcastReceiver();
     }
 
     public void startDiscovery() {
@@ -92,6 +96,7 @@ public class WifiHandler {
         filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         MainNetInfActivity.getActivity().registerReceiver(mReceiver, filter);
+
 
         wifiManager.startScan();
     }
@@ -107,7 +112,7 @@ public class WifiHandler {
         Log.d(TAG, "Yeah, let's try to connect to " + networkSSID);
 
         showProgressDialog("Try to connect to " + networkSSID);
-        
+
         currentChosenNetwork = networkSSID;
 
         WifiConfiguration conf = new WifiConfiguration();
@@ -115,79 +120,88 @@ public class WifiHandler {
         conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         int networkId = wifiManager.addNetwork(conf);
         wifiManager.disconnect();
-
         wifiManager.enableNetwork(networkId, true);
         wifiManager.reconnect();
-
     }
 
     public void onDiscoveryDone(Set<String> wifis) {
         Log.d(TAG, "onDiscoveryDone");
     }
-    
+
+
+    BroadcastReceiver mReceiver;
     /**
      * Broadcast Receiver mReceive that handles with WIFI 'signal' changes.
      * This is used to populate the device list as well as altering the text
      * from the variables.
      */
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private void setUpBroadcastReceiver() {
+        Log.d(TAG, "Set up broadcast receiver.");
 
-        private boolean doneScanning = false; 
+        mReceiver = new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
+            private boolean doneScanning = false;
 
-            // this is called when the wifi discovery is done
-            if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)) {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
 
-                /*
-                 *  Prevent the scanning to show the wifi dialog several time.
-                 *  Android scans wifi networks continuously.
-                 */
-                if (doneScanning) {
-                    return;
-                }
+                Log.d(TAG, action.toString());
 
-                doneScanning = true;
+                // this is called when the wifi discovery is done
+                if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)) {
 
-                Log.d(TAG, "Finished scanning");
+                    /*
+                     *  Prevent the scanning to show the wifi dialog several time.
+                     *  Android scans wifi networks continuously.
+                     */
+                    if (doneScanning) {
+                        return;
+                    }
 
-                progressBar.dismiss();
+                    doneScanning = true;
 
-                List<ScanResult> scanResults = wifiManager.getScanResults();
-                Set<String> wifis = new HashSet<String>();
-                for (ScanResult scanResult : scanResults) {
-                    wifis.add(scanResult.SSID);
-                }
-                
-                Log.d(TAG, wifis.toString());
-
-                onDiscoveryDone(wifis);
-            }
-
-
-            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
-
-                String chosenNetWork = wifiManager.getConnectionInfo().getSSID();
-                SupplicantState state = wifiManager.getConnectionInfo().getSupplicantState();
-
-                if (chosenNetWork.equals(currentChosenNetwork) && state == SupplicantState.COMPLETED) {
+                    Log.d(TAG, "Finished scanning");
 
                     progressBar.dismiss();
 
-                    new AlertDialog.Builder(MainNetInfActivity.getActivity())
-                    .setMessage("You have been successfully connected to " + currentChosenNetwork)
-                    .setTitle("Wifi message")
-                    .setCancelable(true)
-                    .setNeutralButton("OK", null)
-                    .show();
-                }
-                
-                if (doneScanning) MainNetInfActivity.getActivity().unregisterReceiver(mReceiver);
+                    List<ScanResult> scanResults = wifiManager.getScanResults();
+                    Set<String> wifis = new HashSet<String>();
+                    for (ScanResult scanResult : scanResults) {
+                        wifis.add(scanResult.SSID);
+                    }
 
-                
+                    Log.d(TAG, wifis.toString());
+
+                    onDiscoveryDone(wifis);
+                }
+
+
+                if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
+
+                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                    String chosenNetWork = wifiInfo.getSSID();
+                    SupplicantState state = wifiInfo.getSupplicantState();
+
+                    Log.d(TAG, "state: " + state);
+                    Log.d(TAG, "chosenNetwork: " + chosenNetWork);
+
+                    if (chosenNetWork.equals(currentChosenNetwork) && state == SupplicantState.COMPLETED) {
+                        new AlertDialog.Builder(MainNetInfActivity.getActivity())
+                        .setMessage("You have been successfully connected to " + currentChosenNetwork)
+                        .setTitle("Wifi message")
+                        .setCancelable(true)
+                        .setNeutralButton("OK", null)
+                        .show();
+                        
+                        progressBar.dismiss();
+                    }
+
+                    if (doneScanning) {
+                        MainNetInfActivity.getActivity().unregisterReceiver(mReceiver);
+                    }
+                }
             }
-        }
-    };
+        };
+    }
 }

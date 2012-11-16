@@ -34,16 +34,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
-import org.jsoup.UnsupportedMimeTypeException;
-import org.jsoup.nodes.Document;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.Locator;
@@ -69,7 +65,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -106,37 +101,33 @@ public class MainNetInfActivity extends Activity {
     /** Number of characters of the hash to use. **/
     public static final int HASH_LENGTH = 3;
 
-    /** Reference to the global application state. */
-    private MainApplication mApplication;
-
-    /** Please comment. */
-    private StarterNodeThread mStarterNodeThread;
-
-    /** The Server listening for incoming Bluetooth requests. */
-    private BluetoothServer mBluetoothServer;
-
     /** Activity context. */
     private static MainNetInfActivity mMainNetInfActivity;
+    
+    private MainApplication mApplication;
 
-    /** Toast. **/
-    private Toast mToast;
+    private static Toast mToast;
+    
+    private StarterNodeThread mStarterNodeThread;
 
+    private BluetoothServer mBluetoothServer;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
+        setContentView(R.layout.activity_main);
 
         mApplication = (MainApplication) getApplication();
         mMainNetInfActivity = this;
         mToast = new Toast(this);
 
-        setupWifi();
+//        setupWifi();
         setupBluetoothAvailability();
         setupBroadcastReceiver();
         setupNode();
         setupBluetoothServer();
 
-        setContentView(R.layout.activity_main);
 
         // Get the input address 
         EditText editText = (EditText) findViewById(R.id.url);
@@ -155,6 +146,7 @@ public class MainNetInfActivity extends Activity {
          */
     }
 
+    // TODO: Refactor 
     private void setupWifi() {
         // Create OK dialog
         showDialog(new OkButtonDialog("Wifi Information", getString(R.string.dialog_wifi_msg), new OnClickListener() {
@@ -191,89 +183,40 @@ public class MainNetInfActivity extends Activity {
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "");
     }
-
-    /**
-     * Loads the web page asynchronously.
-     * @author Paolo Boschini
-     *
-     */
-    private class DownloadWebPageTask extends AsyncTask<String, Void, Document> {
-        @Override
-        protected Document doInBackground(String... urls) {
-
-            String pageAddress = urls[0];
-            Document response = null;
-
-            Log.d(TAG, pageAddress);
-
-            // TRY WITHOUT JSOUP, BUT WITH A WHILE LOOP WITH BYTES
-            // TO HAVE A PROGRESS BAR
-
-            try {                                              
-                // get the actual page
-                response = Jsoup.connect(pageAddress).get();
-            } catch (IllegalArgumentException e) {                          
-                Log.e(TAG, "IllegalArgumentException on " + pageAddress);
-            } catch (MalformedURLException e1) {                          
-                Log.e(TAG, "MalformedURLException on " + pageAddress);
-            } catch (HttpStatusException e2) {                          
-                Log.e(TAG, "HttpStatusException on " + pageAddress);
-            } catch (UnsupportedMimeTypeException e3) {                          
-                Log.e(TAG, "UnsupportedMimeTypeException on " + pageAddress);
-            } catch (SocketTimeoutException e4) {                          
-                Log.e(TAG, "SocketTimeoutException on " + pageAddress);
-            } catch (IOException e5) {                          
-                Log.e(TAG, "IOException on " + pageAddress);
-            }                                                  
-
-            return response;
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            // TODO Auto-generated method stub
-            super.onProgressUpdate(values);
-        }
-        /**
-         * Load the result html into the web view.
-         */
-        @Override
-        protected void onPostExecute(Document doc) {
-            String result = doc.html();
-            WebView webView = (WebView) findViewById(R.id.webView);
-            webView.loadDataWithBaseURL(result, result, "text/html", null, null);
-        }
-    }
-
+    
     /**
      * Try to fetch the requested webpage.
      * @param v
      */
     public final void goButtonClicked(final View v) {
-
+        
         /* Load web page in the web view for now.
          * This will generate a request to the NRS or whatever
          * node acts as an NRS. 
          */
         EditText editText = (EditText) findViewById(R.id.url);
-        String url = editText.getText().toString();
-
+        URL url = null;
+        try {
+            url = new URL(editText.getText().toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        
         // Dismiss keyboard
         InputMethodManager imm =
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
         WebView webView = (WebView) findViewById(R.id.webView);
         webView.requestFocus();
-
-        if (!addressIsValid(url)) {
+        
+        if (!addressIsValid(url.toString())) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Invalid url")
             .setTitle("Invalid url")
             .setNeutralButton("Ok, sorry :(", null);
             AlertDialog dialog = builder.create();
             dialog.show();
-
+            
         } else {
             DownloadWebPageTask task = new DownloadWebPageTask();
             task.execute(url);
@@ -365,7 +308,7 @@ public class MainNetInfActivity extends Activity {
                  */
                 Log.d(TAG, "jsonResponse: " + jsonResponse);
                 if (jsonResponse == null) {
-                    getActivity().showToast(
+                    showToast(
                             "Getting file failed. Check your Internet and Bluetooth connections");
                     return;
                 }
@@ -384,7 +327,7 @@ public class MainNetInfActivity extends Activity {
                 case ViewFile.OK:
                     break;
                 default:
-                    getActivity().showToast("Opening file failed.");
+                    showToast("Opening file failed.");
                     break;
                 }
             }
@@ -600,17 +543,17 @@ public class MainNetInfActivity extends Activity {
      * Show a toast.
      * @param text      The text to show in the toast.
      */
-    public void showToast(String text) {
+    public static void showToast(String text) {
         Log.d(TAG, "showToast()");
         mToast.cancel();
-        mToast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
+        mToast = Toast.makeText(getActivity(), text, Toast.LENGTH_LONG);
         mToast.show();
     }
 
     /**
      * Cancel current toast.
      */
-    public void cancelToast() {
+    public static void cancelToast() {
         Log.d(TAG, "cancelToast()");
         mToast.cancel();
     }
