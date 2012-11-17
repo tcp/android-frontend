@@ -117,7 +117,7 @@ public class IODatabase extends SQLiteOpenHelper {
 	 * 							create information objects.
 	 */
 	@Inject
-	public IODatabase(Context context, DatamodelFactory datamodelFactory) {
+	public IODatabase(DatamodelFactory datamodelFactory, Context context) {
 		
 		// We skip the curser object factory, since we don't need it
 		super(context, DATABASE_NAME, null, DATABASE_VERSION); 
