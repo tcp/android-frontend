@@ -55,9 +55,6 @@ public class LocalResolutionService
 	/** The debug tag. */
 	private static final String TAG = "LocalResolutionService";
 	
-	/** The datamodel factory used for creating information objects. */
-	private DatamodelFactory mDatamodelFactory;
-	
 	/** The local database used for storing information objects. */
 	private IODatabase mDatabase;
 	
@@ -69,14 +66,14 @@ public class LocalResolutionService
 	 */
 	@Inject
 	public LocalResolutionService(MainApplication application, DatamodelFactory factory) {
-		mDatamodelFactory = factory;
 		mDatabase = new IODatabase(factory, application.getApplicationContext());
 	}
 
 	@Override
-	public void delete(Identifier arg0) {
-		// TODO Auto-generated method stub
-		
+	public void delete(Identifier identifier) {
+		String hash = identifier.getIdentifierLabel(
+				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+		mDatabase.deleteIO(hash);
 	}
 
 	@Override
@@ -101,20 +98,24 @@ public class LocalResolutionService
 		return io;
 	}
 
+
 	@Override
-	public List<Identifier> getAllVersions(Identifier arg0) {
+	public void put(InformationObject io) {
+		try {
+			mDatabase.addIO(io);
+		} catch (DatabaseException e) {
+			Log.e(TAG, "Failed adding the information object into the database.");
+		}
+	}
+
+	@Override
+	protected ResolutionServiceIdentityObject createIdentityObject() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void put(InformationObject arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected ResolutionServiceIdentityObject createIdentityObject() {
+	public List<Identifier> getAllVersions(Identifier arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
