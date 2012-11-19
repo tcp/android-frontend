@@ -27,6 +27,7 @@
 package project.cs.lisa.netinf.node.resolution;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +47,8 @@ import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
 import netinf.common.exceptions.NetInfResolutionException;
 import netinf.node.resolution.ResolutionService;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,6 +57,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -66,6 +70,7 @@ import org.json.simple.JSONValue;
 import project.cs.lisa.exceptions.InvalidResponseException;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import android.os.Environment;
 import android.util.Log;
 
 import com.google.inject.Inject;
@@ -184,7 +189,47 @@ public class NameResolutionService
         return metadata;
     }
 
-	/**
+    /**
+     * Gets the file path from an InformationObject.
+     * @param io
+     *      The information object
+     * @return
+     *      The file path
+     */
+    private String getFilePath(InformationObject io) {
+        Log.d(TAG, "getFilePath()");
+        Attribute filepathAttribute =
+                io.getSingleAttribute(SailDefinedAttributeIdentification.FILE_PATH.getURI());
+        String filepath = null;
+        if (filepathAttribute != null) {
+            filepath = filepathAttribute.getValueRaw();
+            filepath = filepath.substring(filepath.indexOf(":") + 1);
+        }
+        Log.d(TAG, "filepath = " + filepath);
+        return filepath;
+    }
+
+    /**
+     * Gets the first bluetooth locator from an InformationObject.
+     * @param io
+     *      The information object
+     * @return
+     *      The bluetooth locator
+     */
+    private String getBluetoothMac(InformationObject io) {
+        Log.d(TAG, "getBluetoothLocator()");
+        Attribute bluetoothAttribute =
+                io.getSingleAttribute(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
+        String bluetoothLocator = null;
+        if (bluetoothAttribute != null) {
+            bluetoothLocator = bluetoothAttribute.getValueRaw();
+            bluetoothLocator = bluetoothLocator.substring(bluetoothLocator.indexOf(":") + 1);
+        }
+        Log.d(TAG, "bluetooth = " + bluetoothLocator);
+        return bluetoothLocator;
+    }
+
+    /**
 	 * Reads the next content stream from a HTTP response, expecting it to be JSON.
 	 * @param response                     The HTTP response
 	 * @return                             The read JSON
@@ -306,6 +351,49 @@ public class NameResolutionService
     	}
     }
 
+	private InformationObject readIo(Identifier identifier, HttpResponse response)
+	        throws InvalidResponseException {
+	    InformationObject io = mDatamodelFactory.createInformationObject();
+        io.setIdentifier(identifier);
+        String jsonString = readJson(response);
+        JSONObject json = parseJson(jsonString);
+        addContentType(identifier, json);
+        addMetadata(identifier, json);
+        addLocators(io, json);
+	    return io;
+	}
+
+	/**
+	 * Tries to read and write a file associated with an InformationObject
+	 *     from the next content stream from a HTTP response.
+	 * @param io
+	 *     The Information Object
+	 * @param response
+	 *     The HTTP response
+	 * @throws InvalidResponseException
+	 *     In case reading or writing the file failed
+	 */
+	private void readFile(InformationObject io, HttpResponse response) throws InvalidResponseException {
+	    try {
+	        HttpEntity entity = response.getEntity();
+	        InputStream input = entity.getContent();
+	        byte[] bytes = IOUtils.toByteArray(input);
+	        // TODO refactor this folder into properties?
+	        File file = new File(Environment.getExternalStorageDirectory() + "/DCIM/Shared/" + getHash(io.getIdentifier()));
+	        FileUtils.writeByteArrayToFile(file, bytes);
+
+	        // Add file path locator
+	        Attribute locator = mDatamodelFactory.createAttribute();
+	        locator.setAttributePurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
+	        locator.setIdentification(SailDefinedAttributeIdentification.FILE_PATH.getURI());
+	        locator.setValue(file.getAbsoluteFile());
+            io.addAttribute(locator);
+
+	    } catch (IOException e) {
+	        throw new InvalidResponseException("Failed to read file data from NetInf GET response", e);
+	    }
+	}
+
 	/**
 	 * Create an InformationObject given an identifier and the HTTP response to the NetInf GET.
 	 * @param identifier
@@ -323,22 +411,26 @@ public class NameResolutionService
 
         int statusCode = response.getStatusLine().getStatusCode();
         Log.d(TAG, "statusCode = " + statusCode);
+        // TODO refactor duplicate code to method
+
         switch (statusCode) {
             case HttpStatus.SC_NON_AUTHORITATIVE_INFORMATION:
                 Log.d(TAG, "Response that should contain locators");
                 // Just locators
-                InformationObject io = mDatamodelFactory.createInformationObject();
-                io.setIdentifier(identifier);
-                String jsonString = readJson(response);
-                JSONObject json = parseJson(jsonString);
-                addContentType(identifier, json);
-                addMetadata(identifier, json);
-                addLocators(io, json);
-                return io;
+                return readIo(identifier, response);
             case HttpStatus.SC_OK:
                 Log.d(TAG, "Response that should contain locators and data");
                 // Locators and actual file
-                throw new InvalidResponseException("Get response with data not handled yet.");
+                InformationObject io = readIo(identifier, response);
+                // Read the file and add it to the InformationObject
+                readFile(io, response);
+                try {
+                    Log.d(TAG, IOUtils.toString(response.getEntity().getContent()));
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                    Log.e(TAG, "Expected binary file data");
+                }
+                return io;
             default:
                 // Something unhandled
                 throw new InvalidResponseException("Unexpected Response Code = " + statusCode);
@@ -398,25 +490,9 @@ public class NameResolutionService
 	public void put(InformationObject io) {
 	    Log.d(TAG, "put()");
 
-		// Extracting values from IO's identifier
-		String hashAlg    = getHashAlg(io.getIdentifier());
-		String hash       = getHash(io.getIdentifier());
-		String ct         = getContentType(io.getIdentifier());
-		String meta       = getMetadata(io.getIdentifier());
-
-		// Get one Bluetooth locator
-		Attribute bluetoothMacAttribute =
-		        io.getSingleAttribute(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
-		String bluetoothMac = null;
-        if (bluetoothMacAttribute != null) {
-            bluetoothMac = bluetoothMacAttribute.getValueRaw();
-            bluetoothMac = bluetoothMac.substring(bluetoothMac.indexOf(":") + 1);
-            Log.d(TAG, "bluetoothMac = " + bluetoothMac);
-        }
-
         try {
             Log.d(TAG, "Creating HTTP POST");
-            HttpPost post = createPublish(hashAlg, hash, ct, bluetoothMac, meta);
+            HttpPost post = createPublish(io);
             Log.d(TAG, "Executing HTTP POST to " + post.getURI());
             HttpResponse response = mClient.execute(post);
             Log.d(TAG, "statusCode = "
@@ -432,18 +508,25 @@ public class NameResolutionService
 
 	/**
 	 * Creates an HTTP POST representation of a NetInf PUBLISH message.
-	 * @param hashAlg          the used hash algorithm
-	 * @param hash             the resulting hash
-	 * @param contentType      the MIME content type of the file
-	 * @param bluetoothMac     the Bluetooth MAC Address of the publishing device
-	 * @param meta             A string with JSON formatted meta-data related to the file
-	 * @return                 A HttpPost representing the NetInf PUBLISH message
-	 * @throws UnsupportedEncodingException    In case the encoding is not supported
+	 * @param io
+	 *     The information object to publish
+	 * @return
+	 *     A HttpPost representing the NetInf PUBLISH message
+	 * @throws UnsupportedEncodingException
+	 *     In case the encoding is not supported
 	 */
-    private HttpPost createPublish(
-            String hashAlg, String hash, String contentType, String bluetoothMac, String meta)
+    private HttpPost createPublish(InformationObject io)
             throws UnsupportedEncodingException {
+
         Log.d(TAG, "createPublish()");
+
+        // Extracting values from IO's identifier
+        String hashAlg      = getHashAlg(io.getIdentifier());
+        String hash         = getHash(io.getIdentifier());
+        String contentType  = getContentType(io.getIdentifier());
+        String meta         = getMetadata(io.getIdentifier());
+        String bluetoothMac = getBluetoothMac(io);
+        String filePath     = getFilePath(io);
 
 	    HttpPost post = new HttpPost(mHost + ":" + mPort + "/netinfproto/publish");
 
@@ -466,6 +549,13 @@ public class NameResolutionService
 		    entity.addPart("ext", ext);
 		}
 
+		if (filePath != null) {
+		    StringBody fullPut = new StringBody("true");
+		    entity.addPart("fullPut", fullPut);
+		    FileBody octets = new FileBody(new File(filePath));
+		    entity.addPart("octets", octets);
+		}
+
 		StringBody rform = new StringBody("json");
 		entity.addPart("rform", rform);
 
@@ -479,7 +569,7 @@ public class NameResolutionService
 		return post;
 	}
 
-	/**
+    /**
 	 * Creates an HTTP Post request to get an IO from the NRS.
 	 * @param uri                              the NetInf format URI for getting IOs
 	 * @return                                 The HTTP Post request
@@ -506,7 +596,7 @@ public class NameResolutionService
 
 		return post;
 	}
-	
+
 	@Override
 	protected ResolutionServiceIdentityObject createIdentityObject() {
 		// TODO Auto-generated method stub

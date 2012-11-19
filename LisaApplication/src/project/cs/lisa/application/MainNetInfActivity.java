@@ -426,7 +426,8 @@ public class MainNetInfActivity extends Activity {
             // Try to hash the file
             try {
                 lisaHash = new Hash(FileUtils.readFileToByteArray(file));
-                hash = lisaHash.encodeResult(HASH_LENGTH); // Use 0 for using the whole hash
+//                hash = lisaHash.encodeResult(HASH_LENGTH); // Use 0 for using the whole hash
+                hash = lisaHash.encodeResult(); // Use 0 for using the whole hash
                 Log.d(TAG, "The generated hash is: " + hash);
             } catch (IOException e1) {
                 Log.e(TAG, "Error, could not open the file: " + file.getPath());
@@ -442,7 +443,7 @@ public class MainNetInfActivity extends Activity {
 
             try {
                 in = new FileInputStream(f1);
-                out = new FileOutputStream(f2, true);
+                out = new FileOutputStream(f2, false);
             } catch (FileNotFoundException e1) {
                 // TODO Auto-generated catch block
                 Log.d(TAG, "File not found! Check if something went wrong when choosing file");
@@ -503,7 +504,8 @@ public class MainNetInfActivity extends Activity {
                         UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                         UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                         UProperties.INSTANCE.getPropertyWithName("hash.alg"),
-                        hash.substring(0, HASH_LENGTH),
+//                        hash.substring(0, HASH_LENGTH),
+                        hash,
                         locators);
                 publishRequest.setContentType(contentType);
                 publishRequest.setMetadata(lisaMetaData);
