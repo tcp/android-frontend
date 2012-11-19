@@ -37,6 +37,7 @@ import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.exceptions.DatabaseException;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.util.database.IODatabase;
+import project.cs.lisa.util.database.IODatabaseFactory;
 import android.util.Log;
 
 import com.google.inject.Inject;
@@ -55,18 +56,22 @@ public class LocalResolutionService
 	/** The debug tag. */
 	private static final String TAG = "LocalResolutionService";
 	
+	/** The factory creating the database. */
+	@Inject
+	private IODatabaseFactory mDatabaseFactory;
+	
 	/** The local database used for storing information objects. */
 	private IODatabase mDatabase;
 	
 	/**
 	 * Creates a new local resolution service.
 	 * 
-	 * @param application	The main application
-	 * @param factory		The datamodel factory
+	 * @param databaseFactory	The factory used for creating the database.
 	 */
 	@Inject
-	public LocalResolutionService(MainApplication application, DatamodelFactory factory) {
-		mDatabase = new IODatabase(factory, application.getApplicationContext());
+	public LocalResolutionService(IODatabaseFactory databaseFactory) {
+		mDatabaseFactory = databaseFactory;
+		mDatabase = mDatabaseFactory.create(MainApplication.getAppContext());
 	}
 
 	@Override
@@ -97,7 +102,6 @@ public class LocalResolutionService
 				
 		return io;
 	}
-
 
 	@Override
 	public void put(InformationObject io) {

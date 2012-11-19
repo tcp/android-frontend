@@ -50,6 +50,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 /**
  * The database that contains the data corresponding to an information object
@@ -59,7 +60,9 @@ import com.google.inject.Inject;
  * @author Kim-Anh Tran
  *
  */
-public class IODatabase extends SQLiteOpenHelper {
+public class IODatabase 
+		extends SQLiteOpenHelper
+		implements IODatabaseFactory {
 	
 	/** Debug Tag. */
 	private static final String TAG = "IODatabase";
@@ -117,7 +120,7 @@ public class IODatabase extends SQLiteOpenHelper {
 	 * 							create information objects.
 	 */
 	@Inject
-	public IODatabase(DatamodelFactory datamodelFactory, Context context) {
+	public IODatabase(DatamodelFactory datamodelFactory, @Assisted Context context) {
 		
 		// We skip the curser object factory, since we don't need it
 		super(context, DATABASE_NAME, null, DATABASE_VERSION); 
@@ -160,6 +163,12 @@ public class IODatabase extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_IO + " " + TABLE_URL);
 		
 		onCreate(db);
+	}
+	
+
+	@Override
+	public IODatabase create(Context context) {
+		return new IODatabase(mDatamodelFactory, context);
 	}
 	
 	/**
@@ -347,4 +356,5 @@ public class IODatabase extends SQLiteOpenHelper {
 		urlEntry.put(KEY_URL, url);
 		return urlEntry;
 	}
+
 }

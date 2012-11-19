@@ -26,8 +26,6 @@
  */
 package project.cs.lisa.netinf.node.module;
 
-import java.util.Properties;
-
 import netinf.common.communication.AsyncReceiveHandler;
 import netinf.common.communication.MessageEncoder;
 import netinf.common.communication.MessageEncoderProtobuf;
@@ -48,13 +46,17 @@ import netinf.node.transfer.impl.TransferControllerImpl;
 import org.apache.commons.lang.ArrayUtils;
 
 import project.cs.lisa.netinf.node.access.rest.RESTAccessServer;
+import project.cs.lisa.netinf.node.resolution.LocalResolutionService;
 import project.cs.lisa.netinf.node.resolution.NameResolutionService;
 import project.cs.lisa.util.UProperties;
+import project.cs.lisa.util.database.IODatabase;
+import project.cs.lisa.util.database.IODatabaseFactory;
 import android.util.Log;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryProvider;
 import com.google.inject.name.Names;
 
 public class Module extends AbstractModule  {
@@ -96,43 +98,28 @@ public class Module extends AbstractModule  {
         
         Log.d(TAG, "Binding 8");
         bind(AccessServer.class).to(RESTAccessServer.class).in(Singleton.class);
+        
+        Log.d(TAG, "Binding 9");
+        bind(IODatabaseFactory.class).toProvider(FactoryProvider.newFactory(IODatabaseFactory.class, IODatabase.class));
 	}
-	
+
+	/**
+	 * This method provides all the {@link ResolutionService}s which are automatically 
+	 * inserted into the node. In order to get an
+	 * instance of the according {@link ResolutionService}, add an additional parameter 
+	 * to this method, since this puts GUICE in
+	 * charge of creating the correct instance of the according service.
+	 * 
+	 * @param nrs	The name resolution service
+	 * @param lrs	The local resolution service
+	 */
 	@Singleton
 	@Provides
-	ResolutionService[] provideResolutionServices(NameResolutionService nrs) {
-		ResolutionService[] empty = {}; 
-		return (ResolutionService[]) ArrayUtils.add(empty, nrs);
+	ResolutionService[] provideResolutionServices(NameResolutionService nrs,
+				LocalResolutionService lrs) {
+		ResolutionService[] services = {}; 
+		ArrayUtils.add(services, lrs);
+		ArrayUtils.add(services, nrs);
+		return services;
 	}
-	
-//	Examples:
-	
-//	/**
-//	 * This method provides all the {@link ResolutionService}s which are automatically inserted into the node. In order to get an
-//	 * instance of the according {@link ResolutionService}, add an additional parameter to this method, since this puts GUICE in
-//	 * charge of creating the correct instance of the according service.
-//	 * 
-//	 * @param localResolutionService
-//	 * @param rdfResolutionService
-//	 * @return
-//	 */
-//	@Singleton
-//	@Provides
-//	ResolutionService[] provideResolutionServices(RemoteResolutionFactory remoteResolutionFactory,
-//        RDFResolutionService rdfResolutionService) {
-//     ResolutionService[] otherRS = { rdfResolutionService };
-//     ResolutionService[] remoteRS = remoteResolutionFactory.getRemoteResolutionServices().toArray(new ResolutionService[] {});
-//     return (ResolutionService[]) ArrayUtils.addAll(remoteRS, otherRS);
-	
-//     @Singleton
-//     @Provides
-//     ResolutionService[] provideResolutionServices(AndroidLocalResolutionService localResolutionService,
-//     											  AndroidRemoteNameResolutionService remoteResolutionService) {
-//        ResolutionService[] localRS  = { localResolutionService };
-//        ResolutionService[] remoteRS = { remoteResolutionService };
-//
-//        return (ResolutionService[]) ArrayUtils.addAll(localRS,remoteRS);
-//
-//     }
-	
 }
