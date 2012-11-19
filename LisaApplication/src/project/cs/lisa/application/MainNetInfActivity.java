@@ -395,6 +395,7 @@ public class MainNetInfActivity extends Activity {
                         locators);
                 publishRequest.setContentType(contentType);
                 publishRequest.setMetadata(lisaMetaData);
+                publishRequest.setFile(f2);
                 publishRequest.execute();
             }
         }

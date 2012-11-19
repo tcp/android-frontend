@@ -95,6 +95,9 @@ public class IOResource extends LisaServerResource {
     /** Metadata. **/
     private String mMeta;
 
+    /** File path. **/
+    private String mFilePath;
+
 	/** Implementation of DatamodelFactory, used to create and edit InformationObjects etc. **/
     private DatamodelFactory mDatamodelFactory;
 
@@ -111,12 +114,14 @@ public class IOResource extends LisaServerResource {
         mContentType       = getQuery().getFirstValue("ct", true);
         mBluetoothMac      = getQuery().getFirstValue("btmac", true);
         mMeta              = getQuery().getFirstValue("meta", true);
+        mFilePath          = getQuery().getFirstValue("filePath", true);
 
         Log.d(TAG, "mHashAlg = " + mHashAlg);
         Log.d(TAG, "mHash = " + mHash);
         Log.d(TAG, "mContentType = " + mContentType);
         Log.d(TAG, "mBluetoothMac = " + mBluetoothMac);
         Log.d(TAG, "mMeta = " + mMeta);
+        Log.d(TAG, "mFilePath = " + mFilePath);
 
         mDatamodelFactory = getDatamodelFactory();
         mNodeConnection   = getNodeConnection();
