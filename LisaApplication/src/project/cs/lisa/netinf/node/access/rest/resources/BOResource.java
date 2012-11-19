@@ -61,6 +61,7 @@ import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.exceptions.NetInfCheckedException;
 
+import org.apache.commons.io.FileUtils;
 import org.restlet.resource.Get;
 
 import project.cs.lisa.application.MainApplication;
@@ -145,9 +146,9 @@ public class BOResource extends LisaServerResource {
             }
 
             if (fileData != null) {
-            	String metaDataString = saveBO(io, fileData);
-            	return metaDataString;
-            	
+                String metaDataString = saveBO(io, fileData);
+                return metaDataString;
+
             } else {
                 Log.e(TAG, "No file data to write.");
                 return null;
@@ -172,10 +173,10 @@ public class BOResource extends LisaServerResource {
         String contentType = io.getIdentifier().getIdentifierLabel(
                 SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                 .getLabelValue();
-	
+
         // Fetch metadata from IO
         String metaData =
-        		io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
+                io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
         Metadata metaLabel = new Metadata(metaData);
 
         // Set saving filename to the same filename as in metadata
@@ -183,7 +184,11 @@ public class BOResource extends LisaServerResource {
         Log.d(TAG, "Filepath is: " + filePath);
 
         // Write it to file
-        writeByteStreamToFile(filePath, fileData);
+        try {
+            FileUtils.writeByteArrayToFile(new File(filePath), fileData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         makeFileVisibleToPhone(filePath, contentType);
 
         // Make a new metadata to pass along the content_type and filepath
@@ -192,10 +197,10 @@ public class BOResource extends LisaServerResource {
         metadata.insert(FILEPATH, filePath);
 
         return metadata.convertToString();
-        
-	}
 
-	/**
+    }
+
+    /**
      * Returns an IO (i.e. DO) containing the list of locators that own the
      * requested BO.
      *
@@ -244,42 +249,5 @@ public class BOResource extends LisaServerResource {
         String[] paths = {filePath};
         String[] mediaType = {contentType};
         MediaScannerConnection.scanFile(MainApplication.getAppContext(), paths, mediaType, null);
-    }
-
-    /**
-     * Creates a new file containing the specified fileData at the specified
-     * targetPath.
-     *
-     * @param targetPath
-     *            The location to create the file
-     * @param fileData
-     *            The data to write at the specified path
-     */
-    private void writeByteStreamToFile(String targetPath, byte[] fileData) {
-        Log.d(TAG, "Writing received data to " + targetPath);
-
-        FileOutputStream fos = null;
-
-        try {
-            fos = new FileOutputStream(targetPath);
-            fos.write(fileData);
-
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "Couldn't find file: " + targetPath);
-
-        } catch (IOException e) {
-            Log.e(TAG, "Failed while writing data to " + targetPath);
-
-        } finally {
-
-        	// Clean up the output stream
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Failed closing the stream after writing to file.");
-                }
-            }
-        }
     }
 }

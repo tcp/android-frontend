@@ -13,6 +13,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
+import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -55,6 +56,9 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
 
     /** HTTP Client. **/
     private HttpClient mClient;
+    
+    /** Activity **/
+    private MainNetInfActivity mActivity; 
 
     /**
      * Create a new asynchronous NetInf message sent using HTTP GET.
@@ -75,6 +79,20 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
 
         addQuery("hashAlg", hashAlg);
         addQuery("hash", hash);
+
+        // HTTP client with a timeout
+        HttpParams httpParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT);
+        mClient = new DefaultHttpClient(httpParams);
+    }
+
+    public NetInfRequest(MainNetInfActivity activity, String host, String port) {
+        Log.d(TAG, "NetInfRequest() for searching");
+        mActivity = activity;
+        mHost = host;
+        mPort = port;
+        mPathPrefix = "";
 
         // HTTP client with a timeout
         HttpParams httpParams = new BasicHttpParams();

@@ -109,19 +109,19 @@ public class Metadata {
         }
 
         for (int i = 0; i < key.length; i++) {
-            insert(key[0], value[0]);
+            insert(key[i], value[i]);
         }
     }
 
     /**
      * Inserts a (key,value) to the JSON Object
      * @param key String with key
-     * @param value String with value
+     * @param value Object with value
      * @return true  if value was inserted
      *         false if value was not inserted
      */
 
-    public boolean insert(String key, String value) {
+    public boolean insert(String key, Object value) {
         if (key == null) {
             Log.d(TAG, "Tried to use a null key on insert()");
             return false;

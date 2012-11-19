@@ -75,6 +75,7 @@ import com.google.inject.name.Named;
  * A resolution service implementation that uses the HTTP convergence layer to a specific NRS.
  * @author Linus Sunde
  * @author Harold Martinez
+ * @author Thiago Costa Porto
  *
  */
 public class NameResolutionService
@@ -344,7 +345,6 @@ public class NameResolutionService
         }
 	}
 
-
 	/**
 	 * Performs a NetInf GET request using the HTTP convergence layer.
 	 * @param identifier       Identifier describing the InformationObject to get
@@ -388,7 +388,7 @@ public class NameResolutionService
 		return null;
 	}
 
-	@Override
+    @Override
 	public List<Identifier> getAllVersions(Identifier arg0) {
 		// TODO Auto-generated method stub
 		return null;
@@ -506,7 +506,7 @@ public class NameResolutionService
 
 		return post;
 	}
-
+	
 	@Override
 	protected ResolutionServiceIdentityObject createIdentityObject() {
 		// TODO Auto-generated method stub

@@ -32,10 +32,16 @@ public class WifiHandler {
 
     public static final String TAG = "LISA_Network";
 
-    // wifi network variables
+    /** dfsdfsdfsdf. */
     WifiConfiguration wifiConf;				/* WifiConfiguration object */
+
+    /** dfsdfsdfsdf. */
     WifiManager wifiMgr;							/* WifiManager object */
+
+    /** dfsdfsdfsdf. */
     WifiInfo wifiInfo;								/* WifiInfo object */
+    
+    /** dfsdfsdfsdf. */
     List<ScanResult> wifiScan;				/* List of ScanResult objects */
 
     /**
