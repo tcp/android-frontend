@@ -324,6 +324,7 @@ public class NameResolutionService
         Log.d(TAG, "statusCode = " + statusCode);
         switch (statusCode) {
             case HttpStatus.SC_NON_AUTHORITATIVE_INFORMATION:
+                Log.d(TAG, "Response that should contain locators");
                 // Just locators
                 InformationObject io = mDatamodelFactory.createInformationObject();
                 io.setIdentifier(identifier);
@@ -334,6 +335,7 @@ public class NameResolutionService
                 addLocators(io, json);
                 return io;
             case HttpStatus.SC_OK:
+                Log.d(TAG, "Response that should contain locators and data");
                 // Locators and actual file
                 throw new InvalidResponseException("Get response with data not handled yet.");
             default:
