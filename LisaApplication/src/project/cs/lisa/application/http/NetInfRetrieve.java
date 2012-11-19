@@ -69,9 +69,9 @@ public class NetInfRetrieve extends NetInfRequest {
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
 
-        // Execute HTTP request
-        HttpGet get = new HttpGet(getUri());
         try {
+            // Execute HTTP request
+            HttpGet get = new HttpGet(getUri());
             return execute(get);
         } catch (NullEntityException e) {
             Log.e(TAG, "NullEntityException");

@@ -28,8 +28,6 @@ package project.cs.lisa.application.http;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Set;
 
 import org.apache.http.client.methods.HttpPost;
@@ -99,16 +97,16 @@ public class NetInfPublish extends NetInfRequest {
             addQuery(locator.getQueryKey(), locator.getQueryValue());
         }
 
-        // TODO break into several methods
-        // FullPut or not?
-        HttpUriRequest request;
-        if (mFile != null) {
-            request = new HttpPost(getUri());
-        } else {
-            request = new HttpPut(getUri());
-        }
-        // Execute HTTP request
         try {
+            // TODO break into several methods
+            // FullPut or not?
+            HttpUriRequest request;
+            if (mFile != null) {
+                request = new HttpPost(getUri());
+            } else {
+                request = new HttpPut(getUri());
+            }
+            // Execute HTTP request
             return execute(request);
         } catch (NullEntityException e) {
             Log.e(TAG, e.getMessage());
@@ -132,37 +130,25 @@ public class NetInfPublish extends NetInfRequest {
      * Sets the metadata to be sent in the NetInf PUBLISH message.
      * @param metadata      The JSON string containing the metadata.
      */
-    public void setMetadata(Metadata metadata){
-        try {
-            Log.d(TAG, "setMetadata()");
-            String metadataJsonString = metadata.convertToMetadataString();
-            Log.d(TAG, "metadata = " + metadataJsonString);
-            String encodedMetadata = URLEncoder.encode(metadataJsonString, ENCODING);
-            Log.d(TAG, "encoded = " + encodedMetadata);
-            addQuery("meta", encodedMetadata);
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, e.getMessage());
-        }
+    public void setMetadata(Metadata metadata) {
+        Log.d(TAG, "setMetadata()");
+        String meta = metadata.convertToMetadataString();
+        Log.d(TAG, "meta = " + meta);
+        addQuery("meta", meta);
     }
 
     /**
      * Sets the file to publish.
      * @param file
      *      The file to publish.
-     * @throws UnsupportedEncodingException
-     *      In case the the encoding used is unsupported
      */
-    public void setFile(File file){
+    public void setFile(File file) {
         Log.d(TAG, "setFile()");
         if (file == null) {
             throw new IllegalArgumentException("setFile() called with null file");
         }
-        try {
-            mFile = file;
-            addQuery("filePath", URLEncoder.encode(file.getAbsolutePath(), ENCODING));
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, e.getMessage());
-        }
+        mFile = file;
+        addQuery("filePath", file.getAbsolutePath());
     }
 
 }

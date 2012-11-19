@@ -497,15 +497,18 @@ public class MainNetInfActivity extends Activity {
             } else if (!adapter.isEnabled()) {
                 showToast("Error: Bluetooth not enabled");
             } else {
+                String bluetoothMac = adapter.getAddress();
+                Log.d(TAG, "Creating locator with bluetoothMac = " + bluetoothMac);
                 HashSet<Locator> locators = new HashSet<Locator>();
-                locators.add(new Locator(Locator.Type.BLUETOOTH, adapter.getAddress()));
+                locators.add(new Locator(Locator.Type.BLUETOOTH, bluetoothMac));
 
                 NetInfPublish publishRequest = new NetInfPublish(
                         UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                         UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                         UProperties.INSTANCE.getPropertyWithName("hash.alg"),
 //                        hash.substring(0, HASH_LENGTH),
-                        hash,
+//                        hash,
+                        "TcoP1fQkoxsDq4B8uud+syvy0Inu0c7hVLOv7UWN4Nw",
                         locators);
                 publishRequest.setContentType(contentType);
                 publishRequest.setMetadata(lisaMetaData);
@@ -514,5 +517,11 @@ public class MainNetInfActivity extends Activity {
             }
         }
     }
+
+//    public final void getButtonClicked(final View v) {
+//
+//    }
+
+
 //    ============ END OLD CODE FOR PUBLISHING A PICTURE ============
 }
