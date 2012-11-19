@@ -97,7 +97,7 @@ public class SearchRequest extends LisaServerResource {
         HttpPost post = new HttpPost(mHost + ":" + mPort + "/netinfproto/search");
 
         // URI
-        String completeUri = "/search?" + "&msgid=" + msgId  + "&tokens=" + tokens + "&ext=" + ext;
+        String completeUri = "?msgid=" + msgId  + "&tokens=" + tokens + "&ext=" + ext;
         
         // Logs URI
         Log.d(TAG, "createSearch() URI:\n" + completeUri);
