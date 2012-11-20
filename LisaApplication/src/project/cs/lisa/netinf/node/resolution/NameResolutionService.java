@@ -627,8 +627,12 @@ implements ResolutionService {
 
     @Override
     protected ResolutionServiceIdentityObject createIdentityObject() {
-        // TODO Auto-generated method stub
-        return null;
+        ResolutionServiceIdentityObject identity = mDatamodelFactory
+                .createDatamodelObject(ResolutionServiceIdentityObject.class);
+        identity.setName(TAG);
+        identity.setDefaultPriority(42);
+        identity.setDescription(describe());
+        return identity;
     }
 
     /**

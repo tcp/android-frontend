@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -29,6 +29,7 @@ package project.cs.lisa.netinf.node.resolution;
 import java.util.LinkedList;
 import java.util.List;
 
+import netinf.common.datamodel.DatamodelFactory;
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
@@ -45,33 +46,37 @@ import com.google.inject.Inject;
 /**
  * A local resolution service that provides access to the local
  * database.
- * 
+ *
  * @author Kim-Anh Tran
  *
  */
-public class LocalResolutionService 
+public class LocalResolutionService
 		extends AbstractResolutionServiceWithoutId
 		implements ResolutionSearchService {
-	
+
 	/** The debug tag. */
 	private static final String TAG = "LocalResolutionService";
-	
+
 	/** The factory creating the database. */
 	@Inject
 	private IODatabaseFactory mDatabaseFactory;
-	
+
 	/** The local database used for storing information objects. */
 	private IODatabase mDatabase;
-	
+
+	/** Datamodel Factory. **/
+	DatamodelFactory mDatamodelFactory;
+
 	/**
 	 * Creates a new local resolution service.
-	 * 
+	 *
 	 * @param databaseFactory	The factory used for creating the database.
 	 */
 	@Inject
-	public LocalResolutionService(IODatabaseFactory databaseFactory) {
+	public LocalResolutionService(IODatabaseFactory databaseFactory, DatamodelFactory datamodelFactory) {
 		mDatabaseFactory = databaseFactory;
 		mDatabase = mDatabaseFactory.create(MainApplication.getAppContext());
+		mDatamodelFactory = datamodelFactory;
 	}
 
 	@Override
@@ -90,16 +95,16 @@ public class LocalResolutionService
 	public InformationObject get(Identifier identifier) {
 		String hash = identifier.getIdentifierLabel(
 				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
-		
+
 		InformationObject io = null;
 		try {
 			io = mDatabase.getIO(hash);
 		} catch (DatabaseException e) {
-			Log.e(TAG, "Couldn't retrieve the information object associated with the hash = " 
+			Log.e(TAG, "Couldn't retrieve the information object associated with the hash = "
 					+ hash);
 			return null;
 		}
-				
+
 		return io;
 	}
 
@@ -109,21 +114,22 @@ public class LocalResolutionService
 		List<SearchResult> results = new LinkedList<SearchResult>();
 		String url = keywords.get(0);
 		SearchResult result = null;
-		
+
 		try {
 			result = mDatabase.searchIO(url);
 		} catch (DatabaseException e) {
 			Log.e(TAG, "No entry found that corresponds to the url: " + url);
 			return results;
 		}
-		
+
 		results.add(result);
 
 		return results;
 	}
-	
+
 	@Override
 	public void put(InformationObject io) {
+	    Log.d(TAG, "put()");
 		try {
 			mDatabase.addIO(io);
 		} catch (DatabaseException e) {
@@ -133,8 +139,12 @@ public class LocalResolutionService
 
 	@Override
 	protected ResolutionServiceIdentityObject createIdentityObject() {
-		// TODO Auto-generated method stub
-		return null;
+	    ResolutionServiceIdentityObject identity = mDatamodelFactory
+	            .createDatamodelObject(ResolutionServiceIdentityObject.class);
+	    identity.setName(TAG);
+	    identity.setDefaultPriority(77);
+	    identity.setDescription(describe());
+	    return identity;
 	}
 
 	@Override

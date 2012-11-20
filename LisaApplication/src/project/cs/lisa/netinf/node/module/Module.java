@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -61,65 +61,66 @@ import com.google.inject.name.Names;
 
 public class Module extends AbstractModule  {
 
-	public static final String TAG = "Module";
-	
-	public Module() {
-		Log.d(TAG, "Module()");
-	}
-	
-	@Override
-	protected void configure() {
-		Log.d(TAG, "configure()");
-		
-		Log.d(TAG, "bindProperties()");
-		Names.bindProperties(binder(), UProperties.INSTANCE.getProperty());
-		
-		Log.d(TAG, "Binding 1");
-     	bind(MessageEncoder.class).to(MessageEncoderProtobuf.class).in(Singleton.class);
-     	
-     	Log.d(TAG, "Binding 2");
-		bind(DatamodelFactory.class).to(DatamodelFactoryImpl.class);
-		
-		Log.d(TAG, "Binding 3");
-	    bind(NetInfNode.class).to(NetInfNodeImpl.class).in(Singleton.class);
-	    
-	    Log.d(TAG, "Binding 4");
-	    bind(AsyncReceiveHandler.class).to(NetInfNodeReceiveHandler.class);
-	    
-	    Log.d(TAG, "Binding 5");
+    public static final String TAG = "Module";
+
+    public Module() {
+        Log.d(TAG, "Module()");
+    }
+
+    @Override
+    protected void configure() {
+        Log.d(TAG, "configure()");
+
+        Log.d(TAG, "bindProperties()");
+        Names.bindProperties(binder(), UProperties.INSTANCE.getProperty());
+
+        Log.d(TAG, "Binding 1");
+        bind(MessageEncoder.class).to(MessageEncoderProtobuf.class).in(Singleton.class);
+
+        Log.d(TAG, "Binding 2");
+        bind(DatamodelFactory.class).to(DatamodelFactoryImpl.class);
+
+        Log.d(TAG, "Binding 3");
+        bind(NetInfNode.class).to(NetInfNodeImpl.class).in(Singleton.class);
+
+        Log.d(TAG, "Binding 4");
+        bind(AsyncReceiveHandler.class).to(NetInfNodeReceiveHandler.class);
+
+        Log.d(TAG, "Binding 5");
         bind(ResolutionController.class).to(
                 ResolutionControllerImplWithoutSecurity.class).in(Singleton.class);
-        
+
         Log.d(TAG, "Binding 6");
         bind(ResolutionServiceSelector.class).to(SimpleResolutionServiceSelector.class);
-        
+
         Log.d(TAG, "Binding 7");
         bind(TransferController.class).to(TransferControllerImpl.class).in(Singleton.class);
-        
+
         Log.d(TAG, "Binding 8");
         bind(AccessServer.class).to(RESTAccessServer.class).in(Singleton.class);
-        
+
         Log.d(TAG, "Binding 9");
         bind(IODatabaseFactory.class).toProvider(FactoryProvider.newFactory(IODatabaseFactory.class, IODatabase.class));
-	}
+    }
 
-	/**
-	 * This method provides all the {@link ResolutionService}s which are automatically 
-	 * inserted into the node. In order to get an
-	 * instance of the according {@link ResolutionService}, add an additional parameter 
-	 * to this method, since this puts GUICE in
-	 * charge of creating the correct instance of the according service.
-	 * 
-	 * @param nrs	The name resolution service
-	 * @param lrs	The local resolution service
-	 */
-	@Singleton
-	@Provides
-	ResolutionService[] provideResolutionServices(NameResolutionService nrs,
-				LocalResolutionService lrs) {
-		ResolutionService[] services = {}; 
-		ArrayUtils.add(services, lrs);
-		ArrayUtils.add(services, nrs);
-		return services;
-	}
+    /**
+     * This method provides all the {@link ResolutionService}s which are automatically
+     * inserted into the node. In order to get an
+     * instance of the according {@link ResolutionService}, add an additional parameter
+     * to this method, since this puts GUICE in
+     * charge of creating the correct instance of the according service.
+     *
+     * @param nrs	The name resolution service
+     * @param lrs	The local resolution service
+     */
+    @Singleton
+    @Provides
+    ResolutionService[] provideResolutionServices(NameResolutionService nrs,
+            LocalResolutionService lrs) {
+
+        ResolutionService[] localResolutionService  = { lrs };
+        ResolutionService[] nameResolutionService = { nrs };
+
+        return (ResolutionService[]) ArrayUtils.addAll(nameResolutionService, localResolutionService);
+    }
 }

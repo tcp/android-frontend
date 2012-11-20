@@ -50,17 +50,17 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
         if (urls.length != 1) {
             return null;
         }
-        
+
         URL url = urls[0];
         Log.d(TAG, url.toString());
 
-        /* 
+        /*
          * Netinf calls:
          * 1. search for a URL (NetInfSearch), if fails go to A
-         * 2. Get back a list of hashes, Choose a hash, do a retrieve (if fails go to A) 
-         * 3. publish 
+         * 2. Get back a list of hashes, Choose a hash, do a retrieve (if fails go to A)
+         * 3. publish
          * 4. Show page, done
-         * 
+         *
          * A. Download webpage with 3g
          * B. Hash the webpage, go to 3
          */
@@ -90,7 +90,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
 
         Representation representation = new ClientResource(url.toString()).get();
         String contentType = representation.getMediaType().toString();
-        
+
         // Create file and hash
         byte[] bytes = IOUtils.toByteArray(representation.getStream());
         String hash = hashContent(bytes);
@@ -116,10 +116,11 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
      */
     private void publishFile(File file, URL url, String hash, String contentType)
             throws IOException {
-        
+
         Metadata metadata = new Metadata();
-        
+
         metadata.insert("filesize", String.valueOf(file.length()));
+        metadata.insert("filepath", file.getAbsolutePath());
         metadata.insert("time", Long.toString(System.currentTimeMillis()));
         metadata.insert("url", url.toString());
 
@@ -142,13 +143,13 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
                     hash,
                     locators) {
-                
+
                 @Override
                 protected void onPostExecute(String jsonResponse) {
                     super.onPostExecute(jsonResponse);
                     // TODO If published failed, try to throw IOException!
                 }
-                
+
             };
             publishRequest.setContentType(contentType);
             publishRequest.setMetadata(metadata);
