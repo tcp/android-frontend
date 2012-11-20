@@ -28,7 +28,6 @@ package project.cs.lisa.netinf.node.resolution;
 
 import java.util.List;
 
-import netinf.common.datamodel.DatamodelFactory;
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;

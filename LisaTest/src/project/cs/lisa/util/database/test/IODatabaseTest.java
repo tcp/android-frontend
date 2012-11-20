@@ -146,7 +146,7 @@ public class IODatabaseTest extends AndroidTestCase {
 	
 	/**
 	 * Tries to delete an information object from the database table.
-	 *
+	 */
 	public void testDeleteIO() {
 		// Create a IO for deleting
 		String hash = "445";
@@ -180,6 +180,6 @@ public class IODatabaseTest extends AndroidTestCase {
 			// Success: io should not be stored in database anymore
 		}
         
-	}*/
+	}
 	
 }
