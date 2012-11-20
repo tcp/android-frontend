@@ -1,6 +1,8 @@
 package project.cs.lisa.application.http;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Random;
 import java.util.UUID;
 
@@ -10,6 +12,8 @@ import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
 import project.cs.lisa.search.SearchRequest;
 import project.cs.lisa.util.UProperties;
+import project.cs.lisa.util.database.IODatabase;
+
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.telephony.TelephonyManager;
@@ -51,12 +55,11 @@ public class NetInfSearch extends NetInfRequest {
      * @param tokens       Keywords to be searched
      * @param ext          Extensions
      */
-    public NetInfSearch(MainNetInfActivity activity, String host, String port,
-            String tokens, String ext) {
-        super(activity, host, port);
+    public NetInfSearch(String host, String port, String tokens, String ext) {
+        super(MainNetInfActivity.getActivity(), host, port);
 
         // Initialize variables
-        mActivity = activity;
+        mActivity = MainNetInfActivity.getActivity();
         mHost = host;
         mPort = port;
         mTokens = tokens;
@@ -65,13 +68,23 @@ public class NetInfSearch extends NetInfRequest {
         // Set which action we are performing
         setPathPrefix("search");
         
-        // Message ID
-        mMsgId = newMsgId();
-        
         // Add fields to URI
+        // Create new Message ID
+        mMsgId = newMsgId();
+        // Message ID
         addQuery("msgId", mMsgId);
+        
+        // Extension
+        // TODO: When ext is filled, check if encoding is necessary
         addQuery("ext", ext);
-        addQuery("tokens", tokens);
+        
+        // Tokens. Encoding the URL might be necessary.
+        try {
+            addQuery("tokens", URLEncoder.encode(tokens, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -91,17 +104,17 @@ public class NetInfSearch extends NetInfRequest {
         // Second, search in the NRS
         HttpGet search = new HttpGet(getUri());
         
+        // Execute search
         try {
-            try {
-                execute(search);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            return execute(search);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "IO Exception executing search.");
         } catch (NullEntityException e) {
             Log.d(TAG, "Failed to receive a proper HTTP Response.");
         }
         
+        // TODO: Should return `null`?
         return null;
     }
     
@@ -110,6 +123,8 @@ public class NetInfSearch extends NetInfRequest {
      * @return String with the created message id
      */
     private String newMsgId() {
+        // TODO: Validate TelephoneManager as a viable option for serial number.
+        // TODO: Right now, this code FAILS tests because there is no TM on emulator.
         // Initiates a new Telephony Manager to extract deviceId and serial number.
         final TelephonyManager tm = (TelephonyManager) mActivity.getBaseContext()
                 .getSystemService(Context.TELEPHONY_SERVICE);
