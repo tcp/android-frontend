@@ -57,6 +57,7 @@ import java.io.IOException;
 
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
+import netinf.common.datamodel.attribute.Attribute;
 import netinf.common.exceptions.NetInfCheckedException;
 
 import org.apache.commons.io.FileUtils;
@@ -134,14 +135,18 @@ public class BOResource extends LisaServerResource {
         InformationObject io = retrieveDO();
 
         // If the NetInf GET got the file data we are done!
-        String filePath = io.getSingleAttribute(SailDefinedAttributeIdentification.FILE_PATH.getURI()).getValueRaw();
-        if (filePath != null) {
+        Attribute filepathAttribute =
+                io.getSingleAttribute(SailDefinedAttributeIdentification.FILE_PATH.getURI());
+        if (filepathAttribute != null) {
             Log.d(TAG, "The NetInf GET contained the file");
             String contentType = io.getIdentifier().getIdentifierLabel(
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
             Metadata metadata = new Metadata();
             metadata.insert(CONTENT_TYPE, contentType);
+
+            String filePath = filepathAttribute.getValueRaw();
+            filePath = filePath.substring(filePath.indexOf(":") + 1);
             metadata.insert(FILEPATH, filePath);
             return metadata.convertToString();
         }

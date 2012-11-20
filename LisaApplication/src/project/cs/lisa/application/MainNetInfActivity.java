@@ -46,6 +46,7 @@ import project.cs.lisa.application.dialogs.ListDialog;
 import project.cs.lisa.application.dialogs.OkButtonDialog;
 import project.cs.lisa.application.http.Locator;
 import project.cs.lisa.application.http.NetInfPublish;
+import project.cs.lisa.application.http.NetInfRetrieve;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
@@ -507,8 +508,7 @@ public class MainNetInfActivity extends Activity {
                         UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                         UProperties.INSTANCE.getPropertyWithName("hash.alg"),
 //                        hash.substring(0, HASH_LENGTH),
-//                        hash,
-                        "TcoP1fQkoxsDq4B8uud+syvy0Inu0c7hVLOv7UWN4Nw",
+                        hash,
                         locators);
                 publishRequest.setContentType(contentType);
                 publishRequest.setMetadata(lisaMetaData);
@@ -518,9 +518,78 @@ public class MainNetInfActivity extends Activity {
         }
     }
 
-//    public final void getButtonClicked(final View v) {
-//
-//    }
+    /**
+     * Gets a file from another node according to the input hash.
+     * @param v The view that fired this event.
+     */
+    public final void getButtonClicked(final View v) {
+        Log.d(TAG, "getButtonClicked()");
+
+//        String hash = "TcoP1fQkoxsDq4B8uud+syvy0Inu0c7hVLOv7UWN4Nw";
+        String hash = "xx2CHgSTbNd331WUoGX8MJDvXBSBTQ91u215vtyx1Fk";
+
+
+        // Create a new get request with the current hash
+        Log.d(TAG, "hash = " + hash);
+
+        NetInfRetrieve retrieve = new NetInfRetrieve(
+                UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+                UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+                UProperties.INSTANCE.getPropertyWithName("hash.alg"),
+                hash) {
+
+            @Override
+            protected void onPostExecute(String jsonResponse) {
+                /*
+                 * If the get request couldn't download the file
+                 * it will notify the user and stop processing.
+                 */
+                Log.d(TAG, "jsonResponse: " + jsonResponse);
+                if (jsonResponse == null) {
+                    showToast("Getting file failed. Check your Internet and Bluetooth connections");
+                    return;
+                }
+
+                // Parse the JSON
+                Metadata json = new Metadata(jsonResponse);
+                String filePath = json.get("filePath");
+                String contentType = json.get("contentType");
+                Log.d(TAG, "contentType = " + contentType);
+                Log.d(TAG, "filePath = " + filePath);
+
+                // Try to display the file
+                int code = ViewFile.displayContent(getActivity(), filePath, contentType);
+                Log.d(TAG, "code = " + code);
+                switch (code) {
+                case ViewFile.OK:
+                    break;
+                default:
+                    showToast("Opening file failed.");
+                    break;
+                }
+            }
+
+
+        };
+
+        // Execute request
+        retrieve.execute();
+
+        //        For now open the received file in the asynch task.
+        //        Later, uncomment this code and use a Handler to get back
+        //        the filePath and the contentType.
+
+        //        String filePath = "";
+        //        String contentType = "";
+        //
+        //        /* Display the file according to the file type. */
+        //        Intent intent = new Intent(Intent.ACTION_VIEW);
+        //        File file = new File(filePath);
+        //
+        //        /* Replace image/* with contentType */
+        //        intent.setDataAndType(Uri.fromFile(file), "image/*");
+        //        startActivity(intent);
+    }
 
 
 //    ============ END OLD CODE FOR PUBLISHING A PICTURE ============
