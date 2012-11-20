@@ -3,14 +3,21 @@ package project.cs.lisa.application.http;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.http.client.methods.HttpGet;
 
+import com.google.inject.Injector;
+
+import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
 import project.cs.lisa.exceptions.NullHostException;
 import project.cs.lisa.exceptions.NullPortException;
+import project.cs.lisa.netinf.node.resolution.LocalResolutionService;
+import project.cs.lisa.search.SearchResult;
 import android.util.Log;
 
 /**
@@ -43,7 +50,6 @@ public class NetInfSearch extends NetInfRequest {
 
     /**
      * Creates a new asynchronous NetInf SEARCH.
-     * @param activity     Activity creating this object
      * @param host         Target host of the message
      * @param port         Target port
      * @param tokens       Keywords to be searched
@@ -101,13 +107,29 @@ public class NetInfSearch extends NetInfRequest {
     @Override
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
+        
+        /* Database Search */
+        
+        // Injector
+        Injector injector = MainApplication.getStaticInjector();
+        
+        // Get LRS instance
+        LocalResolutionService lrs = injector.getInstance(LocalResolutionService.class);
+        
+        // Populate list of urls
+        List<String> listUrls = new ArrayList<String>();
+        listUrls.add(mTokens);
+        
+        List<SearchResult> listResults = lrs.search(listUrls);
+        
+        if (!listResults.isEmpty()) {
+            return listResults.get(0).toString();
+        }
 
-
-        // First, search in our own database
-        // TODO: Include functions from DB handler here to search for an URL
-
-        // Second, search in the NRS
+        /* NRS Search */
+        
         HttpGet search;
+        
         try {
             search = new HttpGet(getUri());
         } catch (UnsupportedEncodingException e) {
@@ -125,7 +147,6 @@ public class NetInfSearch extends NetInfRequest {
             Log.d(TAG, "Failed to receive a proper HTTP Response.");
         }
 
-        // TODO: Should return `null`?
         return null;
     }
 

@@ -39,6 +39,7 @@ import com.google.inject.Injector;
  * 
  * @author Linus Sunde
  * @author Paolo Boschini
+ * @author Thiago Costa Porto
  * 
  */
 public class MainApplication extends Application {
@@ -51,6 +52,9 @@ public class MainApplication extends Application {
 
     /** The context for this application. */
     private static Context sContext;
+    
+    /** A static version of the Injector for returning in the static function */
+    private static Injector mStaticInjector;
 
     @Override
     public void onCreate() {
@@ -62,6 +66,8 @@ public class MainApplication extends Application {
         sContext = getApplicationContext();
 
         mInjector = Guice.createInjector(new Module());
+        
+        mStaticInjector = mInjector;
     }
 
     /**
@@ -71,6 +77,11 @@ public class MainApplication extends Application {
     public Injector getInjector() {
         Log.d(TAG, "getInjector()");
         return mInjector;
+    }
+    
+    public static Injector getStaticInjector() {
+        Log.d(TAG, "getStaticInjector()");
+        return mStaticInjector;
     }
 
     /**
