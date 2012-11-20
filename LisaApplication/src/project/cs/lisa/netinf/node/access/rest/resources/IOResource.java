@@ -53,11 +53,6 @@ package project.cs.lisa.netinf.node.access.rest.resources;
 
 import netinf.common.communication.NetInfNodeConnection;
 import netinf.common.datamodel.DatamodelFactory;
-import netinf.common.datamodel.DefinedAttributePurpose;
-import netinf.common.datamodel.Identifier;
-import netinf.common.datamodel.IdentifierLabel;
-import netinf.common.datamodel.InformationObject;
-import netinf.common.datamodel.attribute.Attribute;
 import netinf.common.exceptions.NetInfCheckedException;
 import netinf.common.exceptions.NetInfUncheckedException;
 
@@ -66,8 +61,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 
-import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
-import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import project.cs.lisa.util.IOBuilder;
 import android.util.Log;
 
 /**
@@ -78,7 +72,7 @@ import android.util.Log;
 public class IOResource extends LisaServerResource {
 
     /** Debug tag. **/
-	public static final String TAG = "IOResource";
+    public static final String TAG = "IOResource";
 
     /** Hash Algorithm. **/
     private String mHashAlg;
@@ -95,32 +89,37 @@ public class IOResource extends LisaServerResource {
     /** Metadata. **/
     private String mMeta;
 
-	/** Implementation of DatamodelFactory, used to create and edit InformationObjects etc. **/
+    /** File path. **/
+    private String mFilePath;
+
+    /** Implementation of DatamodelFactory, used to create and edit InformationObjects etc. **/
     private DatamodelFactory mDatamodelFactory;
 
     /** Node Connection, used to access the local NetInf node. **/
     private NetInfNodeConnection mNodeConnection;
 
-	@Override
-	protected void doInit() {
-    	super.doInit();
-    	Log.d(TAG, "doInit()");
+    @Override
+    protected void doInit() {
+        super.doInit();
+        Log.d(TAG, "doInit()");
 
-    	mHashAlg           = getQuery().getFirstValue("hashAlg", true);
-    	mHash              = getQuery().getFirstValue("hash", true);
+        mHashAlg           = getQuery().getFirstValue("hashAlg", true);
+        mHash              = getQuery().getFirstValue("hash", true);
         mContentType       = getQuery().getFirstValue("ct", true);
         mBluetoothMac      = getQuery().getFirstValue("btmac", true);
         mMeta              = getQuery().getFirstValue("meta", true);
+        mFilePath          = getQuery().getFirstValue("filePath", true);
 
         Log.d(TAG, "mHashAlg = " + mHashAlg);
         Log.d(TAG, "mHash = " + mHash);
         Log.d(TAG, "mContentType = " + mContentType);
         Log.d(TAG, "mBluetoothMac = " + mBluetoothMac);
         Log.d(TAG, "mMeta = " + mMeta);
+        Log.d(TAG, "mFilePath = " + mFilePath);
 
         mDatamodelFactory = getDatamodelFactory();
         mNodeConnection   = getNodeConnection();
-	}
+    }
 
     /**
      * Debug.
@@ -128,6 +127,9 @@ public class IOResource extends LisaServerResource {
     @Post
     public void handlePost() {
         Log.e(TAG, "@Post");
+        IOBuilder builder = new IOBuilder(mDatamodelFactory);
+        builder.addFilePathLocator(mFilePath);
+        publish(builder);
     }
 
     /**
@@ -154,41 +156,35 @@ public class IOResource extends LisaServerResource {
     @Put
     public String putIO() {
         Log.d(TAG, "putIO()");
+        return publish();
+    }
 
-        //Create dummy IO
-        InformationObject io = mDatamodelFactory.createInformationObject();
+    private String publish() {
+        return publish(new IOBuilder(mDatamodelFactory));
+    }
 
-        //Creating and setting the identifier
-        Identifier identifier = createIdentifier(mHashAlg, mHash);
+    private String publish(IOBuilder builder) {
+
+        builder.setHash(mHash).setHashAlgorithm(mHashAlg);
+
         if (mContentType != null) {
-            IdentifierLabel label = mDatamodelFactory.createIdentifierLabel();
-            label.setLabelName(SailDefinedLabelName.CONTENT_TYPE.getLabelName());
-            label.setLabelValue(mContentType);
-            identifier.addIdentifierLabel(label);
+            builder.setContentType(mContentType);
         }
-        io.setIdentifier(identifier);
 
-        if (mBluetoothMac.length() > 0) {
-            Attribute address = mDatamodelFactory.createAttribute();
-            address.setAttributePurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
-            address.setIdentification(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
-            address.setValue(mBluetoothMac);
-            io.addAttribute(address);
+        if (mBluetoothMac != null) {
+            builder.addBluetoothLocator(mBluetoothMac);
         }
+
         if (mMeta == null) {
             // Create empty meta data
             mMeta = "{\"meta\":{}}";
         }
-        // Add the metadata
-        IdentifierLabel label = mDatamodelFactory.createIdentifierLabel();
-        label.setLabelName(SailDefinedLabelName.META_DATA.getLabelName());
-        label.setLabelValue(mMeta);
-        identifier.addIdentifierLabel(label);
+        builder.setMetaData(mMeta);
 
         //Putting the IO
         try {
-            Log.d(TAG, "putIO()");
-            mNodeConnection.putIO(io);
+            Log.d(TAG, "calling putIO()");
+            mNodeConnection.putIO(builder.build());
         } catch (NetInfCheckedException e) {
             Log.e(TAG, e.getMessage());
             return "{\"status\":\"failed\"}";
@@ -198,6 +194,8 @@ public class IOResource extends LisaServerResource {
         }
         Log.d(TAG, "Publish succeeded.");
         return "{\"status\":\"ok\"}";
+
     }
+
 
 }

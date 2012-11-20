@@ -1,6 +1,8 @@
 package project.cs.lisa.application.http;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 
 import org.apache.http.HttpEntity;
@@ -56,9 +58,9 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
 
     /** HTTP Client. **/
     private HttpClient mClient;
-    
+
     /** Activity **/
-    private MainNetInfActivity mActivity; 
+    private MainNetInfActivity mActivity;
 
     /**
      * Create a new asynchronous NetInf message sent using HTTP GET.
@@ -167,9 +169,12 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
 
     /**
      * Gets the query string representation of added query key-value pairs.
-     * @return The query string
+     * @return
+     *      The query string
+     * @throws UnsupportedEncodingException
+     *      In case UTF-8 is not supported
      */
-    protected String getQueryString() {
+    protected String getQueryString() throws UnsupportedEncodingException {
         Log.d(TAG, "getQueryString()");
         StringBuilder queryString = new StringBuilder();
         boolean first = true;
@@ -180,9 +185,9 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
             } else {
                 queryString.append("&");
             }
-            queryString.append(key);
+            queryString.append(URLEncoder.encode(key, "UTF-8"));
             queryString.append("=");
-            queryString.append(mQueryVariables.get(key));
+            queryString.append(URLEncoder.encode(mQueryVariables.get(key), "UTF-8"));
         }
         return queryString.toString();
     }
@@ -190,8 +195,10 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
     /**
      * Creates the HTTP URI to use in the HTTP request in doInBackground.
      * @return The HTTP URI
+     * @throws UnsupportedEncodingException
+     *      In case UTF-8 is not supported
      */
-    protected String getUri() {
+    protected String getUri() throws UnsupportedEncodingException {
         Log.d(TAG, "getUri()");
         StringBuilder uri = new StringBuilder();
         uri.append(HTTP);

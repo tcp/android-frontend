@@ -40,7 +40,8 @@ public enum SailDefinedAttributeIdentification {
    BLUETOOTH_MAC("bluetooth_mac", false),
    WIFI_MAC("wifi_mac", false),
    WIFI_IP("wifi_ip", false),
-   NCS_URL("ncs_url", false);
+   NCS_URL("ncs_url", false),
+   FILE_PATH("file_path", false);
 
    private final String uri;
 

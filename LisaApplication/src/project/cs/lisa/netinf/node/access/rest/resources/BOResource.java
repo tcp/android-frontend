@@ -53,12 +53,11 @@
 package project.cs.lisa.netinf.node.access.rest.resources;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
+import netinf.common.datamodel.attribute.Attribute;
 import netinf.common.exceptions.NetInfCheckedException;
 
 import org.apache.commons.io.FileUtils;
@@ -66,6 +65,7 @@ import org.restlet.resource.Get;
 
 import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.metadata.Metadata;
+import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
 import android.media.MediaScannerConnection;
@@ -134,6 +134,24 @@ public class BOResource extends LisaServerResource {
         // Retrieve a data object from a node (could be an NRS)
         InformationObject io = retrieveDO();
 
+        // If the NetInf GET got the file data we are done!
+        Attribute filepathAttribute =
+                io.getSingleAttribute(SailDefinedAttributeIdentification.FILE_PATH.getURI());
+        if (filepathAttribute != null) {
+            Log.d(TAG, "The NetInf GET contained the file");
+            String contentType = io.getIdentifier().getIdentifierLabel(
+                    SailDefinedLabelName.CONTENT_TYPE.getLabelName())
+                    .getLabelValue();
+            Metadata metadata = new Metadata();
+            metadata.insert(CONTENT_TYPE, contentType);
+
+            String filePath = filepathAttribute.getValueRaw();
+            filePath = filePath.substring(filePath.indexOf(":") + 1);
+            metadata.insert(FILEPATH, filePath);
+            return metadata.convertToString();
+        }
+        Log.d(TAG, "The NetInf GET didn't contain the file");
+
         // Retrieve the data corresponding to the hash from another device.
         if (io != null) {
             TransferDispatcher tsDispatcher = TransferDispatcher.INSTANCE;
@@ -160,10 +178,10 @@ public class BOResource extends LisaServerResource {
         }
     }
 
-    /** 
+    /**
      * Saves the file data corresponding to the specified io and
      * returns a String representation of the related meta-data.
-     * 
+     *
      * @param io		The Information Object describing the file data
      * @param fileData	The file data corresponding to the io
      * @return			Returns a String representation of the meta data.

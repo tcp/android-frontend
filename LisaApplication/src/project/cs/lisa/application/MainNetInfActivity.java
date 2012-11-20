@@ -37,7 +37,6 @@ import project.cs.lisa.application.dialogs.OkButtonDialog;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
-import project.cs.lisa.util.UProperties;
 import project.cs.lisa.wifi.WifiHandler;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -84,24 +83,25 @@ public class MainNetInfActivity extends Activity {
 
     /** Activity context. */
     private static MainNetInfActivity sMainNetInfActivity;
-    
+
     /** Global MainApplication. */
     private MainApplication mApplication;
 
     /** Toast for this activity. */
     private static Toast sToast;
-    
+
     /** Thread for staring a NetInf node. */
     private StarterNodeThread mStarterNodeThread;
 
     /** Bluetooth server for serving bluetooth devices. */
     private BluetoothServer mBluetoothServer;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_sprint2);
 
         mApplication = (MainApplication) getApplication();
         sMainNetInfActivity = this;
@@ -113,9 +113,9 @@ public class MainNetInfActivity extends Activity {
         setupNode();
         setupBluetoothServer();
 
-        // Get the input address 
-        EditText editText = (EditText) findViewById(R.id.url);
-        editText.setText(UProperties.INSTANCE.getPropertyWithName("default.webpage"));
+        // Get the input address
+//        EditText editText = (EditText) findViewById(R.id.url);
+//        editText.setText(UProperties.INSTANCE.getPropertyWithName("default.webpage"));
 
 //        showDialog(new ShareDialog());
 
@@ -141,19 +141,19 @@ public class MainNetInfActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(TAG, "doPositiveClickWifiInfoMessage()");
-                
+
                 // This is run when OK is clicked
                 // Create a WifiHandler
                 WifiHandler wifiHandler = new WifiHandler() {
                     @Override
                     public void onDiscoveryDone(Set<String> wifis) {
-                        
+
                         // This is run when the WIFI discovery is done
                         // Create a ListDialog that shows the networks
                         ListDialog listDialog = new ListDialog(wifis) {
                             @Override
                             public void onConfirm(String wifi) {
-                                
+
                                 // This is run when the ListDialog is confirmed
                                 connectToSelectedNetwork(wifi);
                             }
@@ -175,13 +175,13 @@ public class MainNetInfActivity extends Activity {
         dialog.setCancelable(false);
         dialog.show(getFragmentManager(), "");
     }
-    
+
     /**
      * Try to fetch the requested web page.
      * @param v The view that triggered this method
      */
     public final void goButtonClicked(final View v) {
-        
+
         // get the web page address
         EditText editText = (EditText) findViewById(R.id.url);
         URL url = null;
@@ -192,14 +192,14 @@ public class MainNetInfActivity extends Activity {
             showToast("Malformed url!");
             return;
         }
-        
+
         // Dismiss keyboard
         InputMethodManager imm =
                 (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
         WebView webView = (WebView) findViewById(R.id.webView);
         webView.requestFocus();
-        
+
         if (!addressIsValid(url.toString())) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Invalid url")
@@ -207,7 +207,7 @@ public class MainNetInfActivity extends Activity {
             .setNeutralButton("Ok, sorry :(", null);
             AlertDialog dialog = builder.create();
             dialog.show();
-            
+
         } else {
             // start downloading the web page
             DownloadWebPageTask task = new DownloadWebPageTask();
@@ -273,7 +273,7 @@ public class MainNetInfActivity extends Activity {
      */
     private void setupBluetoothServer() {
         Log.d(TAG, "setupBluetoothServer()");
-        
+
         // Tries to initialize the Bluetooth Server several times, if unsuccessful.
         int attempts = NUMBER_OF_ATTEMPTS;
         do {
@@ -285,12 +285,12 @@ public class MainNetInfActivity extends Activity {
                 mBluetoothServer = null;
             }
         } while (mBluetoothServer == null && attempts > 0);
-        
+
         if (mBluetoothServer == null) {
             Log.e(TAG, "BluetoothServer couldn't be initialized.");
         }
     }
-    
+
     /**
      * Returns the context of this activity.
      * @return  the context
@@ -298,7 +298,7 @@ public class MainNetInfActivity extends Activity {
     public static MainNetInfActivity getActivity() {
         return sMainNetInfActivity;
     }
-    
+
     /**
      * Show a toast.
      * @param text      The text to show in the toast.
@@ -309,7 +309,7 @@ public class MainNetInfActivity extends Activity {
         sToast = Toast.makeText(getActivity(), text, Toast.LENGTH_LONG);
         sToast.show();
     }
-    
+
     /**
      * Cancel current toast.
      */
@@ -317,7 +317,7 @@ public class MainNetInfActivity extends Activity {
         Log.d(TAG, "cancelToast()");
         sToast.cancel();
     }
-    
+
     /**
      * Hides the progress bar.
      */
@@ -330,7 +330,7 @@ public class MainNetInfActivity extends Activity {
         TextView tv = (TextView) findViewById(R.id.ProgressBarText);
         tv.setVisibility(TextView.INVISIBLE);
     }
-    
+
     /**
      * Shows the progress bar.
      * @param text String with the text to show to the user. Normally informs
@@ -344,13 +344,13 @@ public class MainNetInfActivity extends Activity {
         tv.setVisibility(TextView.VISIBLE);
         tv.setText(text);
     }
-    
+
     // ========= IMPORTANT: LEGACY CODE FOR PUBLISHING A PICTURE =========
-    /**
-     * Creates an intent to select an image from the gallery.
-     * @param v The view that fired this event.
-     */
-    // TODO: Deprecated? Although I think it is better opening image/* for now
+//    /**
+//     * Creates an intent to select an image from the gallery.
+//     * @param v The view that fired this event.
+//     */
+//    // TODO: Deprecated? Although I think it is better opening image/* for now
 //    public final void publishButtonClicked(final View v) {
 //        Log.d(TAG, "publishButtonClicked()");
 //
@@ -359,17 +359,17 @@ public class MainNetInfActivity extends Activity {
 //        intent.setAction(Intent.ACTION_GET_CONTENT);
 //        startActivityForResult(intent, 0);
 //    }
-
-    /**
-     * Publish a file from the image gallery on the phone.
-     * Creates the hash and extracts the content type.
-     * @param requestCode The integer request code originally supplied
-     * to startActivityForResult(), allowing you to identify who this result came from.
-     * @param resultCode The integer result code returned
-     * by the child activity through its setResult().
-     * @param data An Intent, which can return result
-     * data to the caller (various data can be attached to Intent "extras").
-     */
+//
+//    /**
+//     * Publish a file from the image gallery on the phone.
+//     * Creates the hash and extracts the content type.
+//     * @param requestCode The integer request code originally supplied
+//     * to startActivityForResult(), allowing you to identify who this result came from.
+//     * @param resultCode The integer result code returned
+//     * by the child activity through its setResult().
+//     * @param data An Intent, which can return result
+//     * data to the caller (various data can be attached to Intent "extras").
+//     */
 //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 //        Log.d(TAG, "onActivityResult()");
@@ -414,7 +414,8 @@ public class MainNetInfActivity extends Activity {
 //            // Try to hash the file
 //            try {
 //                lisaHash = new Hash(FileUtils.readFileToByteArray(file));
-//                hash = lisaHash.encodeResult(HASH_LENGTH); // Use 0 for using the whole hash
+////                hash = lisaHash.encodeResult(HASH_LENGTH); // Use 0 for using the whole hash
+//                hash = lisaHash.encodeResult(); // Use 0 for using the whole hash
 //                Log.d(TAG, "The generated hash is: " + hash);
 //            } catch (IOException e1) {
 //                Log.e(TAG, "Error, could not open the file: " + file.getPath());
@@ -430,7 +431,7 @@ public class MainNetInfActivity extends Activity {
 //
 //            try {
 //                in = new FileInputStream(f1);
-//                out = new FileOutputStream(f2, true);
+//                out = new FileOutputStream(f2, false);
 //            } catch (FileNotFoundException e1) {
 //                // TODO Auto-generated catch block
 //                Log.d(TAG, "File not found! Check if something went wrong when choosing file");
@@ -480,24 +481,103 @@ public class MainNetInfActivity extends Activity {
 //            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 //
 //            if (adapter == null) {
-//                MainNetInfActivity.getActivity().showToast("Error: Bluetooth not supported");
+//                showToast("Error: Bluetooth not supported");
 //            } else if (!adapter.isEnabled()) {
-//                MainNetInfActivity.getActivity().showToast("Error: Bluetooth not enabled");
+//                showToast("Error: Bluetooth not enabled");
 //            } else {
+//                String bluetoothMac = adapter.getAddress();
+//                Log.d(TAG, "Creating locator with bluetoothMac = " + bluetoothMac);
 //                HashSet<Locator> locators = new HashSet<Locator>();
-//                locators.add(new Locator(Locator.Type.BLUETOOTH, adapter.getAddress()));
+//                locators.add(new Locator(Locator.Type.BLUETOOTH, bluetoothMac));
 //
 //                NetInfPublish publishRequest = new NetInfPublish(
 //                        UProperties.INSTANCE.getPropertyWithName("access.http.host"),
 //                        UProperties.INSTANCE.getPropertyWithName("access.http.port"),
 //                        UProperties.INSTANCE.getPropertyWithName("hash.alg"),
-//                        hash.substring(0, HASH_LENGTH),
+////                        hash.substring(0, HASH_LENGTH),
+//                        hash,
 //                        locators);
 //                publishRequest.setContentType(contentType);
 //                publishRequest.setMetadata(lisaMetaData);
+//                publishRequest.setFile(f2);
 //                publishRequest.execute();
 //            }
 //        }
 //    }
-//    ============ END OLD CODE FOR PUBLISHING A PICTURE ============ 
+//
+//    /**
+//     * Gets a file from another node according to the input hash.
+//     * @param v The view that fired this event.
+//     */
+//    public final void getButtonClicked(final View v) {
+//        Log.d(TAG, "getButtonClicked()");
+//
+////        String hash = "TcoP1fQkoxsDq4B8uud+syvy0Inu0c7hVLOv7UWN4Nw";
+//        String hash = "xx2CHgSTbNd331WUoGX8MJDvXBSBTQ91u215vtyx1Fk";
+//
+//
+//        // Create a new get request with the current hash
+//        Log.d(TAG, "hash = " + hash);
+//
+//        NetInfRetrieve retrieve = new NetInfRetrieve(
+//                UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+//                UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+//                UProperties.INSTANCE.getPropertyWithName("hash.alg"),
+//                hash) {
+//
+//            @Override
+//            protected void onPostExecute(String jsonResponse) {
+//                /*
+//                 * If the get request couldn't download the file
+//                 * it will notify the user and stop processing.
+//                 */
+//                Log.d(TAG, "jsonResponse: " + jsonResponse);
+//                if (jsonResponse == null) {
+//                    showToast("Getting file failed. Check your Internet and Bluetooth connections");
+//                    return;
+//                }
+//
+//                // Parse the JSON
+//                Metadata json = new Metadata(jsonResponse);
+//                String filePath = json.get("filePath");
+//                String contentType = json.get("contentType");
+//                Log.d(TAG, "contentType = " + contentType);
+//                Log.d(TAG, "filePath = " + filePath);
+//
+//                // Try to display the file
+//                int code = ViewFile.displayContent(getActivity(), filePath, contentType);
+//                Log.d(TAG, "code = " + code);
+//                switch (code) {
+//                case ViewFile.OK:
+//                    break;
+//                default:
+//                    showToast("Opening file failed.");
+//                    break;
+//                }
+//            }
+//
+//
+//        };
+//
+//        // Execute request
+//        retrieve.execute();
+//
+//        //        For now open the received file in the asynch task.
+//        //        Later, uncomment this code and use a Handler to get back
+//        //        the filePath and the contentType.
+//
+//        //        String filePath = "";
+//        //        String contentType = "";
+//        //
+//        //        /* Display the file according to the file type. */
+//        //        Intent intent = new Intent(Intent.ACTION_VIEW);
+//        //        File file = new File(filePath);
+//        //
+//        //        /* Replace image/* with contentType */
+//        //        intent.setDataAndType(Uri.fromFile(file), "image/*");
+//        //        startActivity(intent);
+//    }
+//
+
+//    ============ END OLD CODE FOR PUBLISHING A PICTURE ============
 }

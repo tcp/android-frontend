@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Random;
-import java.util.UUID;
 
 import org.apache.http.client.methods.HttpGet;
 
@@ -12,13 +11,6 @@ import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
 import project.cs.lisa.exceptions.NullHostException;
 import project.cs.lisa.exceptions.NullPortException;
-import project.cs.lisa.search.SearchRequest;
-import project.cs.lisa.util.UProperties;
-import project.cs.lisa.util.database.IODatabase;
-
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 /**
@@ -33,22 +25,22 @@ public class NetInfSearch extends NetInfRequest {
 
     /** REST Host **/
     private String mHost;
-    
+
     /** REST Port **/
     private String mPort;
-    
+
     /** Keywords **/
     private String mTokens;
-    
+
     /** Extensions **/
     private String mExt;
-    
+
     /** Message ID **/
     private String mMsgId;
-    
+
     /** Activity **/
     private MainNetInfActivity mActivity;
-    
+
     /**
      * Creates a new asynchronous NetInf SEARCH.
      * @param activity     Activity creating this object
@@ -56,8 +48,8 @@ public class NetInfSearch extends NetInfRequest {
      * @param port         Target port
      * @param tokens       Keywords to be searched
      * @param ext          Extensions
-     * @throws NullHostException 
-     * @throws NullPortException 
+     * @throws NullHostException
+     * @throws NullPortException
      */
     public NetInfSearch(String host, String port, String tokens, String ext)
             throws NullHostException, NullPortException {
@@ -66,31 +58,31 @@ public class NetInfSearch extends NetInfRequest {
         if (host == "" || host == null) {
             throw new NullHostException();
         }
-        
+
         if (port == "" || port == null) {
             throw new NullPortException();
         }
-        
+
         // Initialize variables
         mActivity = MainNetInfActivity.getActivity();
         mHost = host;
         mPort = port;
         mTokens = tokens;
         mExt = ext;
-        
+
         // Set which action we are performing
         setPathPrefix("search");
-        
+
         // Add fields to URI
         // Create new Message ID
         mMsgId = newMsgId();
         // Message ID
         addQuery("msgId", mMsgId);
-        
+
         // Extension
         // TODO: When ext is filled, check if encoding is necessary
         addQuery("ext", ext);
-        
+
         // Tokens. Encoding the URL might be necessary.
         try {
             addQuery("tokens", URLEncoder.encode(tokens, "UTF-8"));
@@ -109,14 +101,20 @@ public class NetInfSearch extends NetInfRequest {
     @Override
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
-        Log.d(TAG, "URI: " + getUri());
-        
+
+
         // First, search in our own database
         // TODO: Include functions from DB handler here to search for an URL
-        
+
         // Second, search in the NRS
-        HttpGet search = new HttpGet(getUri());
-        
+        HttpGet search;
+        try {
+            search = new HttpGet(getUri());
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, e.getMessage());
+            return null;
+        }
+
         // Execute search
         try {
             return execute(search);
@@ -126,11 +124,11 @@ public class NetInfSearch extends NetInfRequest {
         } catch (NullEntityException e) {
             Log.d(TAG, "Failed to receive a proper HTTP Response.");
         }
-        
+
         // TODO: Should return `null`?
         return null;
     }
-    
+
     /**
      * Creates a new message id that is probably unique in the server.
      * @return String with the created message id
@@ -144,13 +142,13 @@ public class NetInfSearch extends NetInfRequest {
 
         // Telephony Manager Device ID
 //        final String tmDevice;
-        
+
         // Telephony Manager Serial Number
 //        final String tmSerial;
-        
+
         // Android ID
 //        final String androidId;
-        
+
         // Fetches IDs
 //        tmDevice = "" + tm.getDeviceId();
 //        tmSerial = "" + tm.getSimSerialNumber();
@@ -158,18 +156,18 @@ public class NetInfSearch extends NetInfRequest {
 //                mActivity.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
 
         // Gets device UUID
-//        UUID deviceUuid = new UUID(androidId.hashCode(), 
+//        UUID deviceUuid = new UUID(androidId.hashCode(),
 //                ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
-        
+
         // UUID to String
 //        String deviceId = deviceUuid.toString();
-        
+
         // Random number
         int randomNumber = new Random(System.currentTimeMillis()).nextInt();
-        
+
         // Bulks all of it together
         String msgId = /*deviceId + */String.valueOf(randomNumber);
-        
+
         // Returns created message id
         return msgId;
     }

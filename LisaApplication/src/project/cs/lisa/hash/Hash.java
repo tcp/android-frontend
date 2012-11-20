@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -36,8 +36,8 @@ public class Hash {
      * class from HashingSHA256_EncodingBase64URL to LisaHash because its easier to our
      * eyes.
 
-     * Creates a sha-256 hash of an input file, and makes a base64url encoding of the hash. 
-     * Finally, a NetInf name prefix is added. 
+     * Creates a sha-256 hash of an input file, and makes a base64url encoding of the hash.
+     * Finally, a NetInf name prefix is added.
      * The base64 code below is borrowed from Christian d'Heureuse, see the license terms below.
      * I have modified this code to base64url
      * Anders E
@@ -62,11 +62,11 @@ public class Hash {
 
     /**
      * A Base64 encoder/decoder.
-     * 
+     *
      * <p>
      * This class is used to encode and decode data in Base64 format as described in
      * RFC 1521.
-     * 
+     *
      * <p>
      * Project home page: <a
      * href="http://www.source-code.biz/base64coder/java/">www.
@@ -94,13 +94,13 @@ public class Hash {
             map1[i++] = c;
         for (char c = '0'; c <= '9'; c++)
             map1[i++] = c;
-        // map1[i++] = '+'; //base64
-        map1[i++] = '-'; // base64url
-        // map1[i++] = '/'; //base64
-        map1[i++] = '_'; // base64url
+         map1[i++] = '+'; //base64
+//        map1[i++] = '-'; // base64url
+         map1[i++] = '/'; //base64
+//        map1[i++] = '_'; // base64url
     }
 
-    public Hash (byte[] byteArray){          
+    public Hash (byte[] byteArray){
         mByteArray = byteArray;
     }
 
@@ -108,7 +108,7 @@ public class Hash {
      * Encodes a byte array into Base 64 format and breaks the output into lines
      * of 76 characters. This method is compatible with
      * <code>sun.misc.BASE64Encoder.encodeBuffer(byte[])</code>.
-     * 
+     *
      * @param in
      *            An array containing the data bytes to be encoded.
      * @return A String containing the Base64 encoded data, broken into lines.
@@ -122,7 +122,7 @@ public class Hash {
     /**
      * Encodes a byte array into Base 64 format and breaks the output into
      * lines.
-     * 
+     *
      * @param in
      *            An array containing the data bytes to be encoded.
      * @param iOff
@@ -158,7 +158,7 @@ public class Hash {
     /**
      * Encodes a byte array into Base64 format. No blanks or line breaks are
      * inserted in the output.
-     * 
+     *
      * @param in
      *            An array containing the data bytes to be encoded.
      * @param iOff
@@ -249,5 +249,5 @@ public class Hash {
         }
 
         return base64String;
-    } 
+    }
 }

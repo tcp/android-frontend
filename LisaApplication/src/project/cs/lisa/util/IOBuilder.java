@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * Uppsala University
  *
  * Project CS course, Fall 2012
@@ -27,30 +27,33 @@
 package project.cs.lisa.util;
 
 import netinf.common.datamodel.DatamodelFactory;
+import netinf.common.datamodel.DefinedAttributePurpose;
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.IdentifierLabel;
 import netinf.common.datamodel.InformationObject;
+import netinf.common.datamodel.attribute.Attribute;
 import project.cs.lisa.metadata.Metadata;
+import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 
 /**
  * A Builder that makes it easier to create information objects.
- * 
+ *
  * @author Kim-Anh Tran
  *
  */
 public class IOBuilder {
-	
+
 	/**
 	 * The label for identifying content types.
 	 */
-	private static final String CONTENT_TYPE_LABEL = 
+	private static final String CONTENT_TYPE_LABEL =
 			SailDefinedLabelName.CONTENT_TYPE.getLabelName();
-	
+
 	/**
 	 * The label for identifying the hash contents.
 	 */
-	private static final String HASH_LABEL = 
+	private static final String HASH_LABEL =
 			SailDefinedLabelName.HASH_CONTENT.getLabelName();
 
 	/**
@@ -65,27 +68,42 @@ public class IOBuilder {
 
 	/** The datamodel factory that is needed to create information objects. */
 	private DatamodelFactory mFactory;
-	
+
 	/** The identifier of the information object we are creating. */
 	private Identifier mIdentifier;
-	
+
 	/** The meta data. */
 	private Metadata mMetadata;
-	
-	/** 
+
+	/** The Information Object. **/
+	private InformationObject mIo;
+
+	/**
 	 * Creates a new Builder.
-	 * 
+	 *
 	 * @param factory	The factory for creating the information object
 	 */
 	public IOBuilder(DatamodelFactory factory) {
 		mFactory = factory;
 		mIdentifier = mFactory.createIdentifier();
 		mMetadata = new Metadata();
+		mIo = mFactory.createInformationObject();
+
 	}
-	
+
+	/**
+	 * Creates a new Builder with the given meta data.
+	 * @param factory
+	 * @param jsonMetadata
+	 */
+	public IOBuilder(DatamodelFactory factory, String jsonMetadata) {
+	    this(factory);
+	    mMetadata = new Metadata(jsonMetadata);
+	}
+
 	/**
 	 * Sets the hash value.
-	 * 
+	 *
 	 * @param hash	The hash value of the information object.
 	 * @return		Returns this Builder.
 	 */
@@ -96,7 +114,7 @@ public class IOBuilder {
 
 	/**
 	 * Sets the hash algorithm.
-	 * 
+	 *
 	 * @param hashAlgorithm	The hash algorithm of the information object.
 	 * @return		Returns this Builder.
 
@@ -104,11 +122,11 @@ public class IOBuilder {
 	public IOBuilder setHashAlgorithm(String hashAlgorithm) {
 		addIdentifierLabel(mIdentifier, HASH_ALG_LABEL, hashAlgorithm);
 		return this;
-	}		
-	
+	}
+
 	/**
 	 * Sets the content type.
-	 * 
+	 *
 	 * @param contentType	The content type of the information object.
 	 * @return		Returns this Builder.
 
@@ -117,10 +135,10 @@ public class IOBuilder {
 		addIdentifierLabel(mIdentifier, CONTENT_TYPE_LABEL, contentType);
 		return this;
 	}
-	
+
 	/**
 	 * Adds a meta data key value pair to the information object.
-	 * 
+	 *
 	 * @param key	The key of the metadata
 	 * @param value	The value of the metadata
 	 * @return		Returns this Builder.
@@ -129,22 +147,65 @@ public class IOBuilder {
 		mMetadata.insert(key, value);
 		return this;
 	}
-	
+
+	/**
+	 * Sets the meta data (overwriting any previously added) of the information object.
+	 * @param jsonMetadata
+	 *     the metadata as a json string
+	 * @return
+	 *     the builder
+	 */
+	public IOBuilder setMetaData(String jsonMetadata) {
+	    mMetadata = new Metadata(jsonMetadata);
+	    return this;
+	}
+
+	/**
+	 * Adds a bluetooth locator to the information object.
+	 * @param bluetoothMac
+	 *     The bluetooth MAC address
+	 * @return
+	 *     The builder
+	 */
+	public IOBuilder addBluetoothLocator(String bluetoothMac) {
+	    addAttribute(
+	            mIo,
+	            DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString(),
+	            SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI(),
+	            bluetoothMac);
+	    return this;
+	}
+
+    /**
+     * Adds a file path locator to the information object.
+     * @param bluetoothMac
+     *     The absolute file path
+     * @return
+     *     The builder
+     */
+    public IOBuilder addFilePathLocator(String filePath) {
+        addAttribute(
+                mIo,
+                DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString(),
+                SailDefinedAttributeIdentification.FILE_PATH.getURI(),
+                filePath);
+        return this;
+    }
+
 	/**
 	 * Creates an information object based on the Builder object.
-	 * 
+	 *
 	 * @return	The information object that was created.
 	 */
 	public InformationObject build() {
 		addIdentifierLabel(mIdentifier, META_LABEL, mMetadata.convertToString());
-		InformationObject io = mFactory.createInformationObject();
-		io.setIdentifier(mIdentifier);
-		return io;
+		mIo.setIdentifier(mIdentifier);
+		return mIo;
 	}
 
 	/**
 	 * Adds an identifier label for the specified identifier for the passed label properties.
-	 * 
+	 *
 	 * @param identifier	The identifier to modify
 	 * @param labelName		The label name
 	 * @param labelValue	The label value
@@ -154,5 +215,18 @@ public class IOBuilder {
          hashLabel.setLabelName(labelName);
          hashLabel.setLabelValue(labelValue);
          identifier.addIdentifierLabel(hashLabel);
+	}
+
+	private void addAttribute(
+	        InformationObject io,
+	        String attributePurpose,
+	        String attributeIdentification,
+	        String attributeValue) {
+
+        Attribute attribute = mFactory.createAttribute();
+        attribute.setAttributePurpose(attributePurpose);
+        attribute.setIdentification(attributeIdentification);
+        attribute.setValue(attributeValue);
+        mIo.addAttribute(attribute);
 	}
 }
