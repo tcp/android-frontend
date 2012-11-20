@@ -110,22 +110,15 @@ public class LocalResolutionService
 		// Searching within the database will expect only one keyword: the url
 		List<SearchResult> results = new LinkedList<SearchResult>();
 		String url = keywords.get(0);
-		InformationObject io = null;
+		SearchResult result = null;
 		
 		try {
-			io = mDatabase.searchIO(url);
+			result = mDatabase.searchIO(url);
 		} catch (DatabaseException e) {
 			Log.e(TAG, "No entry found that corresponds to the url: " + url);
 			return results;
 		}
 		
-		Identifier identifier = io.getIdentifier();
-		String hash = identifier.getIdentifierLabel(
-				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
-		String metadata = identifier.getIdentifierLabel(
-				SailDefinedLabelName.META_DATA.getLabelName()).getLabelValue();
-			
-		SearchResult result = new SearchResultImpl(hash, new Metadata(metadata));
 		results.add(result);
 
 		return results;

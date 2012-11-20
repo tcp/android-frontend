@@ -38,8 +38,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import project.cs.lisa.exceptions.DatabaseException;
+import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.metadata.MetadataParser;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import project.cs.lisa.search.SearchResult;
+import project.cs.lisa.search.SearchResultImpl;
 import project.cs.lisa.util.IOBuilder;
 import project.cs.lisa.util.UProperties;
 import android.content.ContentValues;
@@ -247,16 +250,8 @@ public class IODatabase
 	 * @throws DatabaseException 	Thrown when the query does not return any value
 	 */
 	public InformationObject getIO(String hash) throws DatabaseException {
-		SQLiteDatabase db = this.getReadableDatabase();
 		
-		Cursor cursor = db.query(TABLE_IO, null, KEY_HASH + "=?", 
-				new String[]{hash}, null, null, null);
-		
-		if (cursor != null && cursor.getCount() != 0) {
-			cursor.moveToFirst();
-		} else {
-			throw new DatabaseException("The given hash does not correspond to any IO.");
-		}
+		Cursor cursor = query(TABLE_IO, KEY_HASH, hash);
 		
 		IOBuilder builder = new IOBuilder(mDatamodelFactory);
 		builder.setHash(cursor.getString(0))
@@ -265,18 +260,12 @@ public class IODatabase
 			.addMetaData(mFilepathLabel, cursor.getString(3))
 			.addMetaData(mFilesizeLabel, cursor.getString(4));
 		
-		cursor = db.query(TABLE_URL, null, KEY_HASH + "=?", new String[]{hash}, null, null, null);
-		if (cursor != null) {
-			cursor.moveToFirst();
-		} else {
-			throw new DatabaseException("The given hash does not correspond to any IO.");
-		}
-		
+		cursor = query(TABLE_URL, KEY_HASH, hash);
+
 		do {
 			builder.addMetaData(mUrlLabel, cursor.getString(1));
 		} while (cursor.moveToNext());
 		
-		db.close();
 		return builder.build();
 	}
 	
@@ -289,19 +278,20 @@ public class IODatabase
 	 * @throws DatabaseException	Is thrown if the url doesn't belong 
 	 * 								to any stored information object
 	 */
-	public InformationObject searchIO(String url) throws DatabaseException {
-		SQLiteDatabase db = this.getReadableDatabase();
+	public SearchResult searchIO(String url) throws DatabaseException {		
+		Metadata metadata = new Metadata();
 		
-		Cursor cursor = db.query(TABLE_URL, null, KEY_URL + "=?", 
-				new String[]{url}, null, null, null);
+		Cursor cursor = query(TABLE_URL, KEY_URL, url);
+		metadata.insert(mUrlLabel, url);
+
+		// Build the metadata corresponding to the hash
+		String hash = cursor.getString(0);
+		cursor = query(TABLE_IO, KEY_HASH, hash);
 		
-		if (cursor != null && cursor.getCount() != 0) {
-			cursor.moveToFirst();
-		} else {
-			throw new DatabaseException("The given url does not correspond to any IO.");
-		}
-		
-		return getIO(cursor.getString(0));
+		metadata.insert(mFilepathLabel, cursor.getString(3));
+		metadata.insert(mFilesizeLabel, cursor.getString(4));
+
+		return new SearchResultImpl(hash, metadata);
 	}
 
 	/**
@@ -391,6 +381,31 @@ public class IODatabase
 		urlEntry.put(KEY_HASH, hash);
 		urlEntry.put(KEY_URL, url);
 		return urlEntry;
+	}
+	
+	/**
+	 * Querys the database and returns a cursor.
+	 * 
+	 * @param table					The table in which we want to query
+	 * @param key					The key
+	 * @param value					The corresponding value
+	 * @return						A cursor pointing to the first row of results
+	 * @throws DatabaseException	Thrown, if no entry was found for the specified key value pair
+	 */
+	private Cursor query(String table, String key, String value) throws DatabaseException {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		Cursor cursor = db.query(table, null, key + "=?", 
+				new String[]{value}, null, null, null);
+		
+		if (cursor != null && cursor.getCount() != 0) {
+			cursor.moveToFirst();
+		} else {
+			throw new DatabaseException("The given key does not correspond to any IO : " + key);
+		}
+		db.close();
+		
+		return cursor;
 	}
 
 }
