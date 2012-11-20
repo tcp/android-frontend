@@ -1,5 +1,6 @@
 package project.cs.lisa.util.database.test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -142,8 +143,8 @@ public class IODatabaseTest extends AndroidTestCase {
 		} catch (JSONException e) {
 			Assert.fail("Should not have thrown an exception.");
 		}
-		assertEquals("/home/lisa/something.txt", (String)metadataMap.get(LABEL_FILEPATH));
-		assertEquals("58432",(String) metadataMap.get(LABEL_FILESIZE));
+		assertEquals(FILE_PATH, (String)metadataMap.get(LABEL_FILEPATH));
+		assertEquals(FILE_SIZE,(String) metadataMap.get(LABEL_FILESIZE));
 		
 		// Will always be a list of strings
 		@SuppressWarnings("unchecked")
@@ -196,9 +197,27 @@ public class IODatabaseTest extends AndroidTestCase {
     	assertEquals(HASH, result.getHash());
     	
     	Metadata metadata = result.getMetaData();
-    	String actualUrl1 = metadata.get(LABEL_URL);
+    	JSONObject jsonMetadata = null;
+    	try {
+			jsonMetadata = new JSONObject(metadata.convertToString());
+
+
+		} catch (JSONException e) {
+			Assert.fail("Should not have thrown an exception. Valid metadata String.");
+		}
+    	// Compare if the returned object is the right object we wanted to search for
+    	Map<String, Object> map = MetadataParser.toMap(jsonMetadata);
     	
+		String[] expectedUrl = {URL_1, URL_2};
+		List<String> expectedUrlList = Arrays.asList(expectedUrl);
     	
+		// We know that the result will be a list of Strings: Url list
+		@SuppressWarnings("unchecked")
+		List<String> actualUrlList = (List<String>) map.get(LABEL_URL);
+		assertTrue(expectedUrlList.containsAll(actualUrlList));
+		
+		assertEquals(FILE_PATH, map.get(LABEL_FILEPATH));
+		assertEquals(FILE_SIZE, map.get(LABEL_FILESIZE));
 	}
 	
 	private InformationObject createIO() {

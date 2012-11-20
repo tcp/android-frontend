@@ -281,11 +281,17 @@ public class IODatabase
 	public SearchResult searchIO(String url) throws DatabaseException {		
 		Metadata metadata = new Metadata();
 		
+		// Find the hash identification of the corresponding object
 		Cursor cursor = query(TABLE_URL, KEY_URL, url);
-		metadata.insert(mUrlLabel, url);
-
-		// Build the metadata corresponding to the hash
 		String hash = cursor.getString(0);
+		
+		// Add all url fields
+		cursor = query(TABLE_URL, KEY_HASH, hash);
+		do {
+			metadata.insert(KEY_URL, cursor.getString(1));
+		} while (cursor.moveToNext());
+		
+		// Build the metadata corresponding to the hash
 		cursor = query(TABLE_IO, KEY_HASH, hash);
 		
 		metadata.insert(mFilepathLabel, cursor.getString(3));
