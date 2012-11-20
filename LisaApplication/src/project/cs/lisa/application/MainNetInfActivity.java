@@ -37,6 +37,7 @@ import project.cs.lisa.application.dialogs.OkButtonDialog;
 import project.cs.lisa.bluetooth.BluetoothServer;
 import project.cs.lisa.netinf.node.StarterNodeThread;
 import project.cs.lisa.networksettings.BTHandler;
+import project.cs.lisa.util.UProperties;
 import project.cs.lisa.wifi.WifiHandler;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -100,8 +101,8 @@ public class MainNetInfActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
-//        setContentView(R.layout.activity_main);
-        setContentView(R.layout.activity_main_sprint2);
+        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main_sprint2);
 
         mApplication = (MainApplication) getApplication();
         sMainNetInfActivity = this;
@@ -114,8 +115,8 @@ public class MainNetInfActivity extends Activity {
         setupBluetoothServer();
 
         // Get the input address
-//        EditText editText = (EditText) findViewById(R.id.url);
-//        editText.setText(UProperties.INSTANCE.getPropertyWithName("default.webpage"));
+        EditText editText = (EditText) findViewById(R.id.url);
+        editText.setText(UProperties.INSTANCE.getPropertyWithName("default.webpage"));
 
 //        showDialog(new ShareDialog());
 
