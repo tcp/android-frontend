@@ -279,6 +279,30 @@ public class IODatabase
 		db.close();
 		return builder.build();
 	}
+	
+	/**
+	 * Returns the information object corresponding to the url,
+	 * if existent.
+	 * 
+	 * @param url					The url that identifies the information object
+	 * @return						The information object
+	 * @throws DatabaseException	Is thrown if the url doesn't belong 
+	 * 								to any stored information object
+	 */
+	public InformationObject searchIO(String url) throws DatabaseException {
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		Cursor cursor = db.query(TABLE_URL, null, KEY_URL + "=?", 
+				new String[]{url}, null, null, null);
+		
+		if (cursor != null && cursor.getCount() != 0) {
+			cursor.moveToFirst();
+		} else {
+			throw new DatabaseException("The given url does not correspond to any IO.");
+		}
+		
+		return getIO(cursor.getString(0));
+	}
 
 	/**
 	 * Deletes the information object corresponding to 

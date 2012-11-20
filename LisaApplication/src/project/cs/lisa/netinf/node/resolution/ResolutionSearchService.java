@@ -42,7 +42,8 @@ public interface ResolutionSearchService extends ResolutionService {
 
 	/**
 	 * Returns a list of search results corresponding to the
-	 * specified keywords.
+	 * specified keywords. If no fitting object has been found, it returns
+	 * an empty list.
 	 * 
 	 * @param keywords	The keywords to search for an information object.
 	 * @return			The list of search results.
