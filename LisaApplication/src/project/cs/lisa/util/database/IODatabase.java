@@ -50,6 +50,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 /**
  * The database that contains the data corresponding to an information object
@@ -59,13 +60,15 @@ import com.google.inject.Inject;
  * @author Kim-Anh Tran
  *
  */
-public class IODatabase extends SQLiteOpenHelper {
+public class IODatabase 
+		extends SQLiteOpenHelper
+		implements IODatabaseFactory {
+
+	/** The current database version. */
+	public static final int DATABASE_VERSION = 1;
 	
 	/** Debug Tag. */
 	private static final String TAG = "IODatabase";
-	
-	/** The current database version. */
-	private static final int DATABASE_VERSION = 1;
 	
 	/** The name of the database. */
 	private static final String DATABASE_NAME = "IODatabase"; 
@@ -117,10 +120,10 @@ public class IODatabase extends SQLiteOpenHelper {
 	 * 							create information objects.
 	 */
 	@Inject
-	public IODatabase(Context context, DatamodelFactory datamodelFactory) {
+	public IODatabase(DatamodelFactory datamodelFactory, @Assisted Context context) {
 		
 		// We skip the curser object factory, since we don't need it
-		super(context, DATABASE_NAME, null, DATABASE_VERSION); 
+		super(context, DATABASE_NAME, null, 1); 
 		
 		UProperties instance = UProperties.INSTANCE;
 		mFilepathLabel = instance.getPropertyWithName("metadata.filepath");
@@ -154,12 +157,29 @@ public class IODatabase extends SQLiteOpenHelper {
 		db.execSQL(createUrlTable);
 	}
 
+	@Override
+	public void onOpen(SQLiteDatabase db) {
+	    super.onOpen(db);
+	    if (!db.isReadOnly()) {
+	        // Enable foreign key constraints
+	        db.execSQL("PRAGMA foreign_keys=ON;");
+	    }
+	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_IO + " " + TABLE_URL);
+		Log.d(TAG, "Upgrading database to version " + newVersion);
 		
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_IO);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_URL);
+				
 		onCreate(db);
+	}
+	
+
+	@Override
+	public IODatabase create(Context context) {
+		return new IODatabase(mDatamodelFactory, context);
 	}
 	
 	/**
@@ -256,6 +276,7 @@ public class IODatabase extends SQLiteOpenHelper {
 			builder.addMetaData(mUrlLabel, cursor.getString(1));
 		} while (cursor.moveToNext());
 		
+		db.close();
 		return builder.build();
 	}
 
@@ -347,4 +368,5 @@ public class IODatabase extends SQLiteOpenHelper {
 		urlEntry.put(KEY_URL, url);
 		return urlEntry;
 	}
+
 }

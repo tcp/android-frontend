@@ -20,6 +20,7 @@ import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.util.IOBuilder;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.util.database.IODatabase;
+import project.cs.lisa.util.database.IODatabaseFactory;
 import android.test.AndroidTestCase;
 import android.test.RenamingDelegatingContext;
 
@@ -39,8 +40,11 @@ public class IODatabaseTest extends AndroidTestCase {
 	/** The database under test. */
 	private IODatabase mIoDatabase;
 	
-	/** The Datamodel facotry */
+	/** The Datamodel factory */
 	private DatamodelFactory mDatamodelFactory;
+	
+	/** The database factory. */
+	private IODatabaseFactory mDatabaseFactory;
 	
 	/** Meta-data label for the filepath. */
 	private String LABEL_FILEPATH;
@@ -56,11 +60,10 @@ public class IODatabaseTest extends AndroidTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 	    RenamingDelegatingContext context 
-        = new RenamingDelegatingContext(getContext(), TEST_FILE_PREFIX);
+        		= new RenamingDelegatingContext(getContext(), TEST_FILE_PREFIX);
 		
 		mDatamodelFactory = new DatamodelFactoryImpl();
-		mIoDatabase = new IODatabase(context,mDatamodelFactory);		
-		
+		mIoDatabase =  new IODatabase(mDatamodelFactory, context);	
 		
 		// The meta data tag names
 		UProperties instance = UProperties.INSTANCE;
@@ -143,7 +146,7 @@ public class IODatabaseTest extends AndroidTestCase {
 	
 	/**
 	 * Tries to delete an information object from the database table.
-	 */
+	 *
 	public void testDeleteIO() {
 		// Create a IO for deleting
 		String hash = "445";
@@ -177,6 +180,6 @@ public class IODatabaseTest extends AndroidTestCase {
 			// Success: io should not be stored in database anymore
 		}
         
-	}
+	}*/
 	
 }
