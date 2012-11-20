@@ -83,14 +83,18 @@ public class MainNetInfActivity extends Activity {
     public static final int HASH_LENGTH = 3;
 
     /** Activity context. */
-    private static MainNetInfActivity mMainNetInfActivity;
+    private static MainNetInfActivity sMainNetInfActivity;
     
+    /** Global MainApplication. */
     private MainApplication mApplication;
 
-    private static Toast mToast;
+    /** Toast for this activity. */
+    private static Toast sToast;
     
+    /** Thread for staring a NetInf node. */
     private StarterNodeThread mStarterNodeThread;
 
+    /** Bluetooth server for serving bluetooth devices. */
     private BluetoothServer mBluetoothServer;
     
     @Override
@@ -100,8 +104,8 @@ public class MainNetInfActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mApplication = (MainApplication) getApplication();
-        mMainNetInfActivity = this;
-        mToast = new Toast(this);
+        sMainNetInfActivity = this;
+        sToast = new Toast(this);
 
 //        setupWifi();
         setupBluetoothAvailability();
@@ -130,7 +134,10 @@ public class MainNetInfActivity extends Activity {
      */
     private void setupWifi() {
         // Create OK dialog
-        showDialog(new OkButtonDialog("Wifi Information", getString(R.string.dialog_wifi_msg), new OnClickListener() {
+        showDialog(new OkButtonDialog(
+                "Wifi Information",
+                getString(R.string.dialog_wifi_msg),
+                new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(TAG, "doPositiveClickWifiInfoMessage()");
@@ -162,7 +169,7 @@ public class MainNetInfActivity extends Activity {
 
     /**
      * Show a dialog.
-     * @param dialog
+     * @param dialog The dialog to show
      */
     private void showDialog(DialogFragment dialog) {
         dialog.setCancelable(false);
@@ -171,7 +178,7 @@ public class MainNetInfActivity extends Activity {
     
     /**
      * Try to fetch the requested web page.
-     * @param v
+     * @param v The view that triggered this method
      */
     public final void goButtonClicked(final View v) {
         
@@ -210,10 +217,12 @@ public class MainNetInfActivity extends Activity {
 
     /**
      * Checks if a URL address is valid.
-     * @return
+     * @param url   The url to validate
+     * @return      if the given url is valid or not
      */
     public boolean addressIsValid(String url) {
-        return url.matches("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+        return url.matches(
+                "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
     }
 
     @Override
@@ -256,7 +265,7 @@ public class MainNetInfActivity extends Activity {
      */
     private void setupBluetoothAvailability() {
         BTHandler bt = new BTHandler();
-        bt.forceEnable(mMainNetInfActivity);
+        bt.forceEnable(sMainNetInfActivity);
     }
 
     /**
@@ -287,7 +296,7 @@ public class MainNetInfActivity extends Activity {
      * @return  the context
      */
     public static MainNetInfActivity getActivity() {
-        return mMainNetInfActivity;
+        return sMainNetInfActivity;
     }
     
     /**
@@ -296,9 +305,9 @@ public class MainNetInfActivity extends Activity {
      */
     public static void showToast(String text) {
         Log.d(TAG, "showToast()");
-        mToast.cancel();
-        mToast = Toast.makeText(getActivity(), text, Toast.LENGTH_LONG);
-        mToast.show();
+        sToast.cancel();
+        sToast = Toast.makeText(getActivity(), text, Toast.LENGTH_LONG);
+        sToast.show();
     }
     
     /**
@@ -306,7 +315,7 @@ public class MainNetInfActivity extends Activity {
      */
     public static void cancelToast() {
         Log.d(TAG, "cancelToast()");
-        mToast.cancel();
+        sToast.cancel();
     }
     
     /**
