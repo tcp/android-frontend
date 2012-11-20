@@ -23,7 +23,6 @@ import project.cs.lisa.search.SearchResult;
 import project.cs.lisa.util.IOBuilder;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.util.database.IODatabase;
-import project.cs.lisa.util.database.IODatabaseFactory;
 import android.test.AndroidTestCase;
 import android.test.RenamingDelegatingContext;
 
@@ -71,9 +70,6 @@ public class IODatabaseTest extends AndroidTestCase {
 	
 	/** The Datamodel factory */
 	private DatamodelFactory mDatamodelFactory;
-	
-	/** The database factory. */
-	private IODatabaseFactory mDatabaseFactory;
 	
 	/** Meta-data label for the filepath. */
 	private String LABEL_FILEPATH;
