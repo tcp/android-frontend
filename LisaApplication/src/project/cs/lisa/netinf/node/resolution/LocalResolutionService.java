@@ -26,15 +26,16 @@
  */
 package project.cs.lisa.netinf.node.resolution;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import netinf.common.datamodel.Identifier;
 import netinf.common.datamodel.InformationObject;
 import netinf.common.datamodel.identity.ResolutionServiceIdentityObject;
-import netinf.node.resolution.ResolutionService;
 import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.exceptions.DatabaseException;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
+import project.cs.lisa.search.SearchResult;
 import project.cs.lisa.util.database.IODatabase;
 import project.cs.lisa.util.database.IODatabaseFactory;
 import android.util.Log;
@@ -50,7 +51,7 @@ import com.google.inject.Inject;
  */
 public class LocalResolutionService 
 		extends AbstractResolutionServiceWithoutId
-		implements ResolutionService {
+		implements ResolutionSearchService {
 	
 	/** The debug tag. */
 	private static final String TAG = "LocalResolutionService";
@@ -102,6 +103,25 @@ public class LocalResolutionService
 		return io;
 	}
 
+	@Override
+	public List<SearchResult> search(List<String> keywords) {
+		// Searching within the database will expect only one keyword: the url
+		List<SearchResult> results = new LinkedList<SearchResult>();
+		String url = keywords.get(0);
+		SearchResult result = null;
+		
+		try {
+			result = mDatabase.searchIO(url);
+		} catch (DatabaseException e) {
+			Log.e(TAG, "No entry found that corresponds to the url: " + url);
+			return results;
+		}
+		
+		results.add(result);
+
+		return results;
+	}
+	
 	@Override
 	public void put(InformationObject io) {
 		try {
