@@ -218,5 +218,4 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
         Log.d(TAG, "pathPrefix = " + pathPrefix);
         mPathPrefix = pathPrefix;
     }
-
 }

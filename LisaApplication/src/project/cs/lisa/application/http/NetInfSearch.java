@@ -10,6 +10,8 @@ import org.apache.http.client.methods.HttpGet;
 
 import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
+import project.cs.lisa.exceptions.NullHostException;
+import project.cs.lisa.exceptions.NullPortException;
 import project.cs.lisa.search.SearchRequest;
 import project.cs.lisa.util.UProperties;
 import project.cs.lisa.util.database.IODatabase;
@@ -54,10 +56,21 @@ public class NetInfSearch extends NetInfRequest {
      * @param port         Target port
      * @param tokens       Keywords to be searched
      * @param ext          Extensions
+     * @throws NullHostException 
+     * @throws NullPortException 
      */
-    public NetInfSearch(String host, String port, String tokens, String ext) {
+    public NetInfSearch(String host, String port, String tokens, String ext)
+            throws NullHostException, NullPortException {
         super(MainNetInfActivity.getActivity(), host, port);
 
+        if (host == "" || host == null) {
+            throw new NullHostException();
+        }
+        
+        if (port == "" || port == null) {
+            throw new NullPortException();
+        }
+        
         // Initialize variables
         mActivity = MainNetInfActivity.getActivity();
         mHost = host;
@@ -126,36 +139,36 @@ public class NetInfSearch extends NetInfRequest {
         // TODO: Validate TelephoneManager as a viable option for serial number.
         // TODO: Right now, this code FAILS tests because there is no TM on emulator.
         // Initiates a new Telephony Manager to extract deviceId and serial number.
-        final TelephonyManager tm = (TelephonyManager) mActivity.getBaseContext()
-                .getSystemService(Context.TELEPHONY_SERVICE);
+//        final TelephonyManager tm = (TelephonyManager) mActivity.getBaseContext()
+//                .getSystemService(Context.TELEPHONY_SERVICE);
 
         // Telephony Manager Device ID
-        final String tmDevice;
+//        final String tmDevice;
         
         // Telephony Manager Serial Number
-        final String tmSerial;
+//        final String tmSerial;
         
         // Android ID
-        final String androidId;
+//        final String androidId;
         
         // Fetches IDs
-        tmDevice = "" + tm.getDeviceId();
-        tmSerial = "" + tm.getSimSerialNumber();
-        androidId = "" + android.provider.Settings.Secure.getString(
-                mActivity.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+//        tmDevice = "" + tm.getDeviceId();
+//        tmSerial = "" + tm.getSimSerialNumber();
+//        androidId = "" + android.provider.Settings.Secure.getString(
+//                mActivity.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
 
         // Gets device UUID
-        UUID deviceUuid = new UUID(androidId.hashCode(), 
-                ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
+//        UUID deviceUuid = new UUID(androidId.hashCode(), 
+//                ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
         
         // UUID to String
-        String deviceId = deviceUuid.toString();
+//        String deviceId = deviceUuid.toString();
         
         // Random number
         int randomNumber = new Random(System.currentTimeMillis()).nextInt();
         
         // Bulks all of it together
-        String msgId = deviceId + String.valueOf(randomNumber);
+        String msgId = /*deviceId + */String.valueOf(randomNumber);
         
         // Returns created message id
         return msgId;

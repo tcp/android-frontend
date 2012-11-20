@@ -150,8 +150,7 @@ public class SearchRequest extends LisaServerResource {
             // Status Code NOT FOUND: 404
             case HttpStatus.SC_NOT_FOUND:
                 // Returns null if nothing was found on the server
-                jsonString = readJson(response);
-                json = parseJson(jsonString);
+                json = new JSONObject();
                 return json;
             
             // Everything else
