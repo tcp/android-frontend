@@ -195,6 +195,12 @@ public class SearchRequest extends LisaServerResource {
         listUrls.add(mTokens);
         
         List<SearchResult> listResults = lrs.search(listUrls);
+
+        Log.d(TAG, "The url list:");
+        for(SearchResult result : listResults) {
+            Log.d(TAG, result.getMetaData().convertToMetadataString());
+        	
+        }
         
         if (!listResults.isEmpty()) {
             JSONObject json = new JSONObject();
@@ -203,7 +209,7 @@ public class SearchRequest extends LisaServerResource {
             for (SearchResult sr : listResults) {
                 JSONObject thisResult = new JSONObject();
                 thisResult.put("ni", "ni://sha-256;" + sr.getHash());
-                thisResult.put("ts", sr.getMetaData().get("ts"));
+//                thisResult.put("ts", sr.getMetaData().get("ts"));
                 results.add(thisResult);
             }
             json.put("results", results);

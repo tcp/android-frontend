@@ -208,13 +208,14 @@ public class IODatabase
 						SailDefinedLabelName.META_DATA.getLabelName()).getLabelValue();
 		Map<String, Object> metadataMap = extractMetaData(metadata);
 		
+		String filePath = (String) metadataMap.get(mFilepathLabel);
+		String fileSize = (String) metadataMap.get(mFilesizeLabel);
+		
 		Log.d(TAG, "IO properties: hash= " + hash 
 				+ ", hash alg = " + hashAlgorithm
 				+ ", content type = " + contentType
-				+ ", metadata = " + metadata);
-		
-		String filePath = (String) metadataMap.get(mFilepathLabel);
-		String fileSize = (String) metadataMap.get(mFilesizeLabel);
+				+ ", filePath = " + filePath
+				+ ", fileSize = " + fileSize);
 		
 		//Create list of URLs
 		Object urlJsonObject = metadataMap.get(mUrlLabel);
@@ -303,6 +304,7 @@ public class IODatabase
 		builder.setHash(cursor.getString(0))
 			.setHashAlgorithm(cursor.getString(1))
 			.setContentType(cursor.getString(2))
+			.addFilePathLocator(cursor.getString(3))
 			.addMetaData(mFilepathLabel, cursor.getString(3))
 			.addMetaData(mFilesizeLabel, cursor.getString(4));
 		

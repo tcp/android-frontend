@@ -20,6 +20,7 @@ import project.cs.lisa.application.http.NetInfRetrieve;
 import project.cs.lisa.application.http.NetInfSearch;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
+import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.util.UProperties;
 import android.bluetooth.BluetoothAdapter;
 import android.os.AsyncTask;
@@ -41,9 +42,18 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
     /** The directory containing the published files. */
     private String mSharedFolder;
     
+    /** The label for metadata filepath.*/
+    private String mFilepath;
+    
+    /** The label name for content type.*/
+    private String mContentType;
+    
     /** Creates a new task downloading a web page. */
     public DownloadWebPageTask() {
     	super();
+    	
+    	mFilepath = UProperties.INSTANCE.getPropertyWithName("metadata.filepath");
+    	mContentType = SailDefinedLabelName.CONTENT_TYPE.getLabelName();
     	
 		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
 		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
@@ -151,10 +161,15 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
 
                 Object obj = JSONValue.parse(jsonResponse);
                 JSONObject searchResult = (JSONObject) obj;
+                Log.d(TAG, searchResult.toString());
 
-                File file = new File((String)searchResult.get("filepath"));
+                String filePath = (String)searchResult.get(mFilepath);
+                String contentType = (String)searchResult.get(mContentType);
+                
+                Log.d(TAG, "Filepath = " + filePath + "Content Type = " + contentType);
+                File file = new File(filePath);
                 try {
-                    publishFile(file, mUrl, hash, (String)searchResult.get("contenttype"));
+                    publishFile(file, mUrl, hash, contentType);
                 } catch (IOException e) {
                     Log.e(TAG, "I could not publish the file");
                     e.printStackTrace();

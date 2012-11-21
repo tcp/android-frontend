@@ -165,7 +165,9 @@ public class Metadata {
             return null;
 
         try {
-            return mJSONObject.get(key).toString();
+        	return mJSONObject.get(key).toString();
+        	//jsonString.replaceAll("\\","");
+            //return jsonString;
         }
         catch (JSONException e) {
             // TODO Auto-generated catch block

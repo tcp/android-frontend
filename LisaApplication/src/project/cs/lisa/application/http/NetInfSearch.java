@@ -85,12 +85,12 @@ public class NetInfSearch extends NetInfRequest {
         addQuery("ext", ext);
 
         // Tokens. Encoding the URL might be necessary.
-        try {
-            addQuery("tokens", URLEncoder.encode(tokens, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+//        try {
+            addQuery("tokens", tokens);
+//        } catch (UnsupportedEncodingException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
 
     /**

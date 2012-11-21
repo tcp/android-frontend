@@ -112,6 +112,8 @@ public class LocalResolutionService
 
 	@Override
 	public List<SearchResult> search(List<String> keywords) {
+		Log.d(TAG, "Searching in database for the following url: " + keywords.get(0));
+		
 		// Searching within the database will expect only one keyword: the url
 		List<SearchResult> results = new LinkedList<SearchResult>();
 		String url = keywords.get(0);

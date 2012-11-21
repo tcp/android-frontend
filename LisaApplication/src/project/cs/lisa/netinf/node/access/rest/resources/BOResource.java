@@ -90,10 +90,10 @@ public class BOResource extends LisaServerResource {
     private static final String TAG = "BOResource";
 
     /** HashMap Key: Filepath. */
-    private static final String FILEPATH = "filePath";
+    private static String mFilepath;
 
     /** HashMap Key: Content type. */
-    private static final String CONTENT_TYPE = "contentType";
+    private static String mContentType;
 
     /** The hash value of the requested BO. */
     private String mHashValue;
@@ -110,7 +110,10 @@ public class BOResource extends LisaServerResource {
     @Override
     protected void doInit() {
         super.doInit();
-
+        
+        mFilepath = UProperties.INSTANCE.getPropertyWithName("metadata.filepath");
+        mContentType = SailDefinedLabelName.CONTENT_TYPE.getLabelName();
+        
         mHashValue = getQuery().getFirstValue("hash", true);
         mHashAlgorithm = getQuery().getFirstValue("hashAlg", true);
 
@@ -145,11 +148,11 @@ public class BOResource extends LisaServerResource {
                     SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                     .getLabelValue();
             Metadata metadata = new Metadata();
-            metadata.insert(CONTENT_TYPE, contentType);
+            metadata.insert(mContentType, contentType);
 
             String filePath = filepathAttribute.getValueRaw();
             filePath = filePath.substring(filePath.indexOf(":") + 1);
-            metadata.insert(FILEPATH, filePath);
+            metadata.insert(mFilepath, filePath);
             return metadata.convertToString();
         }
         Log.d(TAG, "The NetInf GET didn't contain the file");
@@ -213,8 +216,8 @@ public class BOResource extends LisaServerResource {
 
         // Make a new metadata to pass along the content_type and filepath
         Metadata metadata = new Metadata();
-        metadata.insert(CONTENT_TYPE, contentType);
-        metadata.insert(FILEPATH, filePath);
+        metadata.insert(mContentType, contentType);
+        metadata.insert(mFilepath, filePath);
 
         return metadata.convertToString();
 

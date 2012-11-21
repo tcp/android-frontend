@@ -40,7 +40,7 @@ import android.util.Log;
 public class NetInfRetrieve extends NetInfRequest {
 
 	/** Debug tag. **/
-	public static final String TAG = "NetInfGet";
+	public static final String TAG = "NetInfRetrieve";
 
 	/**
 	 * Creates a new asynchronous NetInf GET.
