@@ -65,15 +65,17 @@ public class LocalResolutionService
 	private IODatabase mDatabase;
 
 	/** Datamodel Factory. **/
-	DatamodelFactory mDatamodelFactory;
+	private DatamodelFactory mDatamodelFactory;
 
 	/**
 	 * Creates a new local resolution service.
 	 *
 	 * @param databaseFactory	The factory used for creating the database.
+	 * @param datamodelFactory	The factory used fo creating information objects
 	 */
 	@Inject
-	public LocalResolutionService(IODatabaseFactory databaseFactory, DatamodelFactory datamodelFactory) {
+	public LocalResolutionService(IODatabaseFactory databaseFactory,
+			DatamodelFactory datamodelFactory) {
 		mDatabaseFactory = databaseFactory;
 		mDatabase = mDatabaseFactory.create(MainApplication.getAppContext());
 		mDatamodelFactory = datamodelFactory;
