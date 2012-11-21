@@ -80,9 +80,9 @@ public class NetInfSearch extends NetInfRequest {
         setPathPrefix("search");
 
         // Add fields to URI
-        // Create new Message ID
-        mMsgId = newMsgId();
+        
         // Message ID
+        mMsgId = newMsgId();
         addQuery("msgId", mMsgId);
 
         // Extension
@@ -123,7 +123,7 @@ public class NetInfSearch extends NetInfRequest {
         List<SearchResult> listResults = lrs.search(listUrls);
         
         if (!listResults.isEmpty()) {
-            return listResults.get(0).toString();
+//            return listResults.get(0).getHash();
         }
 
         /* NRS Search */
