@@ -7,6 +7,8 @@ import java.util.HashSet;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
@@ -70,7 +72,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
 
         // do NetInfSearch and override onPostExecute(String jsonResponse)
         final URL sUrl = url; 
-        
+
         try {
             NetInfSearch search = new NetInfSearch(
                     UProperties.INSTANCE.getPropertyWithName("access.http.host"),
@@ -80,30 +82,29 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
                     ) {
                 @Override
                 public void onPostExecute(String jsonResponse) {
-                        if (jsonResponse != null || jsonResponse != "") {
-                            org.json.simple.JSONObject json = new org.json.simple.JSONObject();
-                            Log.d(TAG, json.toString());
-                            Log.d(TAG, "Response is >> " + jsonResponse);
+                    Log.d(TAG, "jsonResponse: " + jsonResponse);    
+                    // if the search returns something...
+                    if (jsonResponse != null && jsonResponse != "") {
+                        Object obj = JSONValue.parse(jsonResponse);
+                        JSONObject jsonObject = (JSONObject) obj;
+                        Log.d(TAG, "jsonObject: " + jsonObject.toString());    
+                    } else { // if the search does NOT return anything
+                        try {
+                            downloadWebPage(sUrl);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                        else {
-                            Log.d(TAG, "Response is " + jsonResponse);
-                            try {
-                                downloadWebPage(sUrl);
-                            } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        }
+                    }
                 }
             };
-            
+
             search.execute();
         } catch (NullHostException e) {
             e.printStackTrace();
         } catch (NullPortException e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
 
