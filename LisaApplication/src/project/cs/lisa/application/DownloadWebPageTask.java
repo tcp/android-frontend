@@ -88,7 +88,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                     JSONObject searchResult = (JSONObject) obj;
 
                     // get from uplink
-                    if (searchResult == null || ((Integer) searchResult.get("status")) == 404) {
+                    if (searchResult == null || ((Long) searchResult.get("status")) == 404) {
                         downloadAndDisplayWebPage();
                         return;
                     }
