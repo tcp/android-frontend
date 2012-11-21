@@ -191,10 +191,9 @@ public class IODatabase
 	 * @param io					The information object to insert.
 	 * @throws DatabaseException 	thrown if insert operation fails
 	 */
+	@SuppressWarnings("unchecked")
 	public void addIO(InformationObject io) throws DatabaseException  {
-		Log.d(TAG, "Adding a new information object into the database.");
-		SQLiteDatabase db = this.getWritableDatabase();
-		
+		Log.d(TAG, "Adding a new information object into the database.");		
 		// Extract the field values for inserting them into the database tables
 		Identifier identifier = io.getIdentifier();
 		String hash = identifier.getIdentifierLabel(
@@ -217,30 +216,77 @@ public class IODatabase
 		String filePath = (String) metadataMap.get(mFilepathLabel);
 		String fileSize = (String) metadataMap.get(mFilesizeLabel);
 		
-		ContentValues ioEntry = createIOEntry(hash, hashAlgorithm, contentType, filePath, fileSize);
-		db.insert(TABLE_IO, null, ioEntry);
-		
-		// Create entry for the IO_url table
+		//Create list of URLs
 		Object urlJsonObject = metadataMap.get(mUrlLabel);
 		Log.d(TAG, "Url object = " + urlJsonObject.toString());
 		
+		//Populate urlList with one or several URLs
+		List<String> urlList;
 		if (urlJsonObject instanceof ArrayList) {
-			// Will always be a list of strings, in case it is a JSONArray
-			@SuppressWarnings("unchecked")
-			List<String> urlList = (List<String>) urlJsonObject;
-			
-			for (String url : urlList) {
-				ContentValues urlEntry = createUrlEntry(hash, url);
-				db.insert(TABLE_URL, null, urlEntry);
-			}
+			urlList  = (List<String>) ((ArrayList<String>) urlJsonObject).clone();
 		} else {
 			String url = (String) urlJsonObject;
-			ContentValues urlEntry = createUrlEntry(hash, url);
-			db.insert(TABLE_URL, null, urlEntry);
+			urlList = new ArrayList<String>();
+			urlList.add(url);
 		}
-		
-		db.close();		
+			
+		if (!containsIO(hash)) {
+			//Insert the IO
+			ContentValues ioEntry = 
+					createIOEntry(hash, hashAlgorithm, contentType, filePath, fileSize);
+			
+			insert(TABLE_IO, ioEntry);
+		} else {
+			//Check if the URLs that we want to insert already exist
+			List<String> storedUrls = getURLs(hash);
+			urlList.removeAll(storedUrls);	
+		}
+				
+		//Insert the URLs
+		for (String url : urlList) {
+			ContentValues urlEntry = createUrlEntry(hash, url);
+			insert(TABLE_URL, urlEntry);
+		}	
+
 	}
+	
+	/**
+	 * Inserts a value in the database.
+	 * 
+	 * @param table		the table where the values will be inserted
+	 * @param values	the values that will be inserted
+	 */
+	private void insert(String table, ContentValues values) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		
+		db.insert(table, null, values);	
+		
+		db.close();
+	}
+
+	/**
+	 * Returns the list of URL associated with a hash.
+	 * 
+	 * @param hash	a hash from an information object
+	 * @return		the list of URL in the IO_url table 
+	 * 				corresponding to the given hash
+	 */
+	public List<String> getURLs(String hash) {
+		List<String> urlList = new ArrayList<String>();
+
+		Cursor cursor = null;
+		try {
+			cursor = query(TABLE_URL, KEY_HASH, hash);
+		} catch (DatabaseException e) {
+			return urlList;
+		}
+		do {
+			urlList.add(cursor.getString(1));
+		} while (cursor.moveToNext());
+		return urlList;
+	}
+	
+	
 	
 	/**
 	 * Returns the information object specified by the hash value, if existent.
@@ -412,6 +458,27 @@ public class IODatabase
 		db.close();
 		
 		return cursor;
+	}
+	
+	/**
+	 * Query the database to see if a hash already exists.
+	 * 
+	 * @param hash 	The hash of an information object
+	 * @return		false if the hash does not exist
+	 *				true if it does
+	 */
+	private boolean containsIO(String hash) {
+		try {
+			//Check if the IO we want to insert already exists
+			query(TABLE_IO, KEY_HASH, hash);
+		} catch (DatabaseException e) {
+			/* 
+			 * This exception is thrown if the query is empty, 
+			 * in that case we say that the IO is not stored
+			 */
+			return false;
+		}
+		return true;
 	}
 
 }

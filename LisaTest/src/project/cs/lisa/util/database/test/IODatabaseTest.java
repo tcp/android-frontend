@@ -62,6 +62,9 @@ public class IODatabaseTest extends AndroidTestCase {
 	/** The second url corresponding to the object. */
 	private static final String URL_2 = "www.svt.se";
 	
+	/** The third url corresponding to the object. */
+	private static final String URL_3 = "www.google.se";
+	
 	/** The actual information object. */
 	private InformationObject mIo;
 	
@@ -153,6 +156,48 @@ public class IODatabaseTest extends AndroidTestCase {
 		assertTrue(expectedList.containsAll(list));
 		 
 	}
+	
+	/**
+	 * Tries to add the same information object again into our database.
+	 * The database should then insert only the new urls, if existent.
+	 * 
+	 */
+	public void testAddDuplicateIO() {
+		try {
+			mIoDatabase.addIO(mIo);
+		} catch (DatabaseException e) {
+			Assert.fail("Should not have thrown an exception.");
+		}
+		
+        IOBuilder builder = new IOBuilder(mDatamodelFactory);
+        InformationObject duplicateIo = builder.setHash(HASH)
+        		.setHashAlgorithm(HASH_ALG)
+        		.setContentType(CONTENT_TYPE)
+        		.addMetaData(LABEL_FILEPATH, FILE_PATH)
+        		.addMetaData(LABEL_FILESIZE, FILE_SIZE)
+        		.addMetaData(LABEL_URL, URL_1)
+        		.addMetaData(LABEL_URL, URL_3).build();
+		
+		try {
+			mIoDatabase.addIO(duplicateIo);
+		} catch (DatabaseException e) {
+			Assert.fail("Should not have raised an exception");
+		}
+		
+		List<String> expectedUrlsStored = new LinkedList<String>();
+		expectedUrlsStored.add(URL_1);
+		expectedUrlsStored.add(URL_2);
+		expectedUrlsStored.add(URL_3);
+				
+		List<String> actualUrlsStored = mIoDatabase.getURLs(HASH);
+		
+		assertTrue(actualUrlsStored.containsAll(expectedUrlsStored));
+		
+		int expectedListLength = 3;
+		assertEquals(expectedListLength, actualUrlsStored.size());
+		
+	}
+	
 	
 	/**
 	 * Tries to delete an information object from the database table.
