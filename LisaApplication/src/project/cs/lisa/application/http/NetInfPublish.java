@@ -148,7 +148,7 @@ public class NetInfPublish extends NetInfRequest {
             throw new IllegalArgumentException("setFile() called with null file");
         }
         mFile = file;
-        addQuery("filePath", file.getAbsolutePath());
+        addQuery("filepath", file.getAbsolutePath());
     }
 
 }

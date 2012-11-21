@@ -179,16 +179,16 @@ public class IOBuilder {
     /**
      * Adds a file path locator to the information object.
      * @param bluetoothMac
-     *     The absolute file path
+     *     The file path locator
      * @return
      *     The builder
      */
-    public IOBuilder addFilePathLocator(String filePath) {
+    public IOBuilder addFilePathLocator(String bluetoothMac) {
         addAttribute(
                 mIo,
                 DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString(),
                 SailDefinedAttributeIdentification.FILE_PATH.getURI(),
-                filePath);
+                bluetoothMac);
         return this;
     }
 
@@ -198,7 +198,15 @@ public class IOBuilder {
 	 * @return	The information object that was created.
 	 */
 	public InformationObject build() {
-		addIdentifierLabel(mIdentifier, META_LABEL, mMetadata.convertToString());
+		String metaString;
+		if (mMetadata.convertToString().contains("meta")) {
+			// The metadata was setted and not created from scratch
+			metaString = mMetadata.convertToString();
+		} else {
+			metaString = mMetadata.convertToMetadataString();
+		}
+		
+		addIdentifierLabel(mIdentifier, META_LABEL, metaString);
 		mIo.setIdentifier(mIdentifier);
 		return mIo;
 	}

@@ -113,17 +113,18 @@ public class MetadataParser {
      * Returns a map that represents the meta-data key value pairs
      * contained in the specified meta-data.
      *
-     * @param metadata	The JSON object corresponding to the meta-data.
-     * @return			The map with all meta-data values
+     * @param metadata			The JSON object corresponding to the meta-data.
+     * @return					The map with all meta-data values
+     * @throws JSONException	Thrown, if no meta-data could be extracted at all
      */
-    public static Map<String, Object> toMap(JSONObject metadata) {
+    public static Map<String, Object> toMap(JSONObject metadata) throws JSONException {
     	Map<String, Object> map = new LinkedHashMap<String, Object>();
-
-    	// TODO make beautiful please
+    	
     	try {
             metadata = (JSONObject) metadata.get("meta");
         } catch (JSONException e) {
-            e.printStackTrace();
+        	Log.e(TAG, "Meta-data couldn't be extracted.");
+        	throw new JSONException("Extracting the metadata with the meta tag failed.");
         }
 
     	//metada.keys does not have a defined type but it always will be a String
@@ -133,14 +134,13 @@ public class MetadataParser {
     	while (iterator.hasNext()) {
     		String key = iterator.next();
     		Object value;
-
+    		
 			try {
 				value = metadata.get(key);
-
+				
 	    		if (value instanceof JSONArray) {
 	    			List<String> list = extractList((JSONArray) value);
 	    			map.put(key, list);
-
 	    		} else {
 	    			map.put(key, value);
 	    		}
@@ -149,6 +149,10 @@ public class MetadataParser {
 				Log.e(TAG, "Extracting a value in a meta-data field failed");
 				e.printStackTrace();
 			}
+    	}
+    	
+    	if (map.size() == 0) {
+    		throw new JSONException("No meta-data could be extracted.");
     	}
 
     	return map;

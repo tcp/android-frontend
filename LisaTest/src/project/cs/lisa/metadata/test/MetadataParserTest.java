@@ -26,13 +26,14 @@ public class MetadataParserTest extends AndroidTestCase {
 		 */
 		public void testExtractMetaData() {
 			String jsonString = "{"
+					+ "\"meta\": {"
 					+ "         \"filename\": \"001.jpg\","
             		+ "         \"time\": ["
             		+ "             \"1352797492198\","
             		+ "             \"1352797502292\","
             		+ "             \"1352797530712\"],"
             		+ "         \"filetype\": \"image/jpeg\","
-            		+ "          \"filesize\": \"5245329\"}";
+            		+ "          \"filesize\": \"5245329\"}}";
 
 			String expectedFilename = "001.jpg";
 			String expectedFilesize = "5245329";
@@ -49,7 +50,12 @@ public class MetadataParserTest extends AndroidTestCase {
 			}
 			
 			// Extract the meta data and check its contents
-			Map<String, Object> map = MetadataParser.toMap(jsonObject);
+			Map<String, Object> map = null;
+			try {
+				map = MetadataParser.toMap(jsonObject);
+			} catch (JSONException e) {
+				Assert.fail("Should not have raised an exception.");
+			}
 
 			assertEquals(expectedFilename, map.get("filename"));
 			assertEquals(expectedFiletype, map.get("filetype"));

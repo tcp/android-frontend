@@ -107,7 +107,6 @@ public class IODatabaseTest extends AndroidTestCase {
 	 * is working.
 	 */
 	public void testAddGetIO() {
-
 		// Perform the database requests
 		InformationObject gotIo = null;
 		try {
@@ -195,14 +194,19 @@ public class IODatabaseTest extends AndroidTestCase {
     	Metadata metadata = result.getMetaData();
     	JSONObject jsonMetadata = null;
     	try {
-			jsonMetadata = new JSONObject(metadata.convertToString());
+			jsonMetadata = new JSONObject(metadata.convertToMetadataString());
 
 
 		} catch (JSONException e) {
 			Assert.fail("Should not have thrown an exception. Valid metadata String.");
 		}
     	// Compare if the returned object is the right object we wanted to search for
-    	Map<String, Object> map = MetadataParser.toMap(jsonMetadata);
+    	Map<String, Object> map = null;
+		try {
+			map = MetadataParser.toMap(jsonMetadata);
+		} catch (JSONException e) {
+			Assert.fail("Should not have raised an exception");
+		}
     	
 		String[] expectedUrl = {URL_1, URL_2};
 		List<String> expectedUrlList = Arrays.asList(expectedUrl);

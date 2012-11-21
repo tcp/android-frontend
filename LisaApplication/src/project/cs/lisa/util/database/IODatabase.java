@@ -338,6 +338,7 @@ public class IODatabase
 	 * @throws DatabaseException	Thrown, if a failure occured during extracting
 	 */
 	private Map<String, Object> extractMetaData(String metadata) throws DatabaseException {
+		Log.d(TAG, "Extracting metadata = " + metadata);
 		Map<String, Object> metadataMap = null;	
 		try {
 			metadataMap = MetadataParser.toMap(new JSONObject(metadata));
