@@ -13,6 +13,9 @@ import org.restlet.resource.ClientResource;
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.Locator;
 import project.cs.lisa.application.http.NetInfPublish;
+import project.cs.lisa.application.http.NetInfSearch;
+import project.cs.lisa.exceptions.NullHostException;
+import project.cs.lisa.exceptions.NullPortException;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.util.UProperties;
@@ -73,14 +76,41 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
          */
 
         // do NetInfSearch and override onPostExecute(String jsonResponse)
-
+        final URL sUrl = url; 
+        
         try {
-            if (true) { // should be false, the search fails
-                return downloadWebPage(url);
-            }
-        } catch (IOException e) {
+            NetInfSearch search = new NetInfSearch(
+                    UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+                    UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+                    url.toString(),
+                    "empty"
+                    ) {
+                @Override
+                public void onPostExecute(String jsonResponse) {
+                        if (jsonResponse != null || jsonResponse != "") {
+                            org.json.simple.JSONObject json = new org.json.simple.JSONObject();
+                            Log.d(TAG, json.toString());
+                            Log.d(TAG, "Response is >> " + jsonResponse);
+                        }
+                        else {
+                            Log.d(TAG, "Response is " + jsonResponse);
+                            try {
+                                downloadWebPage(sUrl);
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                }
+            };
+            
+            search.execute();
+        } catch (NullHostException e) {
+            e.printStackTrace();
+        } catch (NullPortException e) {
             e.printStackTrace();
         }
+        
         return null;
     }
 

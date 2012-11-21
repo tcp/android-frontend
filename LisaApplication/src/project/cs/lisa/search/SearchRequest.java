@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Scanner;
@@ -22,17 +24,21 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.restlet.resource.Get;
 
+import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.exceptions.InvalidResponseException;
 import project.cs.lisa.netinf.node.access.rest.resources.LisaServerResource;
+import project.cs.lisa.netinf.node.resolution.LocalResolutionService;
 import project.cs.lisa.util.UProperties;
 
 import android.util.Log;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.name.Named;
 
 public class SearchRequest extends LisaServerResource {
@@ -118,14 +124,15 @@ public class SearchRequest extends LisaServerResource {
 
         return post;
     }
-
+    
+    // TODO: Fix handleResponse return results
     /**
      * Handles the HTTP response from the server
      * @param response  HTTP Response from search request
      * @return          JSON Object
      * @throws InvalidResponseException
      */
-    private JSONObject handleResponse(HttpResponse response)
+    private String handleResponse(HttpResponse response)
             throws InvalidResponseException {
         Log.d(TAG, "handleResponse() [search]");
         
@@ -145,14 +152,15 @@ public class SearchRequest extends LisaServerResource {
                 // 200 returns a JSON
                 jsonString = readJson(response);
                 json = parseJson(jsonString);
-                return json;
-            
+                return json.toJSONString();
+
             // Status Code NOT FOUND: 404
             case HttpStatus.SC_NOT_FOUND:
                 // Returns null if nothing was found on the server
                 json = new JSONObject();
-                return json;
-            
+                json.put("status", "404");
+                return json.toJSONString();
+
             // Everything else
             default:
                 // Something unhandled
@@ -167,13 +175,43 @@ public class SearchRequest extends LisaServerResource {
      *          null        if search raised an exception.
      */
     @Get
-    public JSONObject search() {
+    public String search() {
         Log.d(TAG, "search()");
         
         // Search request requires three fields: tokens (keywords), message-id and ext.
         mTokens = getQuery().getFirstValue("tokens", true);
         mMsgId = getQuery().getFirstValue("msgId", true);
         mExt = getQuery().getFirstValue("ext", true);
+        
+        /* DATABASE SEARCH */
+        // Injector
+        Injector injector = MainApplication.getStaticInjector();
+        
+        // Get LRS instance
+        LocalResolutionService lrs = injector.getInstance(LocalResolutionService.class);
+        
+        // Populate list of urls
+        List<String> listUrls = new ArrayList<String>();
+        listUrls.add(mTokens);
+        
+        List<SearchResult> listResults = lrs.search(listUrls);
+        
+        if (!listResults.isEmpty()) {
+            JSONObject json = new JSONObject();
+            json.put("status", 200);
+            JSONArray results = new JSONArray();
+            for (SearchResult sr : listResults) {
+                JSONObject thisResult = new JSONObject();
+                thisResult.put("ni", "ni://sha-256;" + sr.getHash());
+                thisResult.put("ts", sr.getMetaData().get("ts"));
+                results.add(thisResult);
+            }
+            json.put("results", results);
+            Log.d(TAG, json.toString());
+            return json.toJSONString();
+        }
+
+        /* SERVER SEARCH */
         
         try {
             // Create NetInf SEARCH request
@@ -193,7 +231,7 @@ public class SearchRequest extends LisaServerResource {
 
             // Handle the response
             Log.d(TAG, "Handling HTTP POST Response");
-            JSONObject json = handleResponse(response);
+            String json = handleResponse(response);
             Log.d(TAG, "search() succeeded. Returning JSON Object");
             
             // Returns JSON Object
