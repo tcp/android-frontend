@@ -108,26 +108,6 @@ public class NetInfSearch extends NetInfRequest {
     protected String doInBackground(Void... voids) {
         Log.d(TAG, "doInBackground()");
         
-        /* Database Search */
-        
-        // Injector
-        Injector injector = MainApplication.getStaticInjector();
-        
-        // Get LRS instance
-        LocalResolutionService lrs = injector.getInstance(LocalResolutionService.class);
-        
-        // Populate list of urls
-        List<String> listUrls = new ArrayList<String>();
-        listUrls.add(mTokens);
-        
-        List<SearchResult> listResults = lrs.search(listUrls);
-        
-        if (!listResults.isEmpty()) {
-//            return listResults.get(0).getHash();
-        }
-
-        /* NRS Search */
-        
         HttpGet search;
         
         try {
