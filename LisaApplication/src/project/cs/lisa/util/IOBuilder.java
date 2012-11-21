@@ -93,8 +93,8 @@ public class IOBuilder {
 
 	/**
 	 * Creates a new Builder with the given meta data.
-	 * @param factory
-	 * @param jsonMetadata
+	 * @param factory		The datamodel factory
+	 * @param jsonMetadata	The metadata string encoded in json
 	 */
 	public IOBuilder(DatamodelFactory factory, String jsonMetadata) {
 	    this(factory);
@@ -169,7 +169,6 @@ public class IOBuilder {
 	 */
 	public IOBuilder addBluetoothLocator(String bluetoothMac) {
 	    addAttribute(
-	            mIo,
 	            DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString(),
 	            SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI(),
 	            bluetoothMac);
@@ -185,7 +184,6 @@ public class IOBuilder {
      */
     public IOBuilder addFilePathLocator(String bluetoothMac) {
         addAttribute(
-                mIo,
                 DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString(),
                 SailDefinedAttributeIdentification.FILE_PATH.getURI(),
                 bluetoothMac);
@@ -225,8 +223,14 @@ public class IOBuilder {
          identifier.addIdentifierLabel(hashLabel);
 	}
 
+	/**
+	 * Adds an an Attribute to the current information object.
+	 * 
+	 * @param attributePurpose			The purpose of the attribute
+	 * @param attributeIdentification	The identification 
+	 * @param attributeValue			The actual attribute
+	 */
 	private void addAttribute(
-	        InformationObject io,
 	        String attributePurpose,
 	        String attributeIdentification,
 	        String attributeValue) {
