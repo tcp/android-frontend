@@ -167,28 +167,6 @@ public class NetInfSearchTest extends InstrumentationTestCase {
 
     }
 
-    public void testSearchHostNotSet() throws Throwable {
-     // Signal used to wait for ASyncTask
-        final CountDownLatch signal = new CountDownLatch(1);
-
-        // Create activity
-//        MainNetInfActivity mActivity = MainNetInfActivity.getActivity();
-
-        // Create search
-        final NetInfSearch search = new NetInfSearch("",
-                Integer.toString(MockServer.PORT), mTokens, mExt) {
-            @Override
-            protected void onPostExecute(String jsonResponse) {
-                assertNull("Should NOT have received a response", jsonResponse);
-                // Signal done
-                signal.countDown();
-            }
-        };
-
-        // Wait a few seconds for the done signal, if timeout fail
-        assertTrue("Request took more than " + TIMEOUT_SECONDS + " seconds.",
-                signal.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
-    }
 
     public void testSearchHostUnknown() throws Throwable {
         // Signal used to wait for ASyncTask
