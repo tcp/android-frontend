@@ -7,6 +7,7 @@ import java.util.HashSet;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.restlet.representation.Representation;
@@ -15,6 +16,7 @@ import org.restlet.resource.ClientResource;
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.Locator;
 import project.cs.lisa.application.http.NetInfPublish;
+import project.cs.lisa.application.http.NetInfRetrieve;
 import project.cs.lisa.application.http.NetInfSearch;
 import project.cs.lisa.exceptions.NullHostException;
 import project.cs.lisa.exceptions.NullPortException;
@@ -33,7 +35,7 @@ import android.webkit.WebView;
  * @author Linus Sunde
  *
  */
-public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
+public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
 
     /** Debugging tag. */
     private static final String TAG = "DownloadWebPageTask";
@@ -41,6 +43,8 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
     /** The directory containing the published files. */
     private String mSharedFolder =
             Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+
+    private URL mUrl;
 
     /**
      * Retrieves a web page.
@@ -50,51 +54,48 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
      *      The retrieved web page as a file
      */
     @Override
-    protected File doInBackground(URL... urls) {
+    protected Void doInBackground(URL... urls) {
 
         if (urls.length != 1) {
             return null;
         }
 
-        URL url = urls[0];
-        Log.d(TAG, url.toString());
-
-        /*
-         * Netinf calls:
-         * 1. search for a URL (NetInfSearch), if fails go to A
-         * 2. Get back a list of hashes, Choose a hash, do a retrieve (if fails go to A)
-         * 3. publish
-         * 4. Show page, done
-         *
-         * A. Download webpage with 3g
-         * B. Hash the webpage, go to 3
-         */
-
-        // do NetInfSearch and override onPostExecute(String jsonResponse)
-        final URL sUrl = url; 
+        mUrl = urls[0];
+        Log.d(TAG, "mUrl is: "+ mUrl.toString());
 
         try {
             NetInfSearch search = new NetInfSearch(
                     UProperties.INSTANCE.getPropertyWithName("access.http.host"),
                     UProperties.INSTANCE.getPropertyWithName("access.http.port"),
-                    url.toString(),
+                    mUrl.toString(),
                     "empty"
                     ) {
                 @Override
                 public void onPostExecute(String jsonResponse) {
-                    Log.d(TAG, "jsonResponse: " + jsonResponse);    
-                    // if the search returns something...
-                    if (jsonResponse != null && jsonResponse != "") {
-                        Object obj = JSONValue.parse(jsonResponse);
-                        JSONObject jsonObject = (JSONObject) obj;
-                        Log.d(TAG, "jsonObject: " + jsonObject.toString());    
-                    } else { // if the search does NOT return anything
+
+                    Object obj = JSONValue.parse(jsonResponse);
+                    JSONObject searchResult = (JSONObject) obj;
+
+                    // get from uplink
+                    if (searchResult == null || !((String) searchResult.get("status")).equals("ok")) {
                         try {
-                            downloadWebPage(sUrl);
+                            Log.d(TAG, "Downloading from uplink " + mUrl.toString());
+                            File file = downloadWebPage(mUrl);
+                            displayWebpage(file);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                        return;
                     }
+
+                    Log.d(TAG, "jsonResponse: " + jsonResponse);
+                    Log.d(TAG, "jsonObject: " + searchResult.toString());
+
+                    // if the search returns something...
+                    // You have a hash, proceed
+                    // Extract hash from the json result
+                    String hash = selectHash(searchResult);
+                    retrieve(hash).execute();
                 }
             };
 
@@ -105,6 +106,58 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    private NetInfRetrieve retrieve(final String hash) {
+        return new NetInfRetrieve(
+                UProperties.INSTANCE.getPropertyWithName("access.http.host"),
+                UProperties.INSTANCE.getPropertyWithName("access.http.port"),
+                UProperties.INSTANCE.getPropertyWithName("hash.alg"),
+                hash) {
+
+            @Override
+            protected void onPostExecute(String jsonResponse) {
+                /*
+                 * If the get request couldn't download the file
+                 * it will notify the user and stop processing.
+                 */
+                Log.d(TAG, "jsonResponse: " + jsonResponse);
+                if (jsonResponse == null) {
+                    try {
+                        Log.d(TAG, "Downloading from uplink " + mUrl.toString());
+                        File file = downloadWebPage(mUrl);
+                        displayWebpage(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+
+                Object obj = JSONValue.parse(jsonResponse);
+                JSONObject searchResult = (JSONObject) obj;
+
+                File file = new File((String)searchResult.get("filepath"));
+                try {
+                    publishFile(file, mUrl, hash, (String)searchResult.get("contenttype"));
+                } catch (IOException e) {
+                    Log.e(TAG, "I could not publish the file");
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    private String selectHash(JSONObject searchResult) {
+        try {
+            JSONArray hashResult = (JSONArray) searchResult.get("results");
+            JSONObject firstOccurence = (JSONObject)hashResult.get(0);
+            String ni = (String)firstOccurence.get("ni");
+            return ni.split(";")[1];
+        } catch (Exception e) {
+            Log.e(TAG, "Something went wrong with hash parsing!");
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -129,6 +182,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
         FileUtils.writeByteArrayToFile(file, bytes);
 
         publishFile(file, url, hash, contentType);
+
         return file;
     }
 
@@ -211,8 +265,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
      * @param webPage
      *      The web page
      */
-    @Override
-    protected void onPostExecute(File webPage) {
+    private void displayWebpage(File webPage) {
         if (webPage == null) {
             Log.d(TAG, "webPage == null");
             MainNetInfActivity.showToast("Could not download webpage.");

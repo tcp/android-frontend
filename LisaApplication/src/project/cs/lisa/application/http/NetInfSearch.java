@@ -9,16 +9,14 @@ import java.util.Random;
 
 import org.apache.http.client.methods.HttpGet;
 
-import com.google.inject.Injector;
-
 import project.cs.lisa.application.MainApplication;
 import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
-import project.cs.lisa.exceptions.NullHostException;
-import project.cs.lisa.exceptions.NullPortException;
 import project.cs.lisa.netinf.node.resolution.LocalResolutionService;
 import project.cs.lisa.search.SearchResult;
 import android.util.Log;
+
+import com.google.inject.Injector;
 
 /**
  * Search functionality implementation on NetInfRequest level. From here,
@@ -30,22 +28,22 @@ public class NetInfSearch extends NetInfRequest {
     /** Debug tag. **/
     public static final String TAG = "NetInfSearch";
 
-    /** REST Host **/
+    /** REST Host. */
     private String mHost;
 
-    /** REST Port **/
+    /** REST Port. */
     private String mPort;
 
-    /** Keywords **/
+    /** Keywords. */
     private String mTokens;
 
-    /** Extensions **/
+    /** Extensions. */
     private String mExt;
 
-    /** Message ID **/
+    /** Message ID. */
     private String mMsgId;
 
-    /** Activity **/
+    /** Activity. */
     private MainNetInfActivity mActivity;
 
     /**
@@ -54,19 +52,16 @@ public class NetInfSearch extends NetInfRequest {
      * @param port         Target port
      * @param tokens       Keywords to be searched
      * @param ext          Extensions
-     * @throws NullHostException
-     * @throws NullPortException
      */
-    public NetInfSearch(String host, String port, String tokens, String ext)
-            throws NullHostException, NullPortException {
+    public NetInfSearch(String host, String port, String tokens, String ext) {
         super(MainNetInfActivity.getActivity(), host, port);
 
         if (host == "" || host == null) {
-            throw new NullHostException();
+            throw new IllegalArgumentException("Host name may not be null.");
         }
 
         if (port == "" || port == null) {
-            throw new NullPortException();
+            throw new IllegalArgumentException("Port may not be null.");
         }
 
         // Initialize variables
