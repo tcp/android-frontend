@@ -52,7 +52,7 @@ public class SearchRequest extends LisaServerResource {
     private String mPort;
     
     /** HTTP connection timeout. **/
-    private static final int TIMEOUT = 5000;
+    private static final int TIMEOUT = 20000;
     
     /** HTTP Client **/
     private HttpClient mClient;
@@ -158,7 +158,7 @@ public class SearchRequest extends LisaServerResource {
             case HttpStatus.SC_NOT_FOUND:
                 // Returns null if nothing was found on the server
                 json = new JSONObject();
-                json.put("status", "404");
+                json.put("status", 404);
                 return json.toJSONString();
 
             // Everything else
@@ -237,11 +237,14 @@ public class SearchRequest extends LisaServerResource {
             // Returns JSON Object
             return json;
         } catch (InvalidResponseException e) {
-            Log.e(TAG, e.getMessage());
+            Log.d(TAG, "InvalidResponseException");
+            e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, e.getMessage());
+            Log.d(TAG, "UnsupportedEncodingException");
+            e.printStackTrace();
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            Log.d(TAG, "IOException");
+            e.printStackTrace();
         }
         
         Log.e(TAG, "search() failed. Returning null");

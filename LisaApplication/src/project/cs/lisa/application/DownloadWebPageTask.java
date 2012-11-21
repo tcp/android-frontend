@@ -18,8 +18,6 @@ import project.cs.lisa.application.http.Locator;
 import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.application.http.NetInfRetrieve;
 import project.cs.lisa.application.http.NetInfSearch;
-import project.cs.lisa.exceptions.NullHostException;
-import project.cs.lisa.exceptions.NullPortException;
 import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.util.UProperties;
@@ -51,6 +49,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
 		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
     }
 
+    /** The current url for the current web page. */
     private URL mUrl;
 
     /**
@@ -80,18 +79,17 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                 @Override
                 public void onPostExecute(String jsonResponse) {
 
+                    if (jsonResponse == null) {
+                        downloadAndDisplayWebPage();
+                        return;
+                    }
+                    
                     Object obj = JSONValue.parse(jsonResponse);
                     JSONObject searchResult = (JSONObject) obj;
 
                     // get from uplink
-                    if (searchResult == null || !((String) searchResult.get("status")).equals("ok")) {
-                        try {
-                            Log.d(TAG, "Downloading from uplink " + mUrl.toString());
-                            File file = downloadWebPage(mUrl);
-                            displayWebpage(file);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    if (searchResult == null || ((Integer) searchResult.get("status")) == 404) {
+                        downloadAndDisplayWebPage();
                         return;
                     }
 
@@ -104,18 +102,28 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                     String hash = selectHash(searchResult);
                     retrieve(hash).execute();
                 }
+
             };
 
             search.execute();
-        } catch (NullHostException e) {
-            e.printStackTrace();
-        } catch (NullPortException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
+    private void downloadAndDisplayWebPage() {
+        try {
+            Log.d(TAG, "Downloading from uplink " + mUrl.toString());
+            File file = downloadWebPage(mUrl);
+            displayWebpage(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return;
+    }
+    
     private NetInfRetrieve retrieve(final String hash) {
         return new NetInfRetrieve(
                 UProperties.INSTANCE.getPropertyWithName("access.http.host"),
@@ -239,7 +247,6 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                 @Override
                 protected void onPostExecute(String jsonResponse) {
                     super.onPostExecute(jsonResponse);
-                    // TODO If published failed, try to throw IOException!
                 }
 
             };
@@ -261,7 +268,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
         String result = null;
 
         hash = new Hash(bytes);
-        Log.d(TAG, "The generated hash is: " + hash);
+        Log.d(TAG, "The generated hash is: " + hash.encodeResult());
         result = hash.encodeResult(); // Use 0 for using the whole hash
 
         return result;
