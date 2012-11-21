@@ -40,7 +40,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
     public DownloadWebPageTask() {
     	super();
     	
-		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("shared.folder");
+		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
 		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
     }
 

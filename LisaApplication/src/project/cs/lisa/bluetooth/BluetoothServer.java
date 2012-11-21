@@ -104,7 +104,7 @@ public class BluetoothServer extends Thread {
 	 * 						Server couldn't be initialized.
 	 */
 	public BluetoothServer() throws IOException {
-		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("shared.folder");
+		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
 		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
 		createSharedFolder();
 

@@ -114,7 +114,7 @@ public class BOResource extends LisaServerResource {
         mHashValue = getQuery().getFirstValue("hash", true);
         mHashAlgorithm = getQuery().getFirstValue("hashAlg", true);
 
-		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("shared.folder");
+		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
 		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
         createSharedFolder();
     }
