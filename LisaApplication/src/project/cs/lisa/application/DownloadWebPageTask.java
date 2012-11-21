@@ -34,8 +34,15 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, File> {
     private static final String TAG = "DownloadWebPageTask";
 
     /** The directory containing the published files. */
-    private String mSharedFolder =
-            Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+    private String mSharedFolder;
+    
+    /** Creates a new task downloading a web page. */
+    public DownloadWebPageTask() {
+    	super();
+    	
+		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("shared.folder");
+		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
+    }
 
     /**
      * Retrieves a web page.
