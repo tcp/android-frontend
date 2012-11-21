@@ -68,6 +68,7 @@ import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedAttributeIdentification;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.transferdispatcher.TransferDispatcher;
+import project.cs.lisa.util.UProperties;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.util.Log;
@@ -101,8 +102,7 @@ public class BOResource extends LisaServerResource {
     private String mHashAlgorithm;
 
     /** The directory containing the published files. */
-    private String mSharedFolder =
-            Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
+    private String mSharedFolder;
 
     /**
      * Initializes the context of a BOResource.
@@ -114,6 +114,8 @@ public class BOResource extends LisaServerResource {
         mHashValue = getQuery().getFirstValue("hash", true);
         mHashAlgorithm = getQuery().getFirstValue("hashAlg", true);
 
+		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
+		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
         createSharedFolder();
     }
 

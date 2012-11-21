@@ -37,6 +37,7 @@ import java.util.UUID;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.MainNetInfActivity;
+import project.cs.lisa.util.UProperties;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
@@ -94,9 +95,7 @@ public class BluetoothServer extends Thread {
 	private DataOutputStream mOutStream;
 
 	/** The directory containing the published files. */
-	private String mSharedFolder =
-			Environment.getExternalStorageDirectory() + "/DCIM/Shared/";
-
+	private String mSharedFolder;
 	/**
 	 * Creates a new BluetoothServer that waits for incoming
 	 * bluetooth requests and handles file requests.
@@ -105,6 +104,8 @@ public class BluetoothServer extends Thread {
 	 * 						Server couldn't be initialized.
 	 */
 	public BluetoothServer() throws IOException {
+		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
+		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
 		createSharedFolder();
 
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -187,7 +188,7 @@ public class BluetoothServer extends Thread {
 	/**
 	 * Creates the folder that contains the files to be shared with other phones.
 	 */
-	private void createSharedFolder() {
+	private void createSharedFolder() {	
 		File folder = new File(mSharedFolder);
 
 		if (!folder.exists()) {
