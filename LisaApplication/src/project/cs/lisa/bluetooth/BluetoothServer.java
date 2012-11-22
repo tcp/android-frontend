@@ -35,16 +35,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.UUID;
 
-import project.cs.lisa.R;
-import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.util.UProperties;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 /**
  * The BluetoothServer listens for incoming Bluetooth pairing
@@ -66,12 +62,6 @@ public class BluetoothServer extends Thread {
 	 * {@link project.cs.lisa.bluetooth.provider#MY_UUID} */
 	private static final UUID MY_UUID =
 			UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
-
-	/** User feedback: Flag indicating that application is transferring data. */
-	private static final int SENDING = 0;
-
-	/** User feedback: Flag indicating that application is done with the transfer. */
-	private static final int DONE = 1;
 
 	/** The buffer for reading in the hash out of a file request message. */
 	private static final int BUFFER_SIZE = 1024;
@@ -270,46 +260,15 @@ public class BluetoothServer extends Thread {
 		Log.d(TAG, "Sending file of size: " + buffer.length);
 
 		try {
-			// Send data and inform UI about sending process.
-			onBufferSend(SENDING);
 			mOutStream.writeInt(buffer.length);
 			mOutStream.write(buffer, 0, buffer.length);
 			mOutStream.flush();
 
 			Log.d(TAG, "Done writing file to remote device.");
-			onBufferSend(DONE); // updates UI to hide the sending file box
 
 		} catch (IOException e) {
 			Log.e(TAG, "Exception occured during writing", e);
 		}
-	}
-
-	/**
-	 * Function that updates view to display that phone is sending file.
-	 *
-	 * @param done 0 for Sending
-	 *             1 for Sent
-	 */
-	public void onBufferSend(final int done) {
-	    final MainNetInfActivity activity = MainNetInfActivity.getActivity();
-
-		activity.runOnUiThread(new Runnable() {
-			public void run() {
-				// Set Views
-				TextView tv = (TextView) activity.findViewById(R.id.ProgressBarText);
-				ProgressBar pb = (ProgressBar) activity.findViewById(R.id.progressBar1);
-
-				// If done sending file, make it invisible
-				if (done == 0) {
-					tv.setText("Sending file");
-					tv.setVisibility(TextView.VISIBLE);
-					pb.setVisibility(ProgressBar.VISIBLE);
-				} else {
-					tv.setVisibility(TextView.INVISIBLE);
-					pb.setVisibility(ProgressBar.INVISIBLE);
-				}
-			}
-		});
 	}
 
 	/**

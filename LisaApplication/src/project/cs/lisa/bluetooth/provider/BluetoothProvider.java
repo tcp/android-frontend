@@ -32,14 +32,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-import project.cs.lisa.R;
-import project.cs.lisa.application.MainNetInfActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 /**
  * The BluetoothProvider handles data transmission via Bluetooth.
@@ -59,9 +55,6 @@ public class BluetoothProvider implements ByteArrayProvider {
 
     /** All bluetooth locators have the following indicator in their address. */
     private static final String BLUETOOTH_LOCATOR_INDICATOR = "nimacbt";
-
-    /** Represents the full loaded progress bar. */
-    private static final int FULL_PROGRESS = 100;
 
     /** Represents the number of attempts to connect to a remote device. */
     private static final int NUMBER_OF_ATTEMPTS = 2;
@@ -197,37 +190,14 @@ public class BluetoothProvider implements ByteArrayProvider {
 
         while (offset < fileSize) {
             offset += inStream.read(buffer, offset, (fileSize - offset));
-//            onBufferRead(offset, fileSize);
         }
 
         inStream.close();
 
         return buffer;
     }
-
-    /**
-     * Function that updates the view with the bytes that have been received.
-     * @param offset how many bytes have been received
-     * @param fileSize total file size
-     */
-    public void onBufferRead(final int offset, final int fileSize) {
-
-        // Get the activity from the main activity
-        final MainNetInfActivity activity = MainNetInfActivity.getActivity();
-
-        // Runnable that changes the view
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                TextView tv = (TextView) activity.findViewById(R.id.ProgressBarText);
-                tv.setText("Downloading " + offset + " of " + fileSize + "");
-                ProgressBar pb = (ProgressBar) activity.findViewById(R.id.progressbar_Horizontal);
-                pb.setVisibility(ProgressBar.VISIBLE);
-                pb.setProgress(FULL_PROGRESS * offset / fileSize);
-            }
-        });
-    }
-
-    /**
+    
+     /**
      * Checks if this provider can handle the locator from where to retrieve a BO.
      *
      * @param   locator     The locator from where to retrieve the BO
