@@ -83,6 +83,7 @@ public class LocalResolutionService
 
 	@Override
 	public void delete(Identifier identifier) {
+		Log.d(TAG, "Deleting IO from database.");
 		String hash = identifier.getIdentifierLabel(
 				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 		mDatabase.deleteIO(hash);
@@ -95,6 +96,7 @@ public class LocalResolutionService
 
 	@Override
 	public InformationObject get(Identifier identifier) {
+		Log.d(TAG, "Get an IO from the database.");
 		String hash = identifier.getIdentifierLabel(
 				SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
 
