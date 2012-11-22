@@ -192,18 +192,11 @@ public class BOResource extends LisaServerResource {
      * @return			Returns a String representation of the meta data.
      */
     private String saveBO(InformationObject io, byte[] fileData) {
-        
-        Log.i(TAG, "saveBO was called");
-        
+
         // Store the content type of the requested BO
         String contentType = io.getIdentifier().getIdentifierLabel(
                 SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                 .getLabelValue();
-
-        Log.i(TAG, "1");
-
-      
-        Log.i(TAG, "2");
 
         // Set saving filename to the same filename as in metadata
         String hash = io.getIdentifier().getIdentifierLabel(SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
@@ -212,8 +205,6 @@ public class BOResource extends LisaServerResource {
                 + hash;
         Log.d(TAG, "Filepath is: " + filePath);
 
-        Log.i(TAG, "4");
-
         // Write it to file
         try {
             FileUtils.writeByteArrayToFile(new File(filePath), fileData);
@@ -221,8 +212,6 @@ public class BOResource extends LisaServerResource {
             e.printStackTrace();
         }
         makeFileVisibleToPhone(filePath, contentType);
-
-        Log.i(TAG, "5");
 
         // Make a new metadata to pass along the content_type and filepath
         Metadata metadata = new Metadata();
