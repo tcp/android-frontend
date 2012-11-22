@@ -133,6 +133,12 @@ public class FetchWebPageTask extends AsyncTask<URL, Void, Void> {
             @Override
             protected void onPostExecute(WebObject webObject) {
 
+                if (webObject == null) {
+                    MainNetInfActivity.getActivity().
+                        showToast("You are probably not connected to the Internet!");
+                    return;
+                }
+                
                 File file = webObject.getFile();
                 String hash = webObject.getHash();
                 String contentType = webObject.getContentType();
