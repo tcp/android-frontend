@@ -498,11 +498,11 @@ implements ResolutionService {
             return io;
 
         } catch (InvalidResponseException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "get() failed, InvalidResponseException, returning null");
         } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "get() failed, UnsupportedEncodingException, returning null");
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "get() failed, IOException, returning null");
         }
         Log.e(TAG, "get() failed. Returning null");
         return null;

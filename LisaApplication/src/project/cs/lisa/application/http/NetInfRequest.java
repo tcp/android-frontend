@@ -14,6 +14,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 
 import project.cs.lisa.application.MainNetInfActivity;
 import project.cs.lisa.exceptions.NullEntityException;
@@ -142,6 +144,13 @@ public abstract class NetInfRequest extends AsyncTask<Void, Void, String> {
         Log.d(TAG, "jsonResponse = " + jsonResponse);
 
         // TODO validate that actual JSON is returned.
+        try {
+            Object obj = JSONValue.parseWithException(jsonResponse);
+        } catch (ParseException e) {
+            Log.e(TAG, e.toString());
+            return null;
+        }
+
         return jsonResponse;
     }
 
