@@ -230,7 +230,7 @@ public class BOResource extends LisaServerResource {
      * @return The IO that contains the locator list.
      */
     private InformationObject retrieveDO() {
-        Log.d(TAG, "Retrieve the IO containing the locators from a remote node.");
+        Log.d(TAG, "Retrieve the IO from a resolution service (Remote or local).");
 
         Identifier identifier = createIdentifier(mHashAlgorithm, mHashValue);
         InformationObject io = null;

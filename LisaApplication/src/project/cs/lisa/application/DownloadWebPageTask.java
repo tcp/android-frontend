@@ -90,6 +90,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                 public void onPostExecute(String jsonResponse) {
 
                     if (jsonResponse == null) {
+                        Log.d(TAG, "Line 93: downloadAndDisplayWebPage()");
                         downloadAndDisplayWebPage();
                         return;
                     }
@@ -99,6 +100,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
 
                     // get from uplink
                     if (searchResult == null || ((Long) searchResult.get("status")) == 404) {
+                        Log.d(TAG, "Line 103: downloadAndDisplayWebPage()");
                         downloadAndDisplayWebPage();
                         return;
                     }
@@ -123,17 +125,26 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
         return null;
     }
 
+    /**
+     * asd.
+     */
     private void downloadAndDisplayWebPage() {
         try {
             Log.d(TAG, "Downloading from uplink " + mUrl.toString());
             File file = downloadWebPage(mUrl);
             displayWebpage(file);
         } catch (IOException e) {
+            Log.e(TAG, "Error on downloadAndDisplayWebPage()");
             e.printStackTrace();
         }
         return;
     }
     
+    /**
+     * asd.
+     * @param hash as.
+     * @return as.
+     */
     private NetInfRetrieve retrieve(final String hash) {
         return new NetInfRetrieve(
                 UProperties.INSTANCE.getPropertyWithName("access.http.host"),
@@ -149,13 +160,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                  */
                 Log.d(TAG, "jsonResponse: " + jsonResponse);
                 if (jsonResponse == null) {
-                    try {
-                        Log.d(TAG, "Downloading from uplink " + mUrl.toString());
-                        File file = downloadWebPage(mUrl);
-                        displayWebpage(file);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    downloadAndDisplayWebPage();
                     return;
                 }
 
@@ -168,6 +173,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                 
                 Log.d(TAG, "Filepath = " + filePath + "Content Type = " + contentType);
                 File file = new File(filePath);
+                displayWebpage(file);
                 try {
                     publishFile(file, mUrl, hash, contentType);
                 } catch (IOException e) {
@@ -178,6 +184,11 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
         };
     }
 
+    /**
+     * asd.
+     * @param searchResult asd.
+     * @return something.
+     */
     private String selectHash(JSONObject searchResult) {
         try {
             JSONArray hashResult = (JSONArray) searchResult.get("results");
@@ -202,16 +213,25 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
      */
     private File downloadWebPage(URL url) throws IOException {
 
+        Log.d(TAG, "Try to downloadWebPage()");
         Representation representation = new ClientResource(url.toString()).get();
+        Log.d(TAG, "After Representation");
         String contentType = representation.getMediaType().toString();
+        Log.d(TAG, "After contentType");
 
         // Create file and hash
         byte[] bytes = IOUtils.toByteArray(representation.getStream());
+        Log.d(TAG, "After contentIOUtils.toByteArray");
+
         String hash = hashContent(bytes);
         File file = new File(mSharedFolder + hash);
         FileUtils.writeByteArrayToFile(file, bytes);
 
+        Log.d(TAG, "downloadWebPage() before publishFile");
+
         publishFile(file, url, hash, contentType);
+
+        Log.d(TAG, "downloadWebPage() after publishFile");
 
         return file;
     }
@@ -257,14 +277,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                     UProperties.INSTANCE.getPropertyWithName("access.http.port"),
                     UProperties.INSTANCE.getPropertyWithName("hash.alg"),
                     hash,
-                    locators) {
-
-                @Override
-                protected void onPostExecute(String jsonResponse) {
-                    super.onPostExecute(jsonResponse);
-                }
-
-            };
+                    locators);
             publishRequest.setContentType(contentType);
             publishRequest.setMetadata(metadata);
             publishRequest.execute();
