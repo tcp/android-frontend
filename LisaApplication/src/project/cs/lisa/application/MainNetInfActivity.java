@@ -43,6 +43,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
+import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -51,6 +52,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
@@ -211,7 +213,7 @@ public class MainNetInfActivity extends Activity {
 
         } else {
             // start downloading the web page
-            DownloadWebPageTask task = new DownloadWebPageTask();
+            FetchWebPageTask task = new FetchWebPageTask();
             task.execute(url);
         }
     }
@@ -233,6 +235,18 @@ public class MainNetInfActivity extends Activity {
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.menu_publish_file:
+            item.setChecked(item.isChecked() ? false : true);
+            break;
+        default:
+            break;
+        }
+        return true;
+    }
+    
     /**
      * Receives messages from the StarterNodeThread when the node is starter.
      * Right now it does not do anything. Just log

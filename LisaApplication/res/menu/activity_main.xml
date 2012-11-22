@@ -5,12 +5,17 @@
         android:checkable="true"
         android:orderInCategory="1" />
             
+    <item android:id="@+id/menu_publish_file"
+        android:title="@string/menu_publish_file"
+        android:checkable="true"
+        android:orderInCategory="2" />
+            
     <item android:id="@+id/menu_server_settings"
         android:title="@string/menu_server_settings"
-        android:orderInCategory="2" />
+        android:orderInCategory="3" />
     
     <item android:id="@+id/menu_help"
         android:title="@string/menu_help"
-        android:orderInCategory="3" />
+        android:orderInCategory="4" />
     
 </menu>

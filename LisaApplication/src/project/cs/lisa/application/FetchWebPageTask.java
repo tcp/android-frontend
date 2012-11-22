@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
+import org.restlet.resource.Finder;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.Locator;
@@ -26,6 +27,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.view.MenuItem;
 import android.webkit.WebView;
 
 /**
@@ -34,29 +36,29 @@ import android.webkit.WebView;
  * @author Linus Sunde
  *
  */
-public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
+public class FetchWebPageTask extends AsyncTask<URL, Void, Void> {
 
     /** Debugging tag. */
-    private static final String TAG = "DownloadWebPageTask";
+    private static final String TAG = "FetchWebPageTask";
 
     /** The directory containing the published files. */
     private String mSharedFolder;
-    
+
     /** The label for metadata filepath.*/
     private String mFilepath;
-    
+
     /** The label name for content type.*/
     private String mContentType;
-    
+
     /** Creates a new task downloading a web page. */
-    public DownloadWebPageTask() {
-    	super();
-    	
-    	mFilepath = UProperties.INSTANCE.getPropertyWithName("metadata.filepath");
-    	mContentType = SailDefinedLabelName.CONTENT_TYPE.getLabelName();
-    	
-		String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
-		mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
+    public FetchWebPageTask() {
+        super();
+
+        mFilepath = UProperties.INSTANCE.getPropertyWithName("metadata.filepath");
+        mContentType = SailDefinedLabelName.CONTENT_TYPE.getLabelName();
+
+        String relativeFolderPath = UProperties.INSTANCE.getPropertyWithName("sharing.folder");
+        mSharedFolder = Environment.getExternalStorageDirectory() + relativeFolderPath;
     }
 
     /** The current url for the current web page. */
@@ -94,7 +96,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                         downloadAndDisplayWebPage();
                         return;
                     }
-                    
+
                     Object obj = JSONValue.parse(jsonResponse);
                     JSONObject searchResult = (JSONObject) obj;
 
@@ -129,17 +131,28 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
      * asd.
      */
     private void downloadAndDisplayWebPage() {
-        try {
-            Log.d(TAG, "Downloading from uplink " + mUrl.toString());
-            File file = downloadWebPage(mUrl);
-            displayWebpage(file);
-        } catch (IOException e) {
-            Log.e(TAG, "Error on downloadAndDisplayWebPage()");
-            e.printStackTrace();
-        }
-        return;
+        Log.d(TAG, "Downloading from uplink " + mUrl.toString());
+
+        DownloadWebObject download = new DownloadWebObject() {
+            @Override
+            protected void onPostExecute(WebObject webObject) {
+
+                File file = webObject.getFile();
+                String hash = webObject.getHash();
+                String contentType = webObject.getContentType();
+
+                displayWebpage(file);
+                try {
+                    publishFile(file, mUrl, hash, contentType);
+                } catch (IOException e) {
+                    Log.e(TAG, "Could not publish file.");
+                    e.printStackTrace();
+                }
+            }
+        };
+        download.execute(mUrl);
     }
-    
+
     /**
      * asd.
      * @param hash as.
@@ -170,7 +183,7 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
 
                 String filePath = (String)searchResult.get(mFilepath);
                 String contentType = (String)searchResult.get(mContentType);
-                
+
                 Log.d(TAG, "Filepath = " + filePath + "Content Type = " + contentType);
                 File file = new File(filePath);
                 displayWebpage(file);
@@ -200,40 +213,6 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
             e.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     * Downloads a web page and saves it to file.
-     * @param url
-     *      The URL of the web page to download
-     * @return
-     *      A file containing the downloaded web page
-     * @throws IOException
-     *      In case the web page could not be downloaded and saved
-     */
-    private File downloadWebPage(URL url) throws IOException {
-
-        Log.d(TAG, "Try to downloadWebPage()");
-        Representation representation = new ClientResource(url.toString()).get();
-        Log.d(TAG, "After Representation");
-        String contentType = representation.getMediaType().toString();
-        Log.d(TAG, "After contentType");
-
-        // Create file and hash
-        byte[] bytes = IOUtils.toByteArray(representation.getStream());
-        Log.d(TAG, "After contentIOUtils.toByteArray");
-
-        String hash = hashContent(bytes);
-        File file = new File(mSharedFolder + hash);
-        FileUtils.writeByteArrayToFile(file, bytes);
-
-        Log.d(TAG, "downloadWebPage() before publishFile");
-
-        publishFile(file, url, hash, contentType);
-
-        Log.d(TAG, "downloadWebPage() after publishFile");
-
-        return file;
     }
 
     /**
@@ -280,26 +259,16 @@ public class DownloadWebPageTask extends AsyncTask<URL, Void, Void> {
                     locators);
             publishRequest.setContentType(contentType);
             publishRequest.setMetadata(metadata);
+
+//             fix this
+//            MenuItem fullPut = (MenuItem) MainNetInfActivity.getActivity().                    
+//                    findViewById(R.id.menu_publish_file);
+//            if (fullPut.isChecked()) {
+//                publishRequest.setFile(file);
+//            }
+            
             publishRequest.execute();
         }
-    }
-
-    /**
-     * Hashes data.
-     * @param bytes
-     *      The data
-     * @return
-     *      The hash
-     */
-    private String hashContent(byte[] bytes) {
-        Hash hash = null;
-        String result = null;
-
-        hash = new Hash(bytes);
-        Log.d(TAG, "The generated hash is: " + hash.encodeResult());
-        result = hash.encodeResult(); // Use 0 for using the whole hash
-
-        return result;
     }
 
     /**

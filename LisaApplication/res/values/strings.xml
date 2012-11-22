@@ -31,6 +31,7 @@
     <string name="yes">YES</string>
     <string name="no">NO</string>
     <string name="menu_share">Share</string>
+    <string name="menu_publish_file">Full put</string>
     <string name="menu_server_settings">Server Settings</string>
     <string name="menu_help">Help</string>
     <string name="dialog_wifi_msg">This application requires WiFi connection. Please select a network:</string>
