@@ -192,19 +192,27 @@ public class BOResource extends LisaServerResource {
      * @return			Returns a String representation of the meta data.
      */
     private String saveBO(InformationObject io, byte[] fileData) {
+        
+        Log.i(TAG, "saveBO was called");
+        
         // Store the content type of the requested BO
         String contentType = io.getIdentifier().getIdentifierLabel(
                 SailDefinedLabelName.CONTENT_TYPE.getLabelName())
                 .getLabelValue();
 
-        // Fetch metadata from IO
-        String metaData =
-                io.getIdentifier().getIdentifierLabel("metadata").getLabelValue();
-        Metadata metaLabel = new Metadata(metaData);
+        Log.i(TAG, "1");
+
+      
+        Log.i(TAG, "2");
 
         // Set saving filename to the same filename as in metadata
-        String filePath = mSharedFolder + metaLabel.get("filename");
+        String hash = io.getIdentifier().getIdentifierLabel(SailDefinedLabelName.HASH_CONTENT.getLabelName()).getLabelValue();
+        String filePath = Environment.getExternalStorageDirectory() 
+                + UProperties.INSTANCE.getPropertyWithName("sharing.folder")
+                + hash;
         Log.d(TAG, "Filepath is: " + filePath);
+
+        Log.i(TAG, "4");
 
         // Write it to file
         try {
@@ -213,6 +221,8 @@ public class BOResource extends LisaServerResource {
             e.printStackTrace();
         }
         makeFileVisibleToPhone(filePath, contentType);
+
+        Log.i(TAG, "5");
 
         // Make a new metadata to pass along the content_type and filepath
         Metadata metadata = new Metadata();

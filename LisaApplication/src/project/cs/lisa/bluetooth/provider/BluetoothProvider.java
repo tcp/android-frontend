@@ -197,7 +197,7 @@ public class BluetoothProvider implements ByteArrayProvider {
 
         while (offset < fileSize) {
             offset += inStream.read(buffer, offset, (fileSize - offset));
-            onBufferRead(offset, fileSize);
+//            onBufferRead(offset, fileSize);
         }
 
         inStream.close();
