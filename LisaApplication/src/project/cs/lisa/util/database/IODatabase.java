@@ -291,8 +291,10 @@ public class IODatabase
 	 * @throws DatabaseException 	Thrown when the query does not return any value
 	 */
 	public InformationObject getIO(String hash) throws DatabaseException {
-		
+		Log.d(TAG, "Searching for information object.");
 		Cursor cursor = query(TABLE_IO, KEY_HASH, hash);
+		
+		Log.d(TAG, "Found information object.");
 		
 		IOBuilder builder = new IOBuilder(mDatamodelFactory);
 		builder.setHash(cursor.getString(0))
