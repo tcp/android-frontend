@@ -100,9 +100,6 @@ public class IODatabase
 	/** The file size of the file associated with the IO. */
 	private static final String KEY_FILE_SIZE = "file_size";
 	
-	/** The JSON String representing the meta-data as a whole. */
-	private static final String KEY_METADATA = "meta_data";
-	
 	/** Meta-data label for the filepath. */
 	private final String mFilepathLabel;
 	
@@ -193,7 +190,7 @@ public class IODatabase
 	 */
 	@SuppressWarnings("unchecked")
 	public void addIO(InformationObject io) throws DatabaseException  {
-		Log.d(TAG, "Adding a new information object into the database.");		
+		Log.d(TAG, "Received an add information object call.");		
 		// Extract the field values for inserting them into the database tables
 		Identifier identifier = io.getIdentifier();
 		String hash = identifier.getIdentifierLabel(
@@ -211,15 +208,8 @@ public class IODatabase
 		String filePath = (String) metadataMap.get(mFilepathLabel);
 		String fileSize = (String) metadataMap.get(mFilesizeLabel);
 		
-		Log.d(TAG, "IO properties: hash= " + hash 
-				+ ", hash alg = " + hashAlgorithm
-				+ ", content type = " + contentType
-				+ ", filePath = " + filePath
-				+ ", fileSize = " + fileSize);
-		
 		//Create list of URLs
 		Object urlJsonObject = metadataMap.get(mUrlLabel);
-		Log.d(TAG, "Url object = " + urlJsonObject.toString());
 		
 		//Populate urlList with one or several URLs
 		List<String> urlList;
@@ -232,19 +222,23 @@ public class IODatabase
 		}
 			
 		if (!containsIO(hash)) {
+			Log.d(TAG, "New information object will be inserted into database.");
 			//Insert the IO
 			ContentValues ioEntry = 
 					createIOEntry(hash, hashAlgorithm, contentType, filePath, fileSize);
 			
 			insert(TABLE_IO, ioEntry);
 		} else {
+			Log.d(TAG, "Information object already exists in database.");
 			//Check if the URLs that we want to insert already exist
 			List<String> storedUrls = getURLs(hash);
 			urlList.removeAll(storedUrls);	
 		}
 				
+		Log.d(TAG, "Inserting the following URLs:");
 		//Insert the URLs
 		for (String url : urlList) {
+			Log.d(TAG, url);
 			ContentValues urlEntry = createUrlEntry(hash, url);
 			insert(TABLE_URL, urlEntry);
 		}	
