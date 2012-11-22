@@ -6,20 +6,15 @@ import java.net.URL;
 import java.util.HashSet;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.Finder;
 
 import project.cs.lisa.R;
 import project.cs.lisa.application.http.Locator;
 import project.cs.lisa.application.http.NetInfPublish;
 import project.cs.lisa.application.http.NetInfRetrieve;
 import project.cs.lisa.application.http.NetInfSearch;
-import project.cs.lisa.hash.Hash;
 import project.cs.lisa.metadata.Metadata;
 import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
 import project.cs.lisa.util.UProperties;
@@ -27,6 +22,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 
@@ -260,12 +256,11 @@ public class FetchWebPageTask extends AsyncTask<URL, Void, Void> {
             publishRequest.setContentType(contentType);
             publishRequest.setMetadata(metadata);
 
-//             fix this
-//            MenuItem fullPut = (MenuItem) MainNetInfActivity.getActivity().                    
-//                    findViewById(R.id.menu_publish_file);
-//            if (fullPut.isChecked()) {
-//                publishRequest.setFile(file);
-//            }
+            Menu menu = (Menu) MainNetInfActivity.getActivity().getMenu();
+            MenuItem fullPut = menu.findItem(R.id.menu_publish_file);
+            if (fullPut.isChecked()) {
+                publishRequest.setFile(file);
+            }
             
             publishRequest.execute();
         }

@@ -341,13 +341,13 @@ implements ResolutionService {
 
             String loc = (String) locator;
             Log.d(TAG, "loc = " + loc);
-            String locWithoutScheme = loc.split("://")[1];
-            Log.d(TAG, "locWithoutScheme = " + locWithoutScheme);
+//            String locWithoutScheme = loc.split("://")[1];
+//            Log.d(TAG, "locWithoutScheme = " + locWithoutScheme);
 
             Attribute newLocator = mDatamodelFactory.createAttribute();
             newLocator.setAttributePurpose(DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString());
             newLocator.setIdentification(SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI());
-            newLocator.setValue(locWithoutScheme);
+            newLocator.setValue(locator);
 
             io.addAttribute(newLocator);
         }
@@ -568,7 +568,7 @@ implements ResolutionService {
         entity.addPart("msgid", msgid);
 
         if (bluetoothMac != null) {
-            StringBody l = new StringBody("nimacbt://" + bluetoothMac);
+            StringBody l = new StringBody(bluetoothMac);
             entity.addPart("loc1", l);
         }
 

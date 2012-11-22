@@ -170,6 +170,7 @@ public enum TransferDispatcher {
          */
         List<String> stringLocators = new ArrayList<String>(locators.size());
         for (Attribute locator : locators) {
+            Log.d(TAG, "locator: " + locator.getValue(String.class));
         	stringLocators.add(locator.getValue(String.class));
         }
         

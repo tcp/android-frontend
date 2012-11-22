@@ -44,6 +44,9 @@ import project.cs.lisa.netinf.common.datamodel.SailDefinedLabelName;
  */
 public class IOBuilder {
 
+    /** All bluetooth locators have the following indicator in their address. */
+    private static final String BLUETOOTH_LOCATOR_PREFIX = "nimacbt://";
+    
 	/**
 	 * The label for identifying content types.
 	 */
@@ -171,7 +174,7 @@ public class IOBuilder {
 	    addAttribute(
 	            DefinedAttributePurpose.LOCATOR_ATTRIBUTE.toString(),
 	            SailDefinedAttributeIdentification.BLUETOOTH_MAC.getURI(),
-	            bluetoothMac);
+	            BLUETOOTH_LOCATOR_PREFIX + bluetoothMac);
 	    return this;
 	}
 
